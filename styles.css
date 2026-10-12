@@ -349,3 +349,9 @@
 .dock.message-arrived .dock-unread{animation:none!important;filter:none!important;box-shadow:none!important}
 @keyframes vh-portrait-flash{0%,100%{filter:brightness(1);box-shadow:none}12%{filter:brightness(2.05) contrast(1.1);box-shadow:0 0 17px 7px rgba(238,245,255,.62)}33%{filter:brightness(1.7);box-shadow:0 0 24px 10px rgba(238,245,255,.45)}65%{filter:brightness(1.22);box-shadow:0 0 14px 4px rgba(238,245,255,.18)}}
 @media(prefers-reduced-motion:reduce){.dock.message-arrived .avatar{animation:none!important}}
+
+/* Notification badge overlaps the portrait edge; no halo or flash animation. */
+.dock .dock-unread{top:4px!important;right:4px!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important}
+.dock.message-arrived .avatar{animation:none!important;filter:none!important;box-shadow:none!important}
+.dock.message-arrived .avatar img{animation:none!important;filter:none!important}
+.dock.message-arrived .dock-unread{animation:none!important;box-shadow:none!important;filter:none!important}
