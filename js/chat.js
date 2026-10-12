@@ -1,0 +1,6 @@
+function appendMessage(who,text){state.chat.push({who,text,at:Date.now()});save()}
+function renderChat(){const box=$('messages');box.innerHTML=state.chat.map(m=>`<div class="message ${m.who==='me'?'mine':''}"><div class="bubble">${escapeHtml(m.text)}</div><time>${new Date(m.at).toLocaleTimeString('vi-VN',{hour:'2-digit',minute:'2-digit'})}</time></div>`).join('')+(typing?'<div class="typing"><span></span><span></span><span></span></div>':'');box.scrollTop=box.scrollHeight;const awaiting=state.phase==='await';$('continue').hidden=!awaiting;$('continue').textContent='Tiếp tục';$('hint').hidden=state.phase!=='solve';}
+function openChat(){document.body.classList.add('lock');$('dim').classList.add('open');$('chatSheet').classList.add('open');state.unread=0;renderDock();renderChat();save()}
+function closeChat(){document.body.classList.remove('lock');$('dim').classList.remove('open');$('chatSheet').classList.remove('open')}
+function partnerReply(text){if(typing){setTimeout(()=>partnerReply(text),1100);return}typing=true;renderChat();timer=setTimeout(()=>{typing=false;appendMessage('partner',text);state.unread=$('chatSheet').classList.contains('open')?0:1;renderDock();renderChat();save();},900)}
+function notify(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>$('toast').classList.remove('show'),1900)}
