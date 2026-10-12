@@ -282,24 +282,26 @@
 .paper-frame .paper-inside{z-index:2}
 @media(prefers-reduced-motion:reduce){.folder-tabs .tab{transition:none}}
 
-/* Cinematic desk lighting — stronger, directional lamp spill and angled shadows.
-   All overlays are static and pointer-transparent. */
+/* Film-noir interrogation lamp: hard falloff, cold spotlight and strong diagonal occlusion.
+   Static CSS, no external assets, does not intercept input. */
 .backdrop-art::after{
  content:"";position:absolute;inset:0;pointer-events:none;
- background:radial-gradient(ellipse 75% 80% at 23% 10%,rgba(255,206,135,.26),transparent 74%),radial-gradient(ellipse 95% 90% at 52% 45%,transparent 25%,rgba(0,0,0,.70) 100%);
+ background:
+ radial-gradient(ellipse 53% 62% at 43% 12%,rgba(203,224,232,.28) 0%,rgba(149,176,185,.09) 47%,transparent 78%),
+ radial-gradient(ellipse 78% 90% at 48% 33%,transparent 15%,rgba(0,0,0,.88) 100%);
 }
 .shell::after{
  content:"";position:fixed;inset:0;z-index:7;pointer-events:none;
  background:
- linear-gradient(116deg,transparent 12%,rgba(9,7,8,.31) 24%,rgba(18,12,11,.09) 32%,transparent 43%,transparent 59%,rgba(8,7,9,.24) 72%,transparent 83%),
- radial-gradient(ellipse 70% 82% at 22% 4%,rgba(255,227,172,.32) 0%,rgba(255,210,150,.13) 38%,transparent 78%),
- radial-gradient(ellipse 105% 95% at 50% 39%,transparent 34%,rgba(5,3,5,.32) 100%);
+ linear-gradient(123deg,rgba(0,0,0,.76) 0%,rgba(0,0,0,.65) 12%,rgba(0,0,0,.18) 22%,transparent 33%,transparent 60%,rgba(0,0,0,.38) 75%,rgba(0,0,0,.79) 100%),
+ radial-gradient(ellipse 42% 62% at 44% 18%,rgba(222,238,239,.46) 0%,rgba(195,214,219,.26) 32%,rgba(115,139,150,.08) 67%,transparent 100%),
+ radial-gradient(ellipse 85% 86% at 48% 34%,transparent 20%,rgba(0,0,0,.67) 100%);
 }
 @media(max-width:600px){
  .shell::after{
   background:
-  linear-gradient(118deg,transparent 8%,rgba(9,7,8,.23) 22%,rgba(18,12,11,.07) 33%,transparent 44%,transparent 64%,rgba(8,7,9,.17) 77%,transparent 89%),
-  radial-gradient(ellipse 90% 80% at 18% 5%,rgba(255,222,162,.24) 0%,rgba(255,207,143,.10) 38%,transparent 79%),
-  radial-gradient(ellipse 112% 98% at 50% 40%,transparent 38%,rgba(5,3,5,.25) 100%);
+  linear-gradient(123deg,rgba(0,0,0,.64) 0%,rgba(0,0,0,.48) 11%,rgba(0,0,0,.12) 22%,transparent 35%,transparent 59%,rgba(0,0,0,.30) 76%,rgba(0,0,0,.66) 100%),
+  radial-gradient(ellipse 62% 60% at 42% 16%,rgba(221,237,238,.38) 0%,rgba(195,214,219,.18) 36%,transparent 90%),
+  radial-gradient(ellipse 90% 88% at 49% 34%,transparent 22%,rgba(0,0,0,.54) 100%);
  }
 }
