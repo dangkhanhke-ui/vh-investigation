@@ -1,23 +1,30 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
 <defs>
- <filter id="soft" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="48"/></filter>
- <filter id="medium" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="19"/></filter>
- <filter id="edge" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="7"/></filter>
- <linearGradient id="cold" x1="0" y1="0" x2=".7" y2="1"><stop stop-color="#d6e4e7" stop-opacity=".28"/><stop offset=".55" stop-color="#bdced3" stop-opacity=".14"/><stop offset="1" stop-color="#8d9da7" stop-opacity="0"/></linearGradient>
- <linearGradient id="falloff" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#000" stop-opacity=".05"/><stop offset=".42" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".72"/></linearGradient>
+<filter id="near"><feGaussianBlur stdDeviation="4"/></filter>
+<filter id="far"><feGaussianBlur stdDeviation="13"/></filter>
+<linearGradient id="ambient" x1="0" y1="0" x2=".65" y2="1"><stop stop-color="#c3d3da" stop-opacity=".14"/><stop offset=".52" stop-color="#d7e0df" stop-opacity=".08"/><stop offset="1" stop-color="#05080d" stop-opacity=".19"/></linearGradient>
+<linearGradient id="lower" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030508" stop-opacity="0"/><stop offset=".55" stop-color="#030508" stop-opacity=".04"/><stop offset="1" stop-color="#030508" stop-opacity=".66"/></linearGradient>
 </defs>
-<!-- Long angular spill of cold light, deliberately not a radial spotlight -->
-<path d="M230 -140 L1060 -90 L835 475 L550 1020 L150 890 L380 350Z" fill="url(#cold)" filter="url(#soft)"/>
-<path d="M335 -60 L795 -60 L650 365 L455 790 L315 750 L475 285Z" fill="#e0e9e9" opacity=".14" filter="url(#soft)"/>
-<!-- Objects beyond the camera cast broad, irregular diagonal shadows -->
-<path d="M-210 -120 L245 -120 L90 125 L-65 430 L-240 520Z" fill="#010508" opacity=".91" filter="url(#medium)"/>
-<path d="M-130 180 L95 105 L205 185 L130 380 L-100 610Z" fill="#020507" opacity=".70" filter="url(#soft)"/>
-<path d="M1030 -120 L1600 -100 L1590 500 L1350 405 L1150 165Z" fill="#020507" opacity=".87" filter="url(#medium)"/>
-<path d="M1185 -80 L1280 -80 L1060 460 L970 690 L880 720 L1030 330Z" fill="#020609" opacity=".52" filter="url(#soft)"/>
-<path d="M-150 815 L315 675 L500 890 L595 1160 L-150 1170Z" fill="#010407" opacity=".78" filter="url(#soft)"/>
-<path d="M970 830 L1145 590 L1630 660 L1610 1150 L760 1150Z" fill="#010406" opacity=".81" filter="url(#soft)"/>
-<!-- A sharper edge from a nearby object crossing the light -->
-<path d="M-95 -40 L-20 -60 L505 640 L445 695Z" fill="#04070a" opacity=".31" filter="url(#edge)"/>
-<path d="M1250 40 L1330 65 L965 775 L925 740Z" fill="#030609" opacity=".30" filter="url(#medium)"/>
-<rect width="1440" height="1000" fill="url(#falloff)"/>
+<!-- Cool ambient light, deliberately no radial/elliptical glow -->
+<rect width="1440" height="1000" fill="url(#ambient)"/>
+<!-- Window frame: long straight-edged angular cast shadows, projected diagonally -->
+<g fill="#02050a" opacity=".73" filter="url(#near)">
+<polygon points="-180,-80 110,-80 590,1040 335,1040"/>
+<polygon points="330,-80 424,-80 904,1040 806,1040"/>
+<polygon points="970,-80 1075,-80 1555,1040 1450,1040"/>
+</g>
+<!-- A transverse window bar casts one long slanted horizontal band -->
+<g fill="#03060a" opacity=".58" filter="url(#near)">
+<polygon points="-150,255 1540,-65 1540,32 -150,355"/>
+</g>
+<!-- A second narrow crossbar, shifted to create irregular window geometry -->
+<g fill="#03060a" opacity=".42" filter="url(#far)">
+<polygon points="-120,760 1570,430 1570,502 -120,838"/>
+</g>
+<!-- Broad occlusion by an object outside frame, with straight angular silhouette -->
+<g fill="#010307" opacity=".58" filter="url(#far)">
+<polygon points="-100,-80 130,-80 -100,430"/>
+<polygon points="1280,-100 1550,-100 1550,520 1440,415"/>
+</g>
+<rect width="1440" height="1000" fill="url(#lower)"/>
 </svg>
