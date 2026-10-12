@@ -258,3 +258,11 @@
   border-radius:50%;
 }
 
+
+/* Dossier contrast fix: artwork stays behind readable text. */
+.paper-asset{z-index:0;pointer-events:none}
+.paper-inside{z-index:1;color:#171717;isolation:isolate}
+.paper-inside .question{color:#171717!important;opacity:1!important;mix-blend-mode:normal!important}
+.paper-inside .paper-top,.paper-inside .paper-top b{color:#34302e!important;opacity:1!important}
+.paper-inside .choice:not(.active),.paper-inside .match-choice:not(.active):not(.linked),.paper-inside .arrange-row,.paper-inside .answer-input{color:#171717!important;opacity:1!important;-webkit-text-fill-color:#171717}
+.paper-inside .choice.active,.paper-inside .match-choice.active,.paper-inside .match-choice.linked{color:#fff!important;-webkit-text-fill-color:#fff}
