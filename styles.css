@@ -313,3 +313,13 @@
 @keyframes vh-grain-shift{0%{transform:translate(0,0)}33%{transform:translate(-11px,7px)}66%{transform:translate(9px,-8px)}100%{transform:translate(-5px,11px)}}
 @media(max-width:600px){.cinema-dust{opacity:.35}.cinema-grain{opacity:.045}.cinema-atmosphere::before{opacity:.7}}
 @media(prefers-reduced-motion:reduce){.shell::after,.cinema-dust,.cinema-grain{animation:none!important;will-change:auto}}
+
+/* Independent drifting dust streams: no particle grows and no mirrored back-and-forth loop. */
+.cinema-dust{animation:vh-dust-upstream 21s linear infinite;opacity:.38}
+.cinema-dust--up{background-position:41px 19px,83px 97px,137px 43px,59px 129px;opacity:.23;animation:vh-dust-upstream 17s linear infinite}
+.cinema-dust--side{background-position:131px 73px,27px 151px,89px 31px,171px 97px;opacity:.24;animation:vh-dust-crosswind 19s linear infinite}
+.cinema-dust--down{background-position:71px 123px,149px 27px,13px 87px,101px 173px;opacity:.20;animation:vh-dust-fall 25s linear infinite}
+@keyframes vh-dust-upstream{from{background-position:0 0,0 0,0 0,0 0}to{background-position:283px -311px,-359px -277px,407px -367px,-479px -389px}}
+@keyframes vh-dust-crosswind{from{transform:translate3d(-2%,0,0);opacity:.12}20%{opacity:.24}80%{opacity:.24}to{transform:translate3d(2%,0,0);opacity:.12}}
+@keyframes vh-dust-fall{from{transform:translate3d(1%,-3%,0);opacity:.10}25%{opacity:.20}75%{opacity:.20}to{transform:translate3d(-1%,3%,0);opacity:.10}}
+@media(max-width:600px){.cinema-dust{opacity:.30}.cinema-dust--up{opacity:.19}.cinema-dust--side{opacity:.18}.cinema-dust--down{opacity:.15}}
