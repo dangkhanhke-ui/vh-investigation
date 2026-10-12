@@ -281,3 +281,27 @@
 .paper-frame .paper-asset{z-index:0}
 .paper-frame .paper-inside{z-index:2}
 @media(prefers-reduced-motion:reduce){.folder-tabs .tab{transition:none}}
+
+/* Cinematic desk lighting: static, GPU-friendly gradients across the entire dossier scene.
+   Decorative only; no extra images, filters or pointer interception. */
+.backdrop-art::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 66% at 29% 15%,rgba(245,207,148,.105),transparent 75%),
+    radial-gradient(ellipse 110% 95% at 50% 45%,transparent 37%,rgba(0,0,0,.52) 100%);
+}
+.shell::after{
+  content:"";position:fixed;inset:0;z-index:7;pointer-events:none;
+  background:
+    linear-gradient(116deg,transparent 12%,rgba(15,12,12,.10) 24%,transparent 35%,transparent 61%,rgba(11,9,9,.085) 74%,transparent 88%),
+    radial-gradient(ellipse 68% 62% at 31% 18%,rgba(255,232,189,.115),transparent 85%),
+    radial-gradient(ellipse 110% 105% at 50% 46%,transparent 50%,rgba(5,3,4,.20) 100%);
+}
+@media(max-width:600px){
+  .shell::after{
+    background:
+      linear-gradient(118deg,transparent 12%,rgba(17,12,10,.075) 25%,transparent 40%,transparent 68%,rgba(10,7,7,.055) 79%,transparent 92%),
+      radial-gradient(ellipse 92% 70% at 22% 13%,rgba(255,230,188,.09),transparent 85%),
+      radial-gradient(ellipse 115% 100% at 50% 45%,transparent 54%,rgba(6,4,5,.14) 100%);
+  }
+}
