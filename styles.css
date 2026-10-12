@@ -303,23 +303,13 @@
 /* A darkened room outside the lamp path; avoid another circular spotlight. */
 .cinema-atmosphere{position:fixed;inset:0;z-index:8;pointer-events:none;overflow:hidden;isolation:isolate}
 .cinema-atmosphere::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.25),transparent 29%,transparent 68%,rgba(0,0,0,.29)),linear-gradient(180deg,rgba(0,0,0,.20),transparent 25%,transparent 65%,rgba(0,0,0,.28));}
-.cinema-dust{position:absolute;inset:-8%;opacity:.88;transform:translate3d(0,0,0);
- background-image:
- radial-gradient(circle at 14% 20%,rgba(238,242,237,.85) 0 1.2px,transparent 2.2px),
- radial-gradient(circle at 66% 35%,rgba(220,230,233,.78) 0 1px,transparent 2px),
- radial-gradient(circle at 40% 76%,rgba(244,236,221,.73) 0 1.2px,transparent 2.2px),
- radial-gradient(circle at 84% 70%,rgba(231,240,239,.80) 0 1px,transparent 2px),
- radial-gradient(circle at 25% 55%,rgba(230,235,233,.78) 0 1px,transparent 2px),
- radial-gradient(circle at 73% 12%,rgba(242,236,223,.73) 0 1.1px,transparent 2px),
- radial-gradient(circle at 52% 88%,rgba(221,235,237,.77) 0 1px,transparent 2px),
- radial-gradient(circle at 92% 44%,rgba(242,240,228,.73) 0 1px,transparent 2px),
- radial-gradient(circle at 8% 82%,rgba(235,242,239,.78) 0 1.1px,transparent 2px),
- radial-gradient(circle at 36% 14%,rgba(227,237,241,.75) 0 1px,transparent 2px);
- background-size:155px 181px,183px 167px,203px 191px,239px 211px,171px 199px,217px 157px,193px 223px,227px 173px,163px 233px,251px 187px;
- animation:vh-dust-float 14s linear infinite alternate;
+.cinema-dust{position:absolute;inset:-8%;opacity:.50;transform:translate3d(0,0,0);
+ background-image:radial-gradient(circle at 14% 20%,rgba(238,242,237,.65) 0 1px,transparent 1.8px),radial-gradient(circle at 66% 35%,rgba(220,230,233,.54) 0 .8px,transparent 1.7px),radial-gradient(circle at 40% 76%,rgba(244,236,221,.46) 0 1px,transparent 2px),radial-gradient(circle at 84% 70%,rgba(231,240,239,.55) 0 .7px,transparent 1.7px);
+ background-size:283px 311px,359px 277px,407px 367px,479px 389px;
+ animation:vh-dust-float 43s linear infinite alternate;
 }
-@keyframes vh-dust-float{from{transform:translate3d(-2%,3%,0)}to{transform:translate3d(3%,-5%,0)}}
+@keyframes vh-dust-float{from{transform:translate3d(-1%,1.5%,0)}to{transform:translate3d(1.4%,-2.2%,0)}}
 .cinema-grain{position:absolute;inset:-12%;background:url("assets/film-grain.svg") repeat;background-size:180px 180px;opacity:.065;mix-blend-mode:soft-light;animation:vh-grain-shift .85s steps(3,end) infinite}
 @keyframes vh-grain-shift{0%{transform:translate(0,0)}33%{transform:translate(-11px,7px)}66%{transform:translate(9px,-8px)}100%{transform:translate(-5px,11px)}}
-@media(max-width:600px){.cinema-dust{opacity:.65}.cinema-grain{opacity:.045}.cinema-atmosphere::before{opacity:.7}}
+@media(max-width:600px){.cinema-dust{opacity:.35}.cinema-grain{opacity:.045}.cinema-atmosphere::before{opacity:.7}}
 @media(prefers-reduced-motion:reduce){.shell::after,.cinema-dust,.cinema-grain{animation:none!important;will-change:auto}}
