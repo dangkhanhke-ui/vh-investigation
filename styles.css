@@ -355,3 +355,12 @@
 .dock.message-arrived .avatar{animation:none!important;filter:none!important;box-shadow:none!important}
 .dock.message-arrived .avatar img{animation:none!important;filter:none!important}
 .dock.message-arrived .dock-unread{animation:none!important;box-shadow:none!important;filter:none!important}
+
+/* Stronger cinematic edge falloff; the center of the dossier stays readable. */
+.cinema-atmosphere::before{
+ background:
+  linear-gradient(90deg,rgba(0,0,0,.68) 0%,rgba(0,0,0,.43) 10%,rgba(0,0,0,.14) 24%,transparent 37%,transparent 64%,rgba(0,0,0,.16) 78%,rgba(0,0,0,.46) 91%,rgba(0,0,0,.70) 100%),
+  linear-gradient(180deg,rgba(0,0,0,.62) 0%,rgba(0,0,0,.30) 12%,transparent 30%,transparent 68%,rgba(0,0,0,.29) 86%,rgba(0,0,0,.64) 100%);
+ opacity:1;
+}
+@media(max-width:600px){.cinema-atmosphere::before{opacity:1}}
