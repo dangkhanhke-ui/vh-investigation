@@ -287,8 +287,8 @@
 .backdrop-art::after{content:none}
 .shell::after{
  content:"";position:fixed;inset:0;z-index:7;pointer-events:none;
- background: url("assets/noir-lighting.svg?v=window-bars-2") center center / cover no-repeat;
+ background: url("assets/noir-lighting.svg?v=soft-beam-3") center center / cover no-repeat;
 }
 @media(max-width:600px){
- .shell::after{background:url("assets/noir-lighting.svg?v=window-bars-2") 47% center / cover no-repeat;opacity:.88}
+ .shell::after{background:url("assets/noir-lighting.svg?v=soft-beam-3") 47% center / cover no-repeat;opacity:.88}
 }
