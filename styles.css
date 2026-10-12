@@ -331,3 +331,13 @@
 .replay-game{position:fixed;top:14px;right:58px;z-index:40;min-height:36px;padding:0 13px;border:1px solid rgba(232,223,205,.28);border-radius:22px;background:rgba(16,17,20,.72);color:#e9e1d3;font:600 12px/1.2 inherit;letter-spacing:.02em;cursor:pointer;backdrop-filter:blur(8px)}
 .replay-game:hover{background:rgba(32,34,38,.90)}
 .replay-game:focus-visible{outline:2px solid #e9e1d3;outline-offset:3px}
+
+/* In-app investigator alert, replacing the previously hidden unread indicator. */
+.dock .dock-unread{display:flex!important;position:absolute;top:-5px;right:-5px;z-index:3;min-width:19px;height:19px;padding:0 4px;align-items:center;justify-content:center;border-radius:99px;background:#d52932;color:#fff;border:2px solid #16151a;font:700 11px/1 system-ui,sans-serif;box-sizing:border-box;box-shadow:0 2px 9px rgba(0,0,0,.35);pointer-events:none;opacity:0;transform:scale(.5);transition:opacity .18s,transform .18s}
+.dock .dock-unread.show{opacity:1;transform:scale(1)}
+.dock{overflow:visible}
+.dock.message-arrived{animation:vh-avatar-nudge .68s ease-out!important}
+.dock.message-arrived .avatar{animation:vh-avatar-glow 1.2s ease-out!important}
+@keyframes vh-avatar-nudge{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-2px,0) rotate(-5deg)}30%{transform:translate(3px,-1px) rotate(5deg)}46%{transform:translate(-2px,0) rotate(-3deg)}64%{transform:translate(1px,0) rotate(2deg)}}
+@keyframes vh-avatar-glow{0%{filter:brightness(1);box-shadow:0 0 0 0 rgba(226,234,242,0)}20%{filter:brightness(1.4);box-shadow:0 0 0 5px rgba(216,233,244,.20),0 0 24px 8px rgba(216,233,244,.6)}55%{filter:brightness(1.16);box-shadow:0 0 0 9px rgba(216,233,244,.08),0 0 20px 3px rgba(216,233,244,.27)}100%{filter:brightness(1);box-shadow:0 0 0 13px rgba(216,233,244,0)}}
+@media(prefers-reduced-motion:reduce){.dock.message-arrived,.dock.message-arrived .avatar{animation:none!important}.dock .dock-unread{transition:none}}
