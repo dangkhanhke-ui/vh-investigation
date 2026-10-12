@@ -282,26 +282,13 @@
 .paper-frame .paper-inside{z-index:2}
 @media(prefers-reduced-motion:reduce){.folder-tabs .tab{transition:none}}
 
-/* Film-noir interrogation lamp: hard falloff, cold spotlight and strong diagonal occlusion.
-   Static CSS, no external assets, does not intercept input. */
-.backdrop-art::after{
- content:"";position:absolute;inset:0;pointer-events:none;
- background:
- radial-gradient(ellipse 53% 62% at 43% 12%,rgba(203,224,232,.28) 0%,rgba(149,176,185,.09) 47%,transparent 78%),
- radial-gradient(ellipse 78% 90% at 48% 33%,transparent 15%,rgba(0,0,0,.88) 100%);
-}
+/* Film lighting uses shaped SVG occluders instead of a circular CSS spotlight.
+   The artwork is static, scales with the viewport and never captures clicks. */
+.backdrop-art::after{content:none}
 .shell::after{
  content:"";position:fixed;inset:0;z-index:7;pointer-events:none;
- background:
- linear-gradient(123deg,rgba(0,0,0,.76) 0%,rgba(0,0,0,.65) 12%,rgba(0,0,0,.18) 22%,transparent 33%,transparent 60%,rgba(0,0,0,.38) 75%,rgba(0,0,0,.79) 100%),
- radial-gradient(ellipse 42% 62% at 44% 18%,rgba(222,238,239,.46) 0%,rgba(195,214,219,.26) 32%,rgba(115,139,150,.08) 67%,transparent 100%),
- radial-gradient(ellipse 85% 86% at 48% 34%,transparent 20%,rgba(0,0,0,.67) 100%);
+ background: url("assets/noir-lighting.svg") center center / cover no-repeat;
 }
 @media(max-width:600px){
- .shell::after{
-  background:
-  linear-gradient(123deg,rgba(0,0,0,.64) 0%,rgba(0,0,0,.48) 11%,rgba(0,0,0,.12) 22%,transparent 35%,transparent 59%,rgba(0,0,0,.30) 76%,rgba(0,0,0,.66) 100%),
-  radial-gradient(ellipse 62% 60% at 42% 16%,rgba(221,237,238,.38) 0%,rgba(195,214,219,.18) 36%,transparent 90%),
-  radial-gradient(ellipse 90% 88% at 49% 34%,transparent 22%,rgba(0,0,0,.54) 100%);
- }
+ .shell::after{background:url("assets/noir-lighting.svg") 47% center / cover no-repeat;opacity:.88}
 }
