@@ -1,30 +1,34 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 1000" preserveAspectRatio="xMidYMid slice">
 <defs>
-<filter id="near"><feGaussianBlur stdDeviation="5.2"/></filter>
-<filter id="far"><feGaussianBlur stdDeviation="16.9"/></filter>
-<linearGradient id="ambient" x1="0" y1="0" x2=".65" y2="1"><stop stop-color="#c3d3da" stop-opacity=".14"/><stop offset=".52" stop-color="#d7e0df" stop-opacity=".08"/><stop offset="1" stop-color="#05080d" stop-opacity=".19"/></linearGradient>
-<linearGradient id="lower" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#030508" stop-opacity="0"/><stop offset=".55" stop-color="#030508" stop-opacity=".04"/><stop offset="1" stop-color="#030508" stop-opacity=".66"/></linearGradient>
+ <filter id="feather" x="-50%" y="-50%" width="200%" height="200%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="105"/></filter>
+ <filter id="ambientBlur" x="-30%" y="-30%" width="160%" height="160%" color-interpolation-filters="sRGB"><feGaussianBlur stdDeviation="155"/></filter>
+ <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#cbd8df" stop-opacity="0"/>
+  <stop offset=".27" stop-color="#d7e1e6" stop-opacity=".10"/>
+  <stop offset=".47" stop-color="#e6edf0" stop-opacity=".24"/>
+  <stop offset=".66" stop-color="#dce6e9" stop-opacity=".13"/>
+  <stop offset="1" stop-color="#cbd8df" stop-opacity="0"/>
+ </linearGradient>
+ <linearGradient id="edgeShade" x1="0" y1="0" x2="1" y2="0">
+  <stop offset="0" stop-color="#010409" stop-opacity=".60"/>
+  <stop offset=".23" stop-color="#010409" stop-opacity=".12"/>
+  <stop offset=".41" stop-color="#010409" stop-opacity="0"/>
+  <stop offset=".65" stop-color="#010409" stop-opacity="0"/>
+  <stop offset=".84" stop-color="#010409" stop-opacity=".13"/>
+  <stop offset="1" stop-color="#010409" stop-opacity=".57"/>
+ </linearGradient>
+ <linearGradient id="verticalShade" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0" stop-color="#010409" stop-opacity=".25"/>
+  <stop offset=".25" stop-color="#010409" stop-opacity="0"/>
+  <stop offset=".70" stop-color="#010409" stop-opacity=".04"/>
+  <stop offset="1" stop-color="#010409" stop-opacity=".37"/>
+ </linearGradient>
 </defs>
-<!-- Cool ambient light, deliberately no radial/elliptical glow -->
-<rect width="1440" height="1000" fill="url(#ambient)"/>
-<!-- Window frame: long straight-edged angular cast shadows, projected diagonally -->
-<g fill="#02050a" opacity=".511" filter="url(#near)">
-<polygon points="-180,-80 110,-80 590,1040 335,1040"/>
-<polygon points="330,-80 424,-80 904,1040 806,1040"/>
-<polygon points="970,-80 1075,-80 1555,1040 1450,1040"/>
+<!-- Broad, slanted window-light spill with heavily feathered edges; no hard shadow bars. -->
+<g transform="rotate(-23 720 500)">
+ <rect x="320" y="-360" width="810" height="1720" rx="180" fill="url(#beam)" filter="url(#feather)"/>
 </g>
-<!-- A transverse window bar casts one long slanted horizontal band -->
-<g fill="#03060a" opacity=".406" filter="url(#near)">
-<polygon points="-150,255 1540,-65 1540,32 -150,355"/>
-</g>
-<!-- A second narrow crossbar, shifted to create irregular window geometry -->
-<g fill="#03060a" opacity=".294" filter="url(#far)">
-<polygon points="-120,760 1570,430 1570,502 -120,838"/>
-</g>
-<!-- Broad occlusion by an object outside frame, with straight angular silhouette -->
-<g fill="#010307" opacity=".406" filter="url(#far)">
-<polygon points="-100,-80 130,-80 -100,430"/>
-<polygon points="1280,-100 1550,-100 1550,520 1440,415"/>
-</g>
-<rect width="1440" height="1000" fill="url(#lower)"/>
+<!-- Very soft surrounding ambient falloff; the center stays legible. -->
+<rect width="1440" height="1000" fill="url(#edgeShade)"/>
+<rect width="1440" height="1000" fill="url(#verticalShade)"/>
 </svg>
