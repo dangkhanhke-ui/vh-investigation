@@ -323,3 +323,7 @@
 @keyframes vh-dust-crosswind{from{transform:translate3d(-2%,0,0);opacity:.12}20%{opacity:.24}80%{opacity:.24}to{transform:translate3d(2%,0,0);opacity:.12}}
 @keyframes vh-dust-fall{from{transform:translate3d(1%,-3%,0);opacity:.10}25%{opacity:.20}75%{opacity:.20}to{transform:translate3d(-1%,3%,0);opacity:.10}}
 @media(max-width:600px){.cinema-dust{opacity:.30}.cinema-dust--up{opacity:.19}.cinema-dust--side{opacity:.18}.cinema-dust--down{opacity:.15}}
+
+.sound-toggle{position:fixed;right:14px;top:14px;z-index:40;width:36px;height:36px;border:1px solid rgba(232,223,205,.28);border-radius:50%;background:rgba(16,17,20,.72);color:#e9e1d3;font-size:19px;line-height:1;cursor:pointer;backdrop-filter:blur(8px)}
+.sound-toggle[aria-pressed="false"]{opacity:.58}
+.sound-toggle:focus-visible{outline:2px solid #e9e1d3;outline-offset:3px}
