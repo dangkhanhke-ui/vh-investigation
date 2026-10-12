@@ -24,3 +24,12 @@ This is a static site with classic deferred scripts. **Script order matters**: c
 ## Note
 
 The case content currently includes demonstration questions and client-side answer keys. Avoid treating the client-side answer keys as secure against inspection.
+
+## Branching dialogue foundation (not yet activated in UI)
+
+- `engine/dialogue-engine.js` — deterministic dialogue transitions, conditional choices, flags/evidence effects and link validation.
+- `story/dialogues/chapter-01.js` — **sample only**, not canonical VH story.
+- `story/dialogues/chapter-02.js`, `chapter-03.js` — empty future story slots.
+- `story/README.md` — node/choice schema and authoring guidance.
+
+These scripts are loaded before the existing game scripts, but do not replace the current chat behavior. Once the real script is provided, connect the new engine to the chat UI with choice buttons and save-state migration. Avoid activating unfinished dialogue content.
