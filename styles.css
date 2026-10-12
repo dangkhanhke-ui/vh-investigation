@@ -266,3 +266,18 @@
 .paper-inside .paper-top,.paper-inside .paper-top b{color:#34302e!important;opacity:1!important}
 .paper-inside .choice:not(.active),.paper-inside .match-choice:not(.active):not(.linked),.paper-inside .arrange-row,.paper-inside .answer-input{color:#171717!important;opacity:1!important;-webkit-text-fill-color:#171717}
 .paper-inside .choice.active,.paper-inside .match-choice.active,.paper-inside .match-choice.linked{color:#fff!important;-webkit-text-fill-color:#fff}
+
+/* VH dossier refinements: stage hierarchy, accessible button position and subtle paper depth. */
+.tab[data-stage="1"]{top:8%}
+.tab[data-stage="2"]{top:38%}
+.tab[data-stage="3"]{top:68%}
+.folder-tabs .tab{font-size:clamp(10px,2.75vw,13px);font-weight:500;opacity:.78;transition:font-size .2s ease,font-weight .2s ease,opacity .2s ease,text-shadow .2s ease}
+.folder-tabs .tab.is-current{font-size:clamp(12px,3.45vw,17px);font-weight:800;opacity:1;text-shadow:0 1px 3px #3e100d,0 0 7px rgba(255,255,255,.24)}
+/* Keep the confirmation arrow directly below the answer list, not at the paper's torn edge. */
+.paper-inside .submit-line{margin-top:clamp(14px,3.6vw,23px);padding-top:0;flex-shrink:0}
+/* The paper image receives soft uneven ambient shading; live text stays above it. */
+.paper-frame{isolation:isolate}
+.paper-frame::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:radial-gradient(ellipse 85% 80% at 52% 43%,transparent 54%,rgba(42,22,15,.11) 100%),linear-gradient(112deg,rgba(45,21,16,.055),transparent 25%,rgba(255,255,255,.025) 51%,rgba(41,19,15,.055) 100%);mix-blend-mode:multiply}
+.paper-frame .paper-asset{z-index:0}
+.paper-frame .paper-inside{z-index:2}
+@media(prefers-reduced-motion:reduce){.folder-tabs .tab{transition:none}}
