@@ -341,3 +341,11 @@
 @keyframes vh-avatar-nudge{0%,100%{transform:translate(0,0) rotate(0)}15%{transform:translate(-2px,0) rotate(-5deg)}30%{transform:translate(3px,-1px) rotate(5deg)}46%{transform:translate(-2px,0) rotate(-3deg)}64%{transform:translate(1px,0) rotate(2deg)}}
 @keyframes vh-avatar-glow{0%{filter:brightness(1);box-shadow:0 0 0 0 rgba(226,234,242,0)}20%{filter:brightness(1.4);box-shadow:0 0 0 5px rgba(216,233,244,.20),0 0 24px 8px rgba(216,233,244,.6)}55%{filter:brightness(1.16);box-shadow:0 0 0 9px rgba(216,233,244,.08),0 0 20px 3px rgba(216,233,244,.27)}100%{filter:brightness(1);box-shadow:0 0 0 13px rgba(216,233,244,0)}}
 @media(prefers-reduced-motion:reduce){.dock.message-arrived,.dock.message-arrived .avatar{animation:none!important}.dock .dock-unread{transition:none}}
+
+/* Avatar notification refinement: badge anchored to portrait, never glows. */
+.dock .dock-unread{top:-2px!important;right:-2px!important;min-width:17px!important;height:17px!important;padding:0 3px!important;border:0!important;box-shadow:none!important;background:#b9222d!important;color:rgba(255,255,255,.79)!important;font:400 11px/1 system-ui,-apple-system,sans-serif!important;letter-spacing:0!important}
+.dock .avatar{overflow:hidden;isolation:isolate}
+.dock.message-arrived .avatar{animation:vh-portrait-flash 1.3s ease-out!important}
+.dock.message-arrived .dock-unread{animation:none!important;filter:none!important;box-shadow:none!important}
+@keyframes vh-portrait-flash{0%,100%{filter:brightness(1);box-shadow:none}12%{filter:brightness(2.05) contrast(1.1);box-shadow:0 0 17px 7px rgba(238,245,255,.62)}33%{filter:brightness(1.7);box-shadow:0 0 24px 10px rgba(238,245,255,.45)}65%{filter:brightness(1.22);box-shadow:0 0 14px 4px rgba(238,245,255,.18)}}
+@media(prefers-reduced-motion:reduce){.dock.message-arrived .avatar{animation:none!important}}
