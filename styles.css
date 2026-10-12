@@ -364,3 +364,12 @@
  opacity:1;
 }
 @media(max-width:600px){.cinema-atmosphere::before{opacity:1}}
+
+
+/* 2026-10-13 — larger unshadowed dossier sheet, awaiting tape asset. */
+.paper-frame{left:18%!important;top:15.5%!important;width:79.5%!important;height:79.5%!important;filter:none!important;box-shadow:none!important}
+.paper-frame::after{content:none!important;display:none!important}
+.paper-asset{filter:none!important;box-shadow:none!important}
+.clip-asset{display:none!important}
+.tab{font-size:clamp(10px,2.75vw,13px)!important;font-weight:500!important}
+.tab.is-current{font-size:clamp(11px,calc(2.75vw + 1px),14px)!important;font-weight:600!important}
