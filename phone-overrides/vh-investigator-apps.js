@@ -7,6 +7,7 @@
   const thread=bridge?.threads.find(t=>t.id==='neymarinho');
   if(!bridge||!thread)return;
   thread.number=investigatorNumber;
+  thread.listName='Neymarinho';thread.displayName='Neymarinho';
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
 
@@ -108,14 +109,14 @@
   // Add the fictional investigator portrait without changing the Messages renderer.
   const avatarStyle=document.createElement('style');
   avatarStyle.textContent=`
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:grid!important;grid-template-columns:9px 44px minmax(0,1fr) 82px!important;grid-template-rows:auto!important;column-gap:6px!important;align-items:center!important;min-height:76px!important;padding:8px 12px 8px 9px!important;box-sizing:border-box!important}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:grid!important;grid-template-columns:10px 48px minmax(0,1fr) 72px!important;column-gap:8px!important;align-items:center!important;min-height:76px!important;padding:8px 16px!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{grid-column:1;grid-row:1;margin:0!important;align-self:center}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .vh-thread-avatar{grid-column:2;grid-row:1}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{grid-column:3;grid-row:1;min-width:0;overflow:hidden;padding:0!important}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{grid-column:4;grid-row:1;align-self:center;text-align:right;min-width:0;white-space:nowrap;overflow:hidden;font-size:11px!important}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{grid-column:4!important;grid-row:1!important;align-self:center!important;justify-self:end!important;text-align:right!important;width:72px!important;max-width:72px!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;font-size:11px!important;padding:0!important}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-name,#messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-preview{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #messagesApp .msg-thread-row[data-thread-id='neymarinho'] img.vh-thread-avatar{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;max-width:44px!important;max-height:44px!important;object-fit:cover!important;border-radius:50%!important;grid-column:2!important;grid-row:1!important;align-self:center!important;justify-self:center!important;background:#d9d9de!important}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{flex:1;min-width:0}
+    
     #messagesApp .vh-detail-avatar{width:100%;height:100%;object-fit:cover;border-radius:50%}
   `;
   document.head.appendChild(avatarStyle);
