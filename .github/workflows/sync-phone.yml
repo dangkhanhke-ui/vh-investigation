@@ -1,0 +1,55 @@
+name: Sync Cauã phone into VH
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/sync-phone.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-phone:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Retrieve original Cauã phone source
+        run: git clone --depth 1 https://github.com/dangkhanhke-ui/caua-phone-preview.git /tmp/caua-phone
+      - name: Import original UI and all referenced app assets
+        run: |
+          mkdir -p phone
+          rsync -a --delete \
+            --exclude='.git/' --exclude='.github/' --exclude='qa/' \
+            --exclude='*.zip' --exclude='README.md' \
+            --exclude='deployment-check.txt' \
+            /tmp/caua-phone/ phone/
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("phone/index.html")
+          html = p.read_text(encoding="utf-8")
+          html = html.replace("</head>", '<link rel="stylesheet" href="vh-investigator-three-apps.css"></head>', 1)
+          html = html.replace('<span>GoodReader</span></div>', '<span>Files</span></div>', 1)
+          p.write_text(html, encoding="utf-8")
+          Path("phone/vh-investigator-three-apps.css").write_text("""
+          /* VH investigator preview: use original Cauã iOS 8 app implementations.
+             Only Safari, Messages and GoodReader/Files appear on the home screen. */
+          #homeScreen .app[data-app]:not([data-app="safari"]):not([data-app="messages"]):not([data-app="goodreader"]) {
+            display: none !important;
+          }
+          """, encoding="utf-8")
+          PY
+      - name: Commit the imported phone source
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add phone/
+          if git diff --cached --quiet; then
+            echo "Phone source already up to date"
+          else
+            git commit -m "feat: import Cauã iOS phone and Safari Messages Files into VH"
+            git push origin HEAD:main
+          fi
