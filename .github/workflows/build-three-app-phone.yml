@@ -9,10 +9,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
       - name: Get latest Cauã phone and HTML parser
@@ -130,3 +135,12 @@ jobs:
             git rebase origin/main
             git push origin HEAD:main
           fi
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload latest built three-app site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Deploy latest three-app build
+        uses: actions/deploy-pages@v5
+        id: publish
