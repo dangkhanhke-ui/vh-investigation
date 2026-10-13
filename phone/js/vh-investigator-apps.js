@@ -3,26 +3,22 @@
   'use strict';
   const bridge=window.CauaMessagesBridge;
   const ORIGIN=location.origin;
+  const investigatorNumber='+55 (21) 99847-2631';
   const thread=bridge?.threads.find(t=>t.id==='neymarinho');
   if(!bridge||!thread)return;
+  thread.number=investigatorNumber;
 
   // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
   style.textContent=`
-    #notesNewBtn,#notesFloatingCompose,#notesDeleteBtn,#notesListFooter,
-    #notesTopCount,#notesSearchWrap,#notesActionLayer{display:none!important}
-    #vh-investigator-notification{
-      position:absolute;top:25px;left:9px;right:9px;z-index:160;
-      box-sizing:border-box;padding:10px 12px;border:1px solid rgba(255,255,255,.32);
-      border-radius:12px;background:rgba(244,246,250,.95);
-      color:#151515;font:13px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
-      box-shadow:0 4px 20px rgba(0,0,0,.25);text-align:left;
-      cursor:pointer;opacity:0;transform:translateY(-120%);
-      pointer-events:none;transition:transform .22s ease,opacity .2s ease;
-    }
+    #vh-investigator-notification{position:absolute;top:26px;left:8px;right:8px;z-index:160;padding:0;border:0;border-radius:13px;background:rgba(226,227,232,.97);color:#171717;font:13px -apple-system,sans-serif;overflow:hidden;box-shadow:0 5px 20px #0004;text-align:left;cursor:pointer;opacity:0;transform:translateY(-130%);pointer-events:none;transition:transform .24s,opacity .2s}
     #vh-investigator-notification.show{opacity:1;transform:translateY(0);pointer-events:auto}
-    #vh-investigator-notification strong{display:block;margin-bottom:3px;font-weight:650}
-    #vh-investigator-notification span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #vh-investigator-notification .vh-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#eeeef0;color:#59595d;font-size:11px}
+    #vh-investigator-notification .vh-icon{background:#35c85b;border-radius:5px;color:white;width:19px;height:19px;line-height:19px;text-align:center}
+    #vh-investigator-notification .vh-more{margin-left:auto}
+    #vh-investigator-notification .vh-body{display:flex;gap:8px;justify-content:space-between;padding:11px 12px;font-size:14px}
+    #vh-investigator-notification .vh-body span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #vh-investigator-notification .vh-body small{flex-shrink:0;color:#777}
     #messagesConversationView .msg-convo-scroll{bottom:88px!important}
     #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
     #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
@@ -31,7 +27,7 @@
 
   const toast=document.createElement('button');
   toast.id='vh-investigator-notification';toast.type='button';
-  toast.innerHTML='<strong>Điều tra viên Neymarinho</strong><span></span>';
+  toast.innerHTML='<div class="vh-head"><b class="vh-icon">●</b>MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
   document.getElementById('screen')?.appendChild(toast);
   let hide=0;
   function openInvestigator(){
@@ -83,9 +79,9 @@
     if(p.type==='vh:sync'||p.type==='vh:new'){
       update(p.history,p.phase);
       if(p.type==='vh:new'&&typeof p.text==='string'){
-        toast.querySelector('span').textContent=p.text;
+        toast.querySelector('.vh-body span').textContent=p.text;
         toast.classList.add('show');
-        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),5500);
+        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),9000);
       }
     }else if(p.type==='vh:open'){
       if(Array.isArray(p.history))update(p.history,p.phase);
