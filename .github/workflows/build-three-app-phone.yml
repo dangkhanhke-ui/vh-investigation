@@ -10,6 +10,12 @@ on:
       - 'phone-overrides/vh-investigator-home.css'
       - 'phone-overrides/vh-investigator-apps.js'
       - 'assets/investigator-avatar.png'
+      - 'index.html'
+      - 'app.js'
+      - 'css/vh-intro.css'
+      - 'js/vh-intro.js'
+      - 'js/vh-phone.js'
+      - 'js/vh-player-messages-bridge.js'
 
 permissions:
   contents: write
