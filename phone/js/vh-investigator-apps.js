@@ -101,6 +101,34 @@
     window.parent.postMessage({type:'vh:reply',text},ORIGIN);
   },true);
 
+
+  // Add the fictional investigator portrait without changing the Messages renderer.
+  const avatarStyle=document.createElement('style');
+  avatarStyle.textContent=`
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:flex;align-items:center;gap:8px}
+    #messagesApp .vh-thread-avatar{width:37px;height:37px;object-fit:cover;border-radius:50%;flex-shrink:0;background:#d9d9de}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{flex:1;min-width:0}
+    #messagesApp .vh-detail-avatar{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  `;
+  document.head.appendChild(avatarStyle);
+  const avatarUrl='../assets/investigator-avatar.png?v=neymarinho-2218553';
+  function decorateInvestigator(){
+    const row=document.querySelector('#messagesApp .msg-thread-row[data-thread-id="neymarinho"]');
+    if(row&&!row.querySelector('.vh-thread-avatar')){
+      const img=document.createElement('img');img.className='vh-thread-avatar';img.src=avatarUrl;img.alt='';
+      const main=row.querySelector('.msg-thread-main');
+      row.insertBefore(img,main||row.firstChild);
+    }
+    const detail=document.querySelector('#messagesApp .msg-detail-person .msg-detail-avatar');
+    if(detail&&bridge.state.currentThread==='neymarinho'&&!detail.querySelector('img')){
+      detail.textContent='';
+      const img=document.createElement('img');img.className='vh-detail-avatar';img.src=avatarUrl;img.alt='Ảnh Neymarinho';
+      detail.appendChild(img);
+    }
+  }
+  const messageApp=document.getElementById('messagesApp');
+  if(messageApp){new MutationObserver(decorateInvestigator).observe(messageApp,{childList:true,subtree:true});decorateInvestigator();}
+
   // Ask the parent for existing history on the initial phone load.
   if(window.parent!==window)window.parent.postMessage({type:'vh:ready'},ORIGIN);
 })();
