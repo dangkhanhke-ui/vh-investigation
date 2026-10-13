@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ['.github/workflows/build-three-app-phone.yml']
+    paths:
+      - '.github/workflows/build-three-app-phone.yml'
 
 permissions:
   contents: write
@@ -14,113 +15,117 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Download Cauã source and HTML parser
+      - name: Get latest Cauã phone and HTML parser
         run: |
           git clone --depth 1 https://github.com/dangkhanhke-ui/caua-phone-preview.git /tmp/caua
           python3 -m pip install --quiet beautifulsoup4
-      - name: Extract ONLY shared iOS shell, Safari, Messages and Notes
+      - name: Rebuild with ORIGINAL CSS order, icons and three apps only
         run: |
           python3 - <<'PY'
           from bs4 import BeautifulSoup
           from pathlib import Path
-          import shutil, re
+          import shutil, re, subprocess, html as htmlmod
           src=Path('/tmp/caua')
           out=Path('phone')
-          out.mkdir(exist_ok=True)
-          original=BeautifulSoup((src/'index.html').read_text(), 'html.parser')
+          if out.exists(): shutil.rmtree(out)
+          out.mkdir()
+          raw=(src/'index.html').read_text(encoding='utf-8')
+          original=BeautifulSoup(raw,'html.parser')
           dest=BeautifulSoup('<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><title>VH — Investigator Phone</title></head><body></body></html>','html.parser')
-          chosen=['safari','messages','notes']
-          # Preserve the original structural phone and exactly three app surfaces.
+          # Preserve exact final CSS cascade from current Cauã source. Shared style overrides
+          # can affect the three apps despite having historically app-specific names.
+          refs=[]
+          for tag in original.head.find_all('link'):
+              rel=tag.get('rel',[])
+              href=tag.get('href','').split('?')[0].removeprefix('./')
+              if 'stylesheet' not in rel or not href.startswith('css/'): continue
+              if not (src/href).is_file(): raise SystemExit('Missing original CSS '+href)
+              refs.append(href)
+              target=out/href
+              target.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copy2(src/href,target)
+              link=dest.new_tag('link',rel='stylesheet',href=href)
+              dest.head.append(link)
+          # Carry over the global final Home badge override verbatim.
+          for style in original.head.find_all('style'):
+              if style.get('id')=='caua-home-notification-badge-no-outline':
+                  dest.head.append(BeautifulSoup(str(style),'html.parser'))
           stage=original.select_one('main.stage')
-          for el in list(stage.select('#screen > section')):
-              if el.get('id') not in ('lockScreen','passcodeScreen','homeScreen','safariApp','messagesApp','notesApp'):
-                  el.decompose()
-          grid=stage.select_one('#iconGrid')
-          for el in list(grid.select('.app')):
-              if el.get('data-app')!='notes':
-                  el.decompose()
-          dock=stage.select_one('#homeScreen .dock')
-          for el in list(dock.select('.app')):
-              if el.get('data-app') not in ('messages','safari'):
-                  el.decompose()
-          # Move the three familiar app icons onto the first home page.
-          # Home layout, status bar, lock screen and hardware retain original markup.
-          stage.extract()
-          dest.body.append(stage)
-          # Keep only the original app engine scripts and common lock-screen bootstrap.
+          if not stage: raise SystemExit('Missing phone stage')
+          # Delete all unrelated app DOM and content, retain only phone shell,
+          # lock/passcode/home, real iOS switcher and three selected apps.
+          allowed={'lockScreen','passcodeScreen','homeScreen','safariApp','messagesApp','notesApp','ios8AppSwitcher'}
+          screen=stage.select_one('#screen')
+          for section in list(screen.find_all('section',recursive=False)):
+              if section.get('id') not in allowed: section.decompose()
+          for icon in list(stage.select('#homeScreen .app[data-app]')):
+              if icon.get('data-app') not in {'safari','messages','notes'}:icon.decompose()
+          dest.body.append(stage.extract())
           scripts=original.find_all('script')
-          for i in (1,8,11,15,16,28,30):
-              script=scripts[i]
-              if not script.get('src') and script.string:
-                  tag=dest.new_tag('script')
-                  tag.string=script.string
-                  dest.body.append(tag)
-          # Use original matching stylesheets; never copy other apps' JS, DOM, data or assets.
-          keep_css=[
-            'head-01-base.css','head-02-safari-v3-overrides.css','head-04-safari-v3-alignment-fix.css',
-            'head-05-ios8-app-switcher-style.css','head-06-ios8-fidelity-v13.css',
-            'head-07-messages-ios8-style.css','head-08-messages-v1-1-fixes.css',
-            'head-11-ios8-notes-style.css','head-12-notes-editable-style.css',
-            'head-13-notes26-style.css','head-14-messages-v1-8-outgoing-tail-final.css',
-            'head-21-ios8-font-safari-v1833.css','head-22-safari-three-sites-v1834.css',
-            'head-36-messages-compact-scroll-v2.css','head-37-ios-universal-scroll-indicator.css',
-            'head-39-caua-immersive-mode-style.css','head-40-caua-immersive-gesture-switcher-polish.css',
-            'head-41-phone-ui-three-small-fixes-20261009.css',
-            'head-42-safari-ios8-perspective-stack-20261009.css',
-            'caua-immersive-fullbleed.css','caua-ios6-layout-foundation.css',
-            'caua-ios8-app-type-icon-rhythm.css','caua-ios8-status-passcode-call.css',
-            'caua-messages-ios8-complete.css','caua-safari-ios8-complete.css',
-            'caua-seamless-app-statusbar.css','ios8-system-chrome.css',
-            'ui-universal-back.css','vh-framed-ratio-align.css',
-            'vh-fullscreen-ui-proportions.css','vh-home-passcode-call-size-fix.css',
-            'vh-soft-app-entry.css'
-          ]
-          (out/'css').mkdir(exist_ok=True)
-          for name in keep_css:
-              path=src/'css'/name
-              if path.is_file():
-                  shutil.copy2(path,out/'css'/name)
-                  link=dest.new_tag('link',rel='stylesheet',href='css/'+name)
-                  dest.head.append(link)
-          # Retain the original no-outline Messages badge style.
-          if original.select_one('#caua-home-notification-badge-no-outline'):
-              dest.head.append(BeautifulSoup(str(original.select_one('#caua-home-notification-badge-no-outline')),'html.parser'))
-          # Original Safari / Messages enhancement scripts.
-          names=['safari.js','caua-messages-ios8-complete.js','caua-safari-ios8-links.js',
-                 'ios8-system-chrome.js','ui-universal-back.js','caua-ios-app-motion.js']
-          (out/'js').mkdir(exist_ok=True)
-          for name in names:
-              path=src/'js'/name
-              if path.is_file():
-                  shutil.copy2(path,out/'js'/name)
-                  tag=dest.new_tag('script',src='js/'+name)
-                  dest.body.append(tag)
-          # Wallpaper and source app icons; Safari local page/media artwork.
-          for name in ('screen','safari','media','embedded'):
-              path=src/'assets'/name
-              if path.is_dir():
-                  shutil.copytree(path,out/'assets'/name,dirs_exist_ok=True)
+          # Preserve the original startup sequence and code of the three apps,
+          # plus switcher, clock, scrollbars and Cauã's immersive controls.
+          inline_ids={1,8,11,14,15,16,28,30,31}
+          external_allowed={
+              'js/safari.js','js/caua-messages-ios8-complete.js',
+              'js/caua-safari-ios8-links.js','js/ios8-system-chrome.js',
+              'js/ui-universal-back.js'
+          }
+          retained=[]
+          for i,script in enumerate(scripts):
+              path=script.get('src','').split('?')[0].removeprefix('./')
+              if path:
+                  if path not in external_allowed:continue
+                  target=out/path
+                  target.parent.mkdir(parents=True,exist_ok=True)
+                  shutil.copy2(src/path,target)
+                  el=dest.new_tag('script',src=path)
+                  if script.has_attr('defer'):el['defer']=''
+                  dest.body.append(el)
+                  retained.append(path)
+              elif i in inline_ids:
+                  code=script.string
+                  if not code:raise SystemExit('Missing inline script '+str(i))
+                  if i==14:
+                      code,n=re.subn(r'  const APPS = \{[\s\S]*?\n  \};', """  const APPS = {
+                        notes:{id:'notesApp',name:'Ghi chú',screenClass:'notes-open'},
+                        messages:{id:'messagesApp',name:'Tin nhắn',screenClass:'messages-open'},
+                        safari:{id:'safariApp',name:'Safari',screenClass:'safari-open'}
+                      };""",code,count=1)
+                      if n!=1:raise SystemExit('Switcher app map not found')
+                  if i==31:
+                      code=code.replace('document.body.appendChild(toggle);','// VH default zoom: no toggle element')
+                      code=code.replace('positionZoomToggle();fit();mode(false);','positionZoomToggle();fit();mode(true);')
+                      if 'mode(true)' not in code:raise SystemExit('Immersive activation not found')
+                  el=dest.new_tag('script')
+                  if script.get('id'):el['id']=script['id']
+                  el.string=code
+                  dest.body.append(el)
+          # Copy only original imagery for selected apps, wallpaper and shared UI.
+          for name in ('screen','safari','media','embedded','app-icons'):
+              d=src/'assets'/name
+              if d.is_dir():shutil.copytree(d,out/'assets'/name,dirs_exist_ok=True)
           for name in ('safari.png.png','messages.png.png','notes.png.png'):
               shutil.copy2(src/name,out/name)
-          # Some original UI fonts/icons are referenced through these common folders.
-          for name in ('app-icons',):
-              path=src/'assets'/name
-              if path.is_dir(): shutil.copytree(path,out/'assets'/name,dirs_exist_ok=True)
-          # Keep original shared style layout and remove hidden references to legacy apps.
-          for link in dest.select('a[href]'):
-              if link['href'].startswith('../'): link['href']='#'
-          (out/'index.html').write_text(str(dest),encoding='utf-8')
-          print('App IDs:',[e.get('id') for e in dest.select('#screen > section')])
-          print('Home apps:',[e.get('data-app') for e in dest.select('#homeScreen .app')])
-          print('Original Cauã JS included:',names)
+          source_sha=subprocess.check_output(['git','-C',str(src),'rev-parse','HEAD'],text=True).strip()
+          dest.head.append(BeautifulSoup('<meta name="vh-caua-source-commit" content="'+source_sha+'">','html.parser'))
+          result=str(dest)
+          (out/'index.html').write_text(result,encoding='utf-8')
+          actual_apps=[x['data-app'] for x in dest.select('#homeScreen .app[data-app]')]
+          assert set(actual_apps)=={'safari','messages','notes'},actual_apps
+          assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
+          assert len(refs)>45,len(refs)
+          assert 'mode(true)' in result and 'caua-home-gesture' in result
+          print('Cauã source commit:',source_sha)
+          print('Original stylesheet order:',len(refs),refs)
+          print('Phone apps:',actual_apps,'external engines:',retained)
           PY
-      - name: Commit selected three-app phone to VH
+      - name: Commit fresh three-app build
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add phone/
+          git add -A phone/
           if ! git diff --cached --quiet; then
-            git commit -m "feat: build isolated iOS shell with Safari Messages Notes only"
+            git commit -m "fix: sync three-app phone with latest Cauã visual CSS cascade"
             git fetch origin main
             git rebase origin/main
             git push origin HEAD:main
