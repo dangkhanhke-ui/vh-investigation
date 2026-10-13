@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/build-three-app-phone.yml'
+      - 'phone-overrides/phone_screen.png'
 
 permissions:
   contents: write
@@ -65,10 +66,10 @@ jobs:
               if section.get('id') not in allowed: section.decompose()
           for icon in list(stage.select('#homeScreen .app[data-app]')):
               if icon.get('data-app') not in {'safari','messages','notes'}:icon.decompose()
-          # Investigator's phone starts unlocked; keep unused lock/PIN nodes
-          # only because Cauã's original core script references their IDs.
-          stage.select_one('#lockScreen')['class']=['lock-screen','view']
-          stage.select_one('#homeScreen')['class']=['home-screen','view','active']
+          # Preserve the iOS lock screen; PIN UI remains hidden.
+          # Swiping or tapping unlock goes directly to Home.
+          stage.select_one('#lockScreen')['class']=['lock-screen','view','active']
+          stage.select_one('#homeScreen')['class']=['home-screen','view']
           # Move all three real app launchers into one top row, not the iOS dock.
           grid=stage.select_one('#iconGrid')
           for name in ('notes','messages','safari'):
@@ -114,8 +115,12 @@ jobs:
                   if not code:raise SystemExit('Missing inline script '+str(i))
                   if i==1:
                       code,n=re.subn(r'(battery:\s*)\d+',r'\g<1>98',code,count=1)
-                      code,n2=re.subn(r'(fitPhone\(\);\s*\n\s*)showLock\(\);',r'\1showHome(false);',code,count=1)
-                      if n!=1 or n2!=1:raise SystemExit('Investigator unlock/battery startup not found')
+                      # Keep showLock() at startup. Bypass only the PIN transition.
+                      code,n2=re.subn(
+                          r'  function showPasscode\(\) \{[\s\S]*?\n  \}',
+                          '  function showPasscode() {\n    showHome(true);\n  }',
+                          code,count=1)
+                      if n!=1 or n2!=1:raise SystemExit('Investigator lock-screen/PIN bypass not found')
                   if i==14:
                       code,n=re.subn(r'  const APPS = \{[\s\S]*?\n  \};', """  const APPS = {
                         notes:{id:'notesApp',name:'Ghi chú',screenClass:'notes-open'},
@@ -137,6 +142,11 @@ jobs:
               if d.is_dir():shutil.copytree(d,out/'assets'/name,dirs_exist_ok=True)
           for name in ('safari.png.png','messages.png.png','notes.png.png'):
               shutil.copy2(src/name,out/name)
+          # Optional player-specific wallpaper. Upload a PNG at the stable
+          # path below; it overrides Cauã's image on every future rebuild.
+          custom_wallpaper=Path('phone-overrides/phone_screen.png')
+          if custom_wallpaper.is_file():
+              shutil.copy2(custom_wallpaper,out/'assets/screen/phone_screen.png')
           source_sha=subprocess.check_output(['git','-C',str(src),'rev-parse','HEAD'],text=True).strip()
           dest.head.append(BeautifulSoup('<meta name="vh-caua-source-commit" content="'+source_sha+'">','html.parser'))
           result=str(dest)
@@ -144,9 +154,11 @@ jobs:
           actual_apps=[x['data-app'] for x in dest.select('#homeScreen .app[data-app]')]
           assert set(actual_apps)=={'safari','messages','notes'},actual_apps
           assert [x['data-app'] for x in dest.select('#iconGrid > .app')]==['notes','messages','safari']
-          assert dest.select_one('#homeScreen').has_attr('class') and 'active' in dest.select_one('#homeScreen')['class']
+          assert 'active' in dest.select_one('#lockScreen')['class']
+          assert 'active' not in dest.select_one('#homeScreen')['class']
           assert not dest.select('#homeScreen .dock,#homeScreen .page-dots')
-          assert 'battery: 98' in result and 'showHome(false);' in result
+          assert 'battery: 98' in result and 'function showPasscode() {\\n    showHome(true);' not in result
+          assert 'function showPasscode() {' in result and 'showHome(true);' in result
           assert 'css/vh-investigator-home.css' in result
           assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
           assert len(refs)>45,len(refs)
