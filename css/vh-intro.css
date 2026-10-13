@@ -20,3 +20,17 @@
 @keyframes vh-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 @keyframes vh-pulse{from{opacity:.35}to{opacity:1}}
 @media(max-width:500px){#vh-intro .vh-intro-message-row{max-width:96%}#vh-intro .vh-intro-avatar{width:29px;height:29px}#vh-intro .vh-intro-bubble{padding:10px 13px}#vh-intro .vh-intro-actions{margin-left:40px}}
+
+
+/* Intro typography and understated dialogue choices */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&family=Roboto+Mono:wght@400;500&display=swap');
+#vh-intro .vh-name-label,
+#vh-intro #vh-player-name{font-family:"Roboto Mono",Consolas,"Courier New",monospace!important;letter-spacing:-.035em}
+#vh-intro .vh-name-label{font-size:clamp(14px,3.2vw,18px);font-weight:400}
+#vh-intro #vh-player-name{font-size:clamp(15px,3.3vw,18px);font-weight:400}
+#vh-intro .vh-intro-access{font-family:"Roboto Mono",Consolas,monospace}
+#vh-intro .vh-intro-actions{gap:25px;align-items:center}
+#vh-intro .vh-intro-choice{position:relative;border:0!important;border-bottom:1px solid rgba(255,242,236,.58)!important;border-radius:0!important;background:transparent!important;color:#fff2ec!important;padding:3px 0 5px!important;font:400 13px/1.3 "Roboto",Arial,sans-serif!important;transition:font-weight .08s,opacity .16s,transform .12s;min-width:0;box-shadow:none!important}
+#vh-intro .vh-intro-choice:hover{background:transparent!important;border-bottom-color:#fff2ec!important}
+#vh-intro .vh-intro-choice:active,#vh-intro .vh-intro-choice.vh-choice-pressed{font-weight:600!important;transform:translateY(1px);opacity:.72}
+#vh-intro .vh-intro-choice:focus-visible{outline:1px solid #fff2ec;outline-offset:5px}
