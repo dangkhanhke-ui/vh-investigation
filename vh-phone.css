@@ -108,3 +108,9 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 /* Investigator chat has moved into the iOS Messages app. Retain its hidden
    game engine/actions so hints and phase progression work via the phone. */
 #dock,#chatSheet,#dim{display:none!important}
+
+/* Editorial rectangular navigation controls, no circular chrome. */
+.vh-nav-control{width:40px!important;height:34px!important;padding:0!important;border:0!important;border-radius:3px!important;background:#933127!important;color:#fff!important;box-shadow:none!important}
+.vh-nav-control span{font-family:'Roboto Mono',Consolas,monospace!important;font-size:27px!important;font-weight:400!important;line-height:1!important}
+.vh-nav-control:hover{background:#a9382d!important}
+.vh-nav-control:focus-visible{outline:1px solid #fff;outline-offset:3px}
