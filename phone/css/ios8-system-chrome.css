@@ -1,0 +1,179 @@
+/* iOS 8 chrome restoration, scoped to existing functional controls. */
+#statusBar.ios8-svg-status {
+  --ios8-ink:#fff;
+  color:var(--ios8-ink)!important;
+  text-shadow:0 1px 1px rgba(0,0,0,.09);
+  transition:none!important; /* immediate ink swap; WebKit must not fade white over white */
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  align-items:center;
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-size:10px;
+  letter-spacing:-.1px;
+}
+#statusBar.ios8-svg-status[data-ios8-contrast="dark"] {
+  --ios8-ink:#202124;
+  text-shadow:none!important;
+}
+#statusBar.ios8-svg-status[data-ios8-contrast="light"] {
+  --ios8-ink:#fff;
+  text-shadow:0 1px 1px rgba(0,0,0,.12)!important;
+}
+#statusBar.ios8-svg-status .status-left,
+#statusBar.ios8-svg-status .status-right {gap:3px;white-space:nowrap;align-items:center}
+#statusBar.ios8-svg-status .status-left{min-width:0}
+#statusBar.ios8-svg-status .status-right{justify-content:flex-end}
+#statusBar.ios8-svg-status .status-time{font-size:11px;font-weight:600;font-variant-numeric:tabular-nums}
+#statusBar.ios8-svg-status .carrier{font-size:10px;font-weight:400;letter-spacing:-.15px}
+#statusBar.ios8-svg-status .battery-percent{font-size:10px;font-weight:400}
+#statusBar.ios8-svg-status .bluetooth{opacity:.88;transform:none}
+#statusBar.ios8-svg-status .signal-dots,
+#statusBar.ios8-svg-status .wifi,
+#statusBar.ios8-svg-status .battery{
+  display:inline-flex;position:relative;overflow:visible;
+  padding:0;margin:0;align-items:center;justify-content:center;
+  color:var(--ios8-ink)!important;border:0!important;
+  background:none!important;box-shadow:none!important;
+}
+#statusBar.ios8-svg-status .signal-dots{width:29px;height:11px;gap:0}
+#statusBar.ios8-svg-status .wifi{width:14px;height:11px}
+#statusBar.ios8-svg-status .battery{width:23px;height:11px}
+#statusBar.ios8-svg-status .bluetooth{width:9px;height:11px;display:inline-flex;align-items:center}
+#statusBar.ios8-svg-status .battery::after{content:none!important}
+#statusBar.ios8-svg-status .status-svg{display:block;max-width:100%;height:auto;overflow:visible;color:inherit;fill:none;stroke:currentColor}
+#statusBar.ios8-svg-status .ios8-signal-dot{fill:currentColor;stroke:none}
+#statusBar.ios8-svg-status .ios8-signal-dot.is-empty{fill:none;stroke:currentColor;stroke-width:1}
+#statusBar.ios8-svg-status .ios8-battery-level{fill:currentColor;stroke:none}
+#statusBar.ios8-svg-status .ios8-battery-shell{stroke:currentColor;stroke-width:1.15;fill:none}
+#statusBar.ios8-svg-status svg *{vector-effect:non-scaling-stroke}
+#photosViewer .photos-viewer-toolbar .photos-viewer-tool {
+  display:flex;align-items:center;justify-content:center;min-width:40px;padding:0;
+}
+#photosViewer .photos-viewer-toolbar .ios8-tool-svg,
+#mailToolbar .ios8-tool-svg {
+  display:block;width:25px;height:25px;color:#007aff;
+  fill:none;stroke:currentColor;stroke-width:1.65;
+  stroke-linecap:round;stroke-linejoin:round;
+}
+#photosViewer .photos-viewer-toolbar .ios8-heart{fill:transparent!important;stroke:currentColor!important}
+#photosViewer .photos-viewer-toolbar .favorite.on .ios8-heart{fill:#007aff!important;stroke:#007aff!important}
+#mailToolbar .mail-toolbar-btn {display:flex;align-items:center;justify-content:center;min-width:37px;height:40px}
+#mailToolbar .mail-toolbar-btn .ios8-tool-svg{width:24px;height:24px}
+#mailToolbar .mail-toolbar-btn[data-mail-action="flag"].is-flagged .ios8-tool-svg{fill:#007aff}
+#gr4Nav button{display:inline-flex;align-items:center;justify-content:center;gap:4px}
+#gr4Nav button.gr4-has-back{justify-content:flex-start}
+#gr4Nav button.gr4-nav-right{justify-content:flex-end}
+#gr4Nav .ios8-gr4-svg{width:16px;height:16px;flex:0 0 16px;display:block;
+  fill:none;stroke:currentColor;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
+#gr4Nav button[data-gr="root"] .ios8-gr4-svg{width:17px;height:17px}
+#gr4Nav button.gr4-nav-right .ios8-gr4-svg{width:15px;height:15px;flex-basis:15px}
+
+/* Native 2015 iPhone 5 symbol proportions: source 640×40 @2x => 320×20pt.
+   Shapes sourced from aubrey_iOS8_Status_Bars.sketch, not approximations. */
+#statusBar.ios8-svg-status .signal-dots {
+  width:34px;height:6px;min-width:34px;flex:0 0 34px;
+}
+#statusBar.ios8-svg-status .wifi {
+  width:12px;height:9px;min-width:12px;flex:0 0 12px;
+}
+#statusBar.ios8-svg-status .bluetooth {
+  width:8px;height:13.021px;min-width:8px;flex:0 0 8px;
+  transform:none;opacity:1;
+}
+#statusBar.ios8-svg-status .battery {
+  width:26px;height:10px;min-width:26px;flex:0 0 26px;
+}
+#statusBar.ios8-svg-status .status-svg.ios8-sketch-svg {
+  display:block;width:100%;height:100%;max-width:none;
+  overflow:visible;fill:currentColor;stroke:none;
+  color:inherit;aspect-ratio:auto;
+}
+#statusBar.ios8-svg-status .ios8-sketch-svg > circle,
+#statusBar.ios8-svg-status .ios8-sketch-svg > path,
+#statusBar.ios8-svg-status .ios8-sketch-svg > rect {
+  fill:currentColor;stroke:none;
+}
+
+
+/* ==============================================================
+   iPhone 5 / iOS 8 status bar — seamless surface, no color slab.
+   This intentionally overrides legacy per-app .status-bar backgrounds,
+   including Safari's !important and the old gray dividing lines.
+   ============================================================== */
+#screen #statusBar.ios8-svg-status{
+  background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
+  border:0!important;
+  border-top:0!important;
+  border-bottom:0!important;
+  box-shadow:none!important;
+  filter:none!important;
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  outline:0!important;
+  padding:0 6px!important;
+  height:20px!important;
+  text-shadow:none!important;
+  --ios8-ink:#fff;
+  pointer-events:none;
+}
+#screen #statusBar.ios8-svg-status::before,
+#screen #statusBar.ios8-svg-status::after{
+  display:none!important;
+  content:none!important;
+}
+#screen #statusBar.ios8-svg-status[data-ios8-contrast="dark"]{--ios8-ink:#202124}
+#screen #statusBar.ios8-svg-status[data-ios8-contrast="light"]{--ios8-ink:#fff}
+/* Also defeat the old Safari tabs rule that forces WHITE on every child. */
+#screen #statusBar.ios8-svg-status,
+#screen #statusBar.ios8-svg-status *,
+#screen #statusBar.ios8-svg-status svg{
+  color:var(--ios8-ink)!important;
+}
+#screen #statusBar.ios8-svg-status .status-left,
+#screen #statusBar.ios8-svg-status .status-right{
+  gap:3px!important;align-items:center;min-width:0;
+}
+#screen #statusBar.ios8-svg-status .status-time{
+  font-size:10px!important;line-height:1;
+  font-weight:600!important;letter-spacing:-.12px;
+}
+#screen #statusBar.ios8-svg-status .carrier,
+#screen #statusBar.ios8-svg-status .battery-percent{
+  font-size:9px!important;line-height:1;
+  letter-spacing:-.1px;font-weight:500!important;
+}
+#screen #statusBar.ios8-svg-status .signal-dots{
+  width:24px!important;height:4.235px!important;
+  min-width:24px!important;flex:0 0 24px!important;
+}
+#screen #statusBar.ios8-svg-status .wifi{
+  width:10.5px!important;height:7.875px!important;
+  min-width:10.5px!important;flex:0 0 10.5px!important;
+}
+#screen #statusBar.ios8-svg-status .bluetooth{
+  width:6.5px!important;height:10.579px!important;
+  min-width:6.5px!important;flex:0 0 6.5px!important;
+}
+#screen #statusBar.ios8-svg-status .battery{
+  width:21px!important;height:8.077px!important;
+  min-width:21px!important;flex:0 0 21px!important;
+}
+#screen #statusBar.ios8-svg-status .status-svg.ios8-sketch-svg{
+  width:100%!important;height:100%!important;
+  max-width:none!important;display:block!important;
+  overflow:visible!important;transform:none!important;
+}
+#screen #statusBar.ios8-svg-status .ios8-sketch-svg > *{
+  fill:currentColor!important;
+  stroke:none!important;
+}
+/* Extend the actual colored app surface underneath the transparent icons.
+   Each app's content begins 20px lower; this changes only its backdrop,
+   not the bars, buttons, icons, app layout or any navigation handlers. */
+#screen.facebook-open #facebookApp{background-color:#3b5998!important}
+#screen.whatsapp-open #whatsappApp{background-color:#075e54!important}
+#screen.itau-open #itauApp{background-color:#ec7000!important}
+#screen.itau-biz-open #itauBizApp{background-color:#ec7000!important}
+#screen.photos-open.ios8-photo-fullscreen-status #photosApp{background-color:#000!important}
