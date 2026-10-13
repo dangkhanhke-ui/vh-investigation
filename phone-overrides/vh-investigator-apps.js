@@ -105,60 +105,45 @@
   },true);
 
 
-  // Add the fictional investigator portrait without changing the Messages renderer.
+  // Crash-safe portrait: CSS-only; no MutationObserver or DOM rewriting.
+  // A prior mutation observer created an unbounded feedback loop in Messages.
   const avatarStyle=document.createElement('style');
   avatarStyle.textContent=`
-    /* Keep the entire row within the simulated iPhone; never reserve a year-width date column. */
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{
-      display:grid!important;grid-template-columns:9px 46px minmax(0,1fr) auto!important;
-      grid-template-rows:1fr!important;column-gap:8px!important;align-items:center!important;
-      width:100%!important;max-width:100%!important;min-width:0!important;min-height:76px!important;
-      padding:9px 12px!important;box-sizing:border-box!important;overflow:hidden!important
+      display:grid!important;grid-template-columns:9px 44px minmax(0,1fr) auto!important;
+      column-gap:8px!important;align-items:center!important;min-width:0!important;
+      max-width:100%!important;width:100%!important;box-sizing:border-box!important;
+      min-height:72px!important;padding:8px 12px!important;overflow:hidden!important
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{
-      grid-column:1!important;grid-row:1!important;margin:0!important;align-self:center!important
+      grid-column:1!important;grid-row:1!important;align-self:center!important;margin:0!important
     }
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] img.vh-thread-avatar{
-      display:block!important;visibility:visible!important;opacity:1!important;
-      width:44px!important;height:44px!important;min-width:44px!important;max-width:44px!important;
-      object-fit:cover!important;border-radius:50%!important;grid-column:2!important;grid-row:1!important;
-      align-self:center!important;justify-self:center!important;background:#d9d9de!important
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]::before{
+      content:"";display:block;grid-column:2;grid-row:1;
+      width:42px;height:42px;border-radius:50%;background-color:#ddd;
+      background-image:url("./assets/investigator-avatar.png");
+      background-size:cover;background-repeat:no-repeat;background-position:center
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{
-      grid-column:3!important;grid-row:1!important;min-width:0!important;
-      width:100%!important;overflow:hidden!important;padding:0!important
+      grid-column:3!important;grid-row:1!important;min-width:0!important;overflow:hidden!important;padding:0!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{
+      grid-column:4!important;grid-row:1!important;justify-self:end!important;
+      width:auto!important;min-width:0!important;max-width:none!important;
+      padding:0!important;margin:0!important;white-space:nowrap!important;
+      overflow:visible!important;text-align:right!important;font-size:11px!important
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-name,
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-preview{
-      display:block!important;min-width:0!important;width:100%!important;
-      white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+      display:block!important;min-width:0!important;max-width:100%!important;
+      overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important
     }
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{
-      grid-column:4!important;grid-row:1!important;justify-self:end!important;align-self:center!important;
-      width:auto!important;max-width:none!important;min-width:0!important;
-      white-space:nowrap!important;overflow:visible!important;text-align:right!important;
-      padding:0!important;font-size:11px!important
+    #messagesApp .msg-detail-person .msg-detail-avatar{
+      font-size:0!important;background-image:url("./assets/investigator-avatar.png")!important;
+      background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important
     }
-    #messagesApp .vh-detail-avatar{width:100%;height:100%;object-fit:cover;border-radius:50%}
   `;
   document.head.appendChild(avatarStyle);
-  const avatarUrl=new URL('assets/investigator-avatar.png?v=neymarinho-2218553',location.href).href;
-  function decorateInvestigator(){
-    const row=document.querySelector('#messagesApp .msg-thread-row[data-thread-id="neymarinho"]');
-    if(row&&!row.querySelector('.vh-thread-avatar')){
-      const img=document.createElement('img');img.className='vh-thread-avatar';img.src=avatarUrl;img.alt='Ảnh điều tra viên Neymarinho';img.loading='eager';img.decoding='sync';
-      const main=row.querySelector('.msg-thread-main');
-      row.insertBefore(img,main||row.firstChild);
-    }
-    const detail=document.querySelector('#messagesApp .msg-detail-person .msg-detail-avatar');
-    if(detail&&bridge.state.currentThread==='neymarinho'&&!detail.querySelector('img')){
-      detail.textContent='';
-      const img=document.createElement('img');img.className='vh-detail-avatar';img.src=avatarUrl;img.alt='Ảnh Neymarinho';
-      detail.appendChild(img);
-    }
-  }
-  const messageApp=document.getElementById('messagesApp');
-  if(messageApp){new MutationObserver(decorateInvestigator).observe(messageApp,{childList:true,subtree:true});decorateInvestigator();}
 
   // Ask the parent for existing history on the initial phone load.
   if(window.parent!==window)window.parent.postMessage({type:'vh:ready'},ORIGIN);
