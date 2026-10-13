@@ -144,6 +144,16 @@ jobs:
                   return h.some(m=>m.who==='me'&&m.text===text);
                 },draft,{timeout:5000});
                 console.log('PASS phone notebook + Neymarinho live Messages',viewport.width);
+                // A new investigator reply raises the iOS notification banner.
+                await p.waitForFunction(()=>{
+                  const s=JSON.parse(localStorage.getItem('vh_v3_save')||'{}');
+                  return (s.chat||[]).slice(-1)[0]?.who==='partner';
+                },null,{timeout:6500});
+                await frame.locator('#vh-message-hint').click();
+                await frame.locator('#vh-investigator-notification.show').waitFor({timeout:6500});
+                await frame.locator('#vh-investigator-notification').click();
+                await frame.locator('#messagesConversationView.active').waitFor({timeout:4000});
+                console.log('PASS Neymarinho notification opens conversation',viewport.width);
 
                 const topNext=await p.locator('#vhOpenPhone').evaluate(el=>el.getBoundingClientRect().top);
                 const topBack=await p.locator('#vhPhoneBack').evaluate(el=>el.getBoundingClientRect().top);
