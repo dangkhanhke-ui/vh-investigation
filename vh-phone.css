@@ -1,81 +1,42 @@
-/* VH page navigation — one composited phone surface, no expensive background animations. */
-:root{
-  --vh-nav-duration:260ms;
-  --vh-nav-easing:cubic-bezier(.2,.75,.25,1);
-}
-.vh-open-phone,.vh-phone-back{
-  position:fixed;top:50%;display:grid;place-items:center;
-  width:32px;height:84px;padding:0;
-  border:1px solid rgba(235,200,187,.33);
-  background:rgba(19,13,16,.78);color:#e6c3bb;
-  box-shadow:0 3px 14px rgba(0,0,0,.24);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  touch-action:none;user-select:none;
-}
-.vh-open-phone{
-  right:0;left:auto;bottom:auto;z-index:60;
-  border-right:0;border-radius:10px 0 0 10px;
-  transform:translateY(-50%);
-}
-.vh-phone-back{
-  position:absolute;left:0;right:auto;bottom:auto;z-index:5;
-  border-left:0;border-radius:0 10px 10px 0;
-  transform:translateY(-50%);
-}
-.vh-open-phone svg,.vh-phone-back svg{
-  display:block;width:18px;height:18px;
-  fill:none;stroke:currentColor;stroke-width:1.8;
-  stroke-linecap:round;stroke-linejoin:round;
-  pointer-events:none;
-}
-.vh-open-phone .vh-arrow-caption{display:none}
-.vh-open-phone:hover,.vh-phone-back:hover{
-  background:rgba(58,22,30,.92);border-color:rgba(242,185,180,.7)
-}
-.vh-open-phone:focus-visible,.vh-phone-back:focus-visible{
-  outline:2px solid #e9afb2;outline-offset:3px
-}
-body.vh-phone-active .vh-open-phone,
-body.vh-nav-dragging .vh-open-phone{opacity:0;pointer-events:none}
+/* VH seamless horizontal pager: zero visible controls, swipe-only navigation.
+   The only animated element is the composited phone surface. */
+:root{--vh-snap-duration:235ms;--vh-snap-ease:cubic-bezier(.22,.8,.25,1)}
+html,body{overscroll-behavior-x:none}
+body:not(.vh-phone-active){touch-action:pan-y}
 .vh-phone-layer{
-  position:fixed;inset:0;z-index:10000;
-  width:100%;height:100%;height:100dvh;
-  display:block;overflow:hidden;background:#050505;
-  transform:translate3d(100%,0,0);
-  pointer-events:none;
-  overscroll-behavior:contain;
+ position:fixed;inset:0;z-index:10000;
+ width:100%;height:100%;height:100dvh;
+ overflow:hidden;background:#050505;
+ transform:translate3d(100%,0,0);
+ pointer-events:none;
+ overscroll-behavior:contain;
+ contain:layout style;
 }
 .vh-phone-layer.is-interactive{pointer-events:auto}
 .vh-phone-layer iframe{
-  display:block;position:absolute;inset:0;
-  width:100%;height:100%;border:0;
-  background:#050505;
+ position:absolute;inset:0;display:block;
+ width:100%;height:100%;border:0;background:#050505;
 }
-body.vh-nav-snapping .vh-phone-layer,
-body.vh-nav-snapping .shell{
-  transition:transform var(--vh-nav-duration) var(--vh-nav-easing)!important;
+.vh-phone-swipe-edge{
+ position:absolute;top:0;bottom:0;left:0;
+ width:20px;z-index:2;
+ background:transparent;
+ touch-action:none;
+ pointer-events:none;
+ -webkit-tap-highlight-color:transparent;
 }
-body.vh-nav-dragging .vh-phone-layer,
-body.vh-nav-dragging .shell{
-  transition:none!important;
+.vh-phone-layer.is-interactive .vh-phone-swipe-edge{pointer-events:auto}
+body.vh-nav-snapping .vh-phone-layer{
+ transition:transform var(--vh-snap-duration) var(--vh-snap-ease)!important;
 }
+body.vh-nav-dragging .vh-phone-layer{transition:none!important}
+body.vh-nav-dragging{user-select:none;-webkit-user-select:none;touch-action:none}
 body.vh-phone-active{overflow:hidden}
-body.vh-phone-active .shell{pointer-events:none}
-@media(pointer:coarse){
-  body .shell,body .folder-scene{touch-action:pan-y}
-}
-body.vh-nav-dragging,body.vh-nav-snapping{overscroll-behavior-x:none}
-/* The atmospheric animations cost GPU time even when behind the phone.
-   Pause them during navigation; disable the entire layer once the phone is open. */
+body.vh-phone-active .cinema-atmosphere{visibility:hidden}
+body.vh-phone-active .cinema-dust,
+body.vh-phone-active .cinema-grain,
 body.vh-nav-dragging .cinema-dust,
 body.vh-nav-dragging .cinema-grain,
 body.vh-nav-snapping .cinema-dust,
-body.vh-nav-snapping .cinema-grain,
-body.vh-phone-active .cinema-dust,
-body.vh-phone-active .cinema-grain{
-  animation-play-state:paused!important;
-}
-body.vh-phone-active .cinema-atmosphere{visibility:hidden}
-@media(prefers-reduced-motion:reduce){
-  :root{--vh-nav-duration:0ms}
-}
+body.vh-nav-snapping .cinema-grain{animation-play-state:paused!important}
+@media(prefers-reduced-motion:reduce){:root{--vh-snap-duration:0ms}}
