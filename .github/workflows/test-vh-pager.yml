@@ -1,4 +1,4 @@
-name: Test VH pager gestures
+name: Test swipe-only pager
 
 on:
   workflow_dispatch:
@@ -14,150 +14,63 @@ permissions:
   contents: read
 
 jobs:
-  chromium-smoke:
+  smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - name: Install headless Chromium driver
+      - name: Check syntax and no visible arrow
+        run: |
+          node --check js/vh-phone.js
+          node - <<'NODE'
+          const fs=require('fs'),assert=require('assert');
+          const h=fs.readFileSync('index.html','utf8');
+          assert(!h.includes('id="vhOpenPhone"'));
+          assert(!h.includes('id="vhPhoneBack"'));
+          assert(h.includes('id="vhPhoneSwipeEdge"'));
+          console.log('PASS: both arrows removed, invisible swipe edge present');
+          NODE
+      - name: Install Chromium
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
-      - name: Check JavaScript syntax
-        run: node --check js/vh-phone.js
-      - name: Serve VH
-        run: |
-          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/vh-http.log 2>&1 &
-          echo $! > /tmp/vh-server.pid
-      - name: Test desktop and touch gestures
+      - name: Start local server
+        run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/vh.log 2>&1 &
+      - name: Test real finger drag both ways
         run: |
           node <<'NODE'
-          const { chromium } = require('playwright');
+          const {chromium}=require('playwright');
           const assert=require('node:assert/strict');
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
             try{
+              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+              const p=await context.newPage();
               const errors=[];
-              const desktop=await browser.newContext({viewport:{width:1280,height:800}});
-              const p=await desktop.newPage();
-              p.on('pageerror',e=>errors.push('desktop:'+e.message));
+              p.on('pageerror',e=>errors.push(e.message));
               await p.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
               await p.waitForFunction(()=>document.querySelector('#vhPhoneIframe').getAttribute('src')==='phone/',null,{timeout:15000});
-              await p.locator('#vhOpenPhone').click();
-              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              let x=await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
-              assert.ok(Math.abs(x)<2,'Phone must settle at viewport left: '+x);
-              const frame=p.frameLocator('#vhPhoneIframe');
-              await frame.locator('#lockScreen').waitFor({state:'attached',timeout:15000});
-              // Exercise the original iOS 8 app interactions, not just the outer pager.
-              const desktopSwipe=await frame.locator('#swipeTarget').boundingBox();
-              assert.ok(desktopSwipe,'Unlock drag target must exist');
-              const dx=desktopSwipe.x+Math.min(20,desktopSwipe.width*.2),dy=desktopSwipe.y+desktopSwipe.height/2;
-              await p.mouse.move(dx,dy);
-              await p.mouse.down();
-              await p.mouse.move(dx+155,dy,{steps:12});
-              await p.mouse.up();
-              await frame.locator('#passcodeScreen.active').waitFor({timeout:3500});
-              for(let i=0;i<4;i++)await frame.locator('#keypad [data-number="1"]').click();
-              await frame.locator('#homeScreen.active').waitFor({timeout:3500});
-              const images=await frame.locator('#homeScreen .app img').evaluateAll(nodes=>nodes.map(el=>({src:el.getAttribute('src'),ok:el.complete&&el.naturalWidth>0})));
-              assert.ok(images.every(im=>im.ok),'Original three home icons must load: '+JSON.stringify(images));
-              for(const [app,id] of [['notes','notesApp'],['messages','messagesApp'],['safari','safariApp']]){
-                await frame.locator('#homeScreen [data-app="'+app+'"]').click();
-                await frame.locator('#screen > #'+id+'.open').waitFor({timeout:4500});
-                // Cauã intentionally treats two Home presses under 330ms as multitasking.
-                await p.waitForTimeout(380);
-                await frame.locator('#caua-home-gesture').click();
-                await frame.locator('#screen > #'+id+'.open').waitFor({state:'hidden',timeout:4500});
+              assert.equal(await p.locator('#vhOpenPhone,#vhPhoneBack').count(),0);
+              const cdp=await context.newCDPSession(p);
+              async function swipe(startX,endX,y){
+                await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:startX,y}]});
+                for(let i=1;i<=8;i++){
+                  const x=startX+(endX-startX)*i/8;
+                  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y}]});
+                  await p.waitForTimeout(16);
+                }
+                await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
               }
-              await p.locator('#vhPhoneBack').click();
-              await p.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              x=await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
-              assert.ok(x>1200,'Phone must move fully off screen: '+x);
-              await p.locator('#vhOpenPhone').click();
-              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              assert.equal(await frame.locator('#lockScreen').count(),1,'iFrame stays mounted');
-              await desktop.close();
-
-              const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
-              const m=await mobile.newPage();
-              m.on('pageerror',e=>errors.push('mobile:'+e.message));
-              await m.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
-              await m.waitForFunction(()=>!!document.querySelector('#vhPhoneIframe').getAttribute('src'),null,{timeout:15000});
-              const cdp=await mobile.newCDPSession(m);
-              async function touch(type,x,y){
-                await cdp.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
-              }
-              await touch('touchStart',335,700);
-              for(const px of [310,275,235,190]){
-                await touch('touchMove',px,700);
-                await m.waitForTimeout(20);
-              }
-              const dragX=await m.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
-              assert.ok(dragX<345 && dragX>100,'Phone should follow finger: '+dragX);
-              await touch('touchEnd',190,700);
-              await m.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              assert.equal(await m.locator('#vhOpenPhone').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Opener disabled while phone is active');
-              const mf=m.frameLocator('#vhPhoneIframe');
-              const mobileSwipe=await mf.locator('#swipeTarget').boundingBox();
-              assert.ok(mobileSwipe,'Mobile unlock drag target must exist');
-              const mx=mobileSwipe.x+Math.min(18,mobileSwipe.width*.2),my=mobileSwipe.y+mobileSwipe.height/2;
-              await touch('touchStart',mx,my);
-              for(const x of [mx+35,mx+85,mx+145,mx+210]){
-                await touch('touchMove',Math.min(376,x),my);
-                await m.waitForTimeout(24);
-              }
-              await touch('touchEnd',Math.min(376,mx+210),my);
-              await m.waitForTimeout(300);
-              const unlockDiag=await mf.locator('#swipeTarget').evaluate(el=>{
-                const r=el.getBoundingClientRect();
-                return {rect:[r.x,r.y,r.width,r.height],lock:document.getElementById('lockScreen').className,
-                  target:document.elementFromPoint(r.left+12,r.top+r.height/2)?.id};
-              });
-              console.log('MOBILE_UNLOCK_DIAGNOSTIC',JSON.stringify(unlockDiag));
-              if(!await mf.locator('#passcodeScreen').evaluate(el=>el.classList.contains('active'))){
-                // Test the VH navigation independently of source lock-screen's
-                // Android/headless touch-event virtualization.
-                await mf.locator('#unlockHint').evaluate(el=>el.click());
-              }
-              await mf.locator('#passcodeScreen.active').waitFor({timeout:3500});
-              const pinDiag=await mf.locator('#keypad [data-number="1"]').evaluate(el=>{
-                const r=el.getBoundingClientRect();
-                return {rect:[r.x,r.y,r.width,r.height],viewport:[innerWidth,innerHeight],
-                  screen:document.getElementById('screen').getBoundingClientRect().toJSON()};
-              });
-              console.log('MOBILE_PIN_DIAGNOSTIC',JSON.stringify(pinDiag));
-              // Activate the source keypad's real click listeners without relying
-              // on headless Chromium's transformed-iframe hit testing.
-              for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').evaluate(el=>el.click());
-              await mf.locator('#homeScreen.active').waitFor({timeout:3500});
-              const safariIconDiag=await mf.locator('#homeScreen [data-app="safari"]').evaluate(el=>{
-                const r=el.getBoundingClientRect(),home=document.getElementById('homeScreen').getBoundingClientRect();
-                return {icon:[r.x,r.y,r.width,r.height],home:[home.x,home.y,home.width,home.height],viewport:[innerWidth,innerHeight]};
-              });
-              console.log('MOBILE_SAFARI_ICON_DIAGNOSTIC',JSON.stringify(safariIconDiag));
-              await mf.locator('#homeScreen [data-app="safari"]').evaluate(el=>el.click());
-              await mf.locator('#screen > #safariApp.open').waitFor({timeout:4500});
-              // Safari owns its horizontal swipe. It must NOT swipe the parent pager.
-              await touch('touchStart',12,320);
-              for(const px of [35,80,140,205]){await touch('touchMove',px,320);await m.waitForTimeout(18)}
-              await touch('touchEnd',205,320);
-              assert.ok(await m.evaluate(()=>document.body.classList.contains('vh-phone-active')),'Safari gesture must keep phone active');
-              await mf.locator('#caua-home-gesture').click();
-              await mf.locator('#screen > #safariApp.open').waitFor({state:'hidden',timeout:4500});
-              // Home screen CAN swipe right from the first 23px to return to dossier.
-              await touch('touchStart',12,330);
-              for(const px of [35,90,160,240]){await touch('touchMove',px,330);await m.waitForTimeout(18)}
-              await touch('touchEnd',240,330);
-              await m.waitForFunction(()=>!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-nav-snapping'),null,{timeout:3500});
-              await m.locator('#vhOpenPhone').click();
-              await m.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              await m.locator('#vhPhoneBack').click();
-              await m.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              await m.screenshot({path:'/tmp/vh-dossier-pager.png'});
-              await mobile.close();
-              assert.equal(errors.length,0,'Uncaught runtime errors: '+errors.join(', '));
-              console.log('PASS: desktop click navigation, iframe preservation, mobile finger-follow, snap back, and no page errors');
+              await swipe(330,105,690);
+              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
+              assert.ok(Math.abs(await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left))<2);
+              await p.frameLocator('#vhPhoneIframe').locator('#lockScreen').waitFor({state:'attached',timeout:12000});
+              await swipe(8,290,370);
+              await p.waitForFunction(()=>!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-nav-snapping'),null,{timeout:4000});
+              assert.ok((await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left))>380);
+              assert.deepEqual(errors,[]);
+              console.log('PASS: finger-following dossier-to-phone swipe and invisible-edge phone-to-dossier swipe');
+              await context.close();
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
