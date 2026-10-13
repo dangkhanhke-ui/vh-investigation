@@ -94,6 +94,8 @@ jobs:
           source_wallpaper=player_wallpaper if player_wallpaper.is_file() else src/'assets/screen/phone_screen.png'
           if not source_wallpaper.is_file():raise SystemExit('Phone wallpaper missing')
           wallpaper_version=hashlib.sha256(source_wallpaper.read_bytes()).hexdigest()[:16]
+          wallpaper_name='vh-wallpaper-'+wallpaper_version+'.png'
+          shutil.copy2(source_wallpaper,out/'assets/screen'/wallpaper_name)
           override_text=custom_css.read_text(encoding='utf-8')
           if '__VH_WALLPAPER_VERSION__' not in override_text:
               raise SystemExit('Wallpaper cache-bust token missing')
@@ -101,6 +103,14 @@ jobs:
               override_text.replace('__VH_WALLPAPER_VERSION__',wallpaper_version),encoding='utf-8')
           dest.head.append(dest.new_tag('link',rel='stylesheet',
               href='css/vh-investigator-home.css?v='+wallpaper_version))
+          # Inline last-resort CSS prevents an old stylesheet from painting
+          # Cauã's beach image over the investigator's uploaded wallpaper.
+          inline_wallpaper=dest.new_tag('style')
+          inline_wallpaper.string=(
+              '#screen>.wallpaper{z-index:0!important;'
+              'background-image:url("assets/screen/'+wallpaper_name+'")!important;'
+              'background-size:cover!important;background-position:center!important}')
+          dest.head.append(inline_wallpaper)
           scripts=original.find_all('script')
           # Preserve the original startup sequence and code of the three apps,
           # plus switcher, clock, scrollbars and Cauã's immersive controls.
@@ -173,7 +183,9 @@ jobs:
           assert 'function showPasscode() {' in result and 'showHome(true);' in result
           assert 'css/vh-investigator-home.css?v='+wallpaper_version in result
           assert (out/'assets/screen/phone_screen.png').read_bytes()==source_wallpaper.read_bytes()
-          assert '?v='+wallpaper_version in (out/'css/vh-investigator-home.css').read_text(encoding='utf-8')
+          assert wallpaper_name in (out/'css/vh-investigator-home.css').read_text(encoding='utf-8')
+          assert wallpaper_name in result
+          assert (out/'assets/screen'/wallpaper_name).read_bytes()==source_wallpaper.read_bytes()
           assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
           assert len(refs)>45,len(refs)
           assert 'mode(true)' in result and 'caua-home-gesture' in result
