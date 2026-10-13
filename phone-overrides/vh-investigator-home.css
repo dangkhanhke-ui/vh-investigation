@@ -1,6 +1,6 @@
-/* VH investigator phone: unlocked by default; only 3 top-row apps.
+/* VH investigator phone: lock screen retained, no PIN; only 3 top-row apps.
    This file is loaded AFTER Cauã's original CSS cascade. */
-#lockScreen,#passcodeScreen,#wrongCode{
+#passcodeScreen,#wrongCode{
   display:none!important;
   visibility:hidden!important;
   pointer-events:none!important;
