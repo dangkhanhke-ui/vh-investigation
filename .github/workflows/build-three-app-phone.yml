@@ -113,8 +113,8 @@ jobs:
                   code=script.string
                   if not code:raise SystemExit('Missing inline script '+str(i))
                   if i==1:
-                      code,n=re.subn(r'(battery:\\s*)\\d+',r'\\g<1>98',code,count=1)
-                      code,n2=re.subn(r'(fitPhone\\(\\);\\s*\\n\\s*)showLock\\(\\);',r'\\1showHome(false);',code,count=1)
+                      code,n=re.subn(r'(battery:\s*)\d+',r'\g<1>98',code,count=1)
+                      code,n2=re.subn(r'(fitPhone\(\);\s*\n\s*)showLock\(\);',r'\1showHome(false);',code,count=1)
                       if n!=1 or n2!=1:raise SystemExit('Investigator unlock/battery startup not found')
                   if i==14:
                       code,n=re.subn(r'  const APPS = \{[\s\S]*?\n  \};', """  const APPS = {
