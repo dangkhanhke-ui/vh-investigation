@@ -95,6 +95,7 @@ jobs:
           if not source_wallpaper.is_file():raise SystemExit('Phone wallpaper missing')
           wallpaper_version=hashlib.sha256(source_wallpaper.read_bytes()).hexdigest()[:16]
           wallpaper_name='vh-wallpaper-'+wallpaper_version+'.png'
+          (out/'assets/screen').mkdir(parents=True,exist_ok=True)
           shutil.copy2(source_wallpaper,out/'assets/screen'/wallpaper_name)
           override_text=custom_css.read_text(encoding='utf-8')
           if '__VH_WALLPAPER_VERSION__' not in override_text:
