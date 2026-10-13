@@ -3,23 +3,16 @@ const root=document.querySelector('#vh-intro'),load=root.querySelector('.vh-intr
 const KEY='vh.player.name.v1',DONE='vh.intro.finished.v1',get=k=>{try{return localStorage.getItem(k)||''}catch{return''}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}},sleep=t=>new Promise(r=>setTimeout(r,t));
 window.VHPlayer={get name(){return get(KEY)},getName(){return get(KEY)}};
 let seq=0,audio;
-function sound(kind='message'){
+function sound(){
 try{
 if(get('vh_sound_enabled')==='false')return;
 const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
 audio=audio||new C();if(audio.state==='suspended')audio.resume().catch(()=>{});
-const now=audio.currentTime;
-const ping=(frequency,start,duration,volume,type='sine')=>{
-const osc=audio.createOscillator(),gain=audio.createGain();
-osc.type=type;osc.frequency.setValueAtTime(frequency,start);
-osc.frequency.exponentialRampToValueAtTime(frequency*.78,start+duration);
-gain.gain.setValueAtTime(.0001,start);
-gain.gain.exponentialRampToValueAtTime(volume,start+.008);
-gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
-osc.connect(gain);gain.connect(audio.destination);osc.start(start);osc.stop(start+duration+.01);
-};
-if(kind==='message'){ping(920,now,.16,.12);ping(1240,now+.085,.23,.10)}
-else{ping(1050+Math.random()*110,now,.026,.009,'triangle')}
+const t=audio.currentTime,buffer=audio.createBuffer(1,Math.floor(audio.sampleRate*.035),audio.sampleRate),data=buffer.getChannelData(0);
+for(let i=0;i<data.length;i++){const envelope=Math.pow(1-i/data.length,5);data[i]=(Math.random()*2-1)*envelope}
+const source=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
+source.buffer=buffer;filter.type='bandpass';filter.frequency.value=1500+Math.random()*650;filter.Q.value=.9;
+gain.gain.value=.065+Math.random()*.025;source.connect(filter);filter.connect(gain);gain.connect(audio.destination);source.start(t);
 }catch{}
 }
 function screen(mode){load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
@@ -31,12 +24,12 @@ if(id!==seq)return;
 const row=document.createElement('div');row.className='vh-intro-message-row';
 const img=document.createElement('img');img.className='vh-intro-avatar';img.src='assets/investigator-avatar.png';img.alt='';
 const bubble=document.createElement('div');bubble.className='vh-intro-bubble vh-typing';bubble.textContent='•••';
-row.append(img,bubble);messages.appendChild(row);messages.scrollTop=messages.scrollHeight;
+row.append(img,bubble);messages.replaceChildren(row);messages.scrollTop=messages.scrollHeight;
 await sleep(Math.min(1850,750+t.length*12));if(id!==seq)return;
-bubble.classList.remove('vh-typing');bubble.textContent='';sound('message');
+bubble.classList.remove('vh-typing');bubble.textContent='';
 for(let i=0;i<t.length;i++){
 if(id!==seq)return;
-const ch=t[i];bubble.textContent+=ch;if(ch.trim()&&i%3===0)sound('type');
+const ch=t[i];bubble.textContent+=ch;if(ch.trim()&&Math.random()<.75)sound();
 if(i%4===0)messages.scrollTop=messages.scrollHeight;
 let delay=25+Math.random()*23;
 if(ch===','||ch===';')delay+=180;
@@ -47,9 +40,9 @@ await sleep(delay);
 messages.scrollTop=messages.scrollHeight;
 await sleep(650+Math.min(500,t.length*3));
 }
-function arrow(){return new Promise(resolve=>{next.hidden=false;next.onclick=()=>{next.hidden=true;resolve()}})}
+function arrow(){return new Promise(resolve=>{next.hidden=false;next.onclick=()=>{next.hidden=true;messages.replaceChildren();resolve()}})}
 function option(t){const b=document.createElement('button');b.type='button';b.className='vh-intro-choice';b.textContent=t;actions.appendChild(b);return b}
-async function dialogue(id){screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;const n=get(KEY);await say(n+', đã đến rồi à?',id);await arrow();if(id!==seq)return;await say('Tên anh là Neymarinho, điều tra viên của vụ án về cái chết của Cauã.',id);await arrow();if(id!==seq)return;await say('Chắc hẳn em đã nhận được vài tài liệu mà anh đã thu thập được rồi? Đúng chứ?',id);if(id!==seq)return;const answer=await new Promise(resolve=>{option('Đã nhận').onclick=()=>resolve('yes');option('Chưa nhận').onclick=()=>resolve('no')});actions.replaceChildren();if(answer==='no'){await say('Gì vậy má? Em kiểm tra kỹ chưa thế? Anh gửi cả đống tài liệu rồi mà!',id);await new Promise(resolve=>{option('Đã nhận').onclick=resolve});actions.replaceChildren()}if(id!==seq)return;await say('Dù sao thì',id);if(id!==seq)return;await say('Vụ án này có vẻ phức tạp hơn anh nghĩ, nên anh mới cần thêm một người trợ giúp.',id);await arrow();if(id!==seq)return;await say('Giúp anh nhé, '+n+'.',id);await arrow();if(id!==seq)return;await say('Anh tin mày.',id);await arrow();if(id!==seq)return;put(DONE,'yes');await code(id,true)}
+async function dialogue(id){screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;const n=get(KEY);await say(n+', đã đến rồi à?',id);await arrow();if(id!==seq)return;await say('Tên anh là Neymarinho, điều tra viên của vụ án về cái chết của Cauã.',id);await arrow();if(id!==seq)return;await say('Cauã từng đứng đầu một tổ chức sinh viên.',id);await arrow();if(id!==seq)return;await say('Và có vẻ cũng kha khá người liên quan đến cậu ta đấy.',id);await arrow();if(id!==seq)return;await say('Chắc hẳn em đã nhận được vài tài liệu mà anh đã thu thập được rồi? Đúng chứ?',id);if(id!==seq)return;const answer=await new Promise(resolve=>{option('Đã nhận').onclick=()=>resolve('yes');option('Chưa nhận').onclick=()=>resolve('no')});actions.replaceChildren();if(answer==='no'){await say('Gì vậy má? Em kiểm tra kỹ chưa thế? Anh gửi cả đống tài liệu rồi mà!',id);await new Promise(resolve=>{option('Đã nhận').onclick=resolve});actions.replaceChildren()}if(id!==seq)return;await say('Dù sao thì',id);if(id!==seq)return;await say('Vụ án này có vẻ phức tạp hơn anh nghĩ, nên anh mới cần thêm một người trợ giúp.',id);await arrow();if(id!==seq)return;await say('Giúp anh nhé, '+n+'.',id);await arrow();if(id!==seq)return;await say('Anh tin mày.',id);await arrow();if(id!==seq)return;put(DONE,'yes');await code(id,true)}
 async function begin(){const id=++seq;show();screen('load');await sleep(get(DONE)?2100:2600);if(id!==seq)return;if(get(DONE))finish();else if(get(KEY))code(id);else{screen('name');input.focus({preventScroll:true})}}
 form.addEventListener('submit',e=>{e.preventDefault();const n=input.value.replace(/\s+/g,' ').trim().slice(0,36);if(!n)return;put(KEY,n);code(++seq)});
 window.addEventListener('vh:show-intro',()=>{seq++;show();screen('name');input.value=get(KEY);input.focus({preventScroll:true})});
