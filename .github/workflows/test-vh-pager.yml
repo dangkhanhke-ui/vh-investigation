@@ -102,10 +102,12 @@ jobs:
               const mobileSwipe=await mf.locator('#swipeTarget').boundingBox();
               assert.ok(mobileSwipe,'Mobile unlock drag target must exist');
               const mx=mobileSwipe.x+Math.min(18,mobileSwipe.width*.2),my=mobileSwipe.y+mobileSwipe.height/2;
-              await m.mouse.move(mx,my);
-              await m.mouse.down();
-              await m.mouse.move(mx+145,my,{steps:12});
-              await m.mouse.up();
+              await touch('touchStart',mx,my);
+              for(const x of [mx+35,mx+85,mx+145,mx+210]){
+                await touch('touchMove',Math.min(376,x),my);
+                await m.waitForTimeout(24);
+              }
+              await touch('touchEnd',Math.min(376,mx+210),my);
               await mf.locator('#passcodeScreen.active').waitFor({timeout:3500});
               for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').click();
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
