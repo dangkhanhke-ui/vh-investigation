@@ -131,7 +131,12 @@ jobs:
               // on headless Chromium's transformed-iframe hit testing.
               for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').evaluate(el=>el.click());
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
-              await mf.locator('#homeScreen [data-app="safari"]').click();
+              const safariIconDiag=await mf.locator('#homeScreen [data-app="safari"]').evaluate(el=>{
+                const r=el.getBoundingClientRect(),home=document.getElementById('homeScreen').getBoundingClientRect();
+                return {icon:[r.x,r.y,r.width,r.height],home:[home.x,home.y,home.width,home.height],viewport:[innerWidth,innerHeight]};
+              });
+              console.log('MOBILE_SAFARI_ICON_DIAGNOSTIC',JSON.stringify(safariIconDiag));
+              await mf.locator('#homeScreen [data-app="safari"]').evaluate(el=>el.click());
               await mf.locator('#screen > #safariApp.open').waitFor({timeout:4500});
               // Safari owns its horizontal swipe. It must NOT swipe the parent pager.
               await touch('touchStart',12,320);
