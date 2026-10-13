@@ -138,6 +138,33 @@
       display:block!important;min-width:0!important;max-width:100%!important;
       overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important
     }
+    /* Symmetric conversation navigation: title centered on the phone, not between unequal buttons. */
+    #messagesApp .msg-convo .msg-nav{
+      grid-template-columns:76px minmax(0,1fr) 76px!important;
+    }
+    #messagesApp .msg-convo .msg-convo-title{
+      color:#111!important;text-align:center!important;justify-self:center!important;
+      width:100%!important;min-width:0!important;max-width:100%!important;
+      overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important
+    }
+    #messagesApp .msg-convo .msg-nav-btn:last-child{
+      min-width:0!important;overflow:hidden!important;text-overflow:ellipsis!important;
+      white-space:nowrap!important;text-align:right!important
+    }
+    /* Bring the investigator portrait and thread content close to the left edge. */
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{
+      grid-template-columns:0px 42px minmax(0,1fr) auto!important;
+      column-gap:5px!important;padding-left:2px!important;padding-right:2px!important;
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{
+      width:0!important;height:0!important;overflow:hidden!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]::before{
+      width:42px!important;height:42px!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{
+      font-size:10px!important;max-width:88px!important;overflow:hidden!important
+    }
     #messagesApp .msg-detail-person .msg-detail-avatar{
       font-size:0!important;background-image:url("./assets/investigator-avatar.png")!important;
       background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important
