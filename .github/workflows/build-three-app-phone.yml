@@ -157,7 +157,7 @@ jobs:
           assert 'active' in dest.select_one('#lockScreen')['class']
           assert 'active' not in dest.select_one('#homeScreen')['class']
           assert not dest.select('#homeScreen .dock,#homeScreen .page-dots')
-          assert 'battery: 98' in result and 'function showPasscode() {\\n    showHome(true);' not in result
+          assert 'battery: 98' in result and 'showLock();' in result
           assert 'function showPasscode() {' in result and 'showHome(true);' in result
           assert 'css/vh-investigator-home.css' in result
           assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
