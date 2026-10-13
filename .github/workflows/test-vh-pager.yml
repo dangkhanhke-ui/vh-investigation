@@ -1,13 +1,13 @@
-name: Test swipe-only pager
+name: Test VH phone navigation
 
 on:
   workflow_dispatch:
   push:
     branches: [main]
     paths:
-      - 'js/vh-phone.js'
-      - 'vh-phone.css'
       - 'index.html'
+      - 'vh-phone.css'
+      - 'js/vh-phone.js'
       - '.github/workflows/test-vh-pager.yml'
 
 permissions:
@@ -16,27 +16,30 @@ permissions:
 jobs:
   smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
-      - name: Check syntax and no visible arrow
+      - name: Verify no swipe hijacking and tiny chevrons
         run: |
           node --check js/vh-phone.js
           node - <<'NODE'
-          const fs=require('fs'),assert=require('assert');
-          const h=fs.readFileSync('index.html','utf8');
-          assert(!h.includes('id="vhOpenPhone"'));
-          assert(!h.includes('id="vhPhoneBack"'));
-          assert(h.includes('id="vhPhoneSwipeEdge"'));
-          console.log('PASS: both arrows removed, invisible swipe edge present');
+          const fs=require('fs'),assert=require('node:assert/strict');
+          const html=fs.readFileSync('index.html','utf8');
+          const js=fs.readFileSync('js/vh-phone.js','utf8');
+          const css=fs.readFileSync('vh-phone.css','utf8');
+          assert(html.includes('id="vhOpenPhone"')&&html.includes('id="vhPhoneBack"'));
+          assert(!html.includes('vhPhoneSwipeEdge'));
+          assert(!/pointerdown|pointermove|touchstart|touchmove|touch-action:none/i.test(js));
+          assert(css.includes('width:34px')&&css.includes('.vh-nav-next'));
+          console.log('PASS: small top-corner chevrons; swipe listeners removed');
           NODE
       - name: Install Chromium
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
-      - name: Start local server
+      - name: Serve site
         run: python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/vh.log 2>&1 &
-      - name: Test real finger drag both ways
+      - name: Verify click navigation and preserved phone state
         run: |
           node <<'NODE'
           const {chromium}=require('playwright');
@@ -44,33 +47,27 @@ jobs:
           (async()=>{
             const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
             try{
-              const context=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
-              const p=await context.newPage();
-              const errors=[];
-              p.on('pageerror',e=>errors.push(e.message));
-              await p.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
-              await p.waitForFunction(()=>document.querySelector('#vhPhoneIframe').getAttribute('src')==='phone/',null,{timeout:15000});
-              assert.equal(await p.locator('#vhOpenPhone,#vhPhoneBack').count(),0);
-              const cdp=await context.newCDPSession(p);
-              async function swipe(startX,endX,y){
-                await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:startX,y}]});
-                for(let i=1;i<=8;i++){
-                  const x=startX+(endX-startX)*i/8;
-                  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y}]});
-                  await p.waitForTimeout(16);
-                }
-                await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+              for(const viewport of [{width:1280,height:800},{width:390,height:844}]){
+                const context=await browser.newContext({viewport,isMobile:viewport.width<500,hasTouch:viewport.width<500});
+                const p=await context.newPage();
+                const errors=[];
+                p.on('pageerror',e=>errors.push(e.message));
+                await p.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+                await p.locator('#vhOpenPhone').click();
+                await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
+                const frame=p.frameLocator('#vhPhoneIframe');
+                await frame.locator('#lockScreen').waitFor({state:'attached',timeout:12000});
+                const src=await p.locator('#vhPhoneIframe').getAttribute('src');
+                await p.locator('#vhPhoneBack').click();
+                await p.waitForFunction(()=>!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-phone-transitioning'),null,{timeout:4000});
+                await p.locator('#vhOpenPhone').click();
+                await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
+                assert.equal(await p.locator('#vhPhoneIframe').getAttribute('src'),src);
+                assert.equal(await p.locator('#vhPhoneBack').count(),1);
+                assert.deepEqual(errors,[]);
+                console.log('PASS',viewport.width,'px: open, close, reopen, iframe preserved');
+                await context.close();
               }
-              await swipe(330,105,690);
-              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
-              assert.ok(Math.abs(await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left))<2);
-              await p.frameLocator('#vhPhoneIframe').locator('#lockScreen').waitFor({state:'attached',timeout:12000});
-              await swipe(8,290,370);
-              await p.waitForFunction(()=>!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-nav-snapping'),null,{timeout:4000});
-              assert.ok((await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left))>380);
-              assert.deepEqual(errors,[]);
-              console.log('PASS: finger-following dossier-to-phone swipe and invisible-edge phone-to-dossier swipe');
-              await context.close();
             }finally{await browser.close()}
           })().catch(e=>{console.error(e);process.exit(1)});
           NODE
