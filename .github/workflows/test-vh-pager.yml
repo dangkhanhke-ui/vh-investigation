@@ -64,7 +64,7 @@ jobs:
               assert.ok(images.every(im=>im.ok),'Original three home icons must load: '+JSON.stringify(images));
               for(const [app,id] of [['notes','notesApp'],['messages','messagesApp'],['safari','safariApp']]){
                 await frame.locator('#homeScreen [data-app="'+app+'"]').click();
-                await frame.locator('#'+id+'.open').waitFor({timeout:4500});
+                await frame.locator('#screen > #'+id+'.open').waitFor({timeout:4500});
                 await frame.locator('#caua-home-gesture').click();
                 await frame.locator('#'+id+'.open').waitFor({state:'hidden',timeout:4500});
               }
@@ -108,7 +108,7 @@ jobs:
               for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').click();
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
               await mf.locator('#homeScreen [data-app="safari"]').click();
-              await mf.locator('#safariApp.open').waitFor({timeout:4500});
+              await mf.locator('#screen > #safariApp.open').waitFor({timeout:4500});
               // Safari owns its horizontal swipe. It must NOT swipe the parent pager.
               await touch('touchStart',12,320);
               for(const px of [35,80,140,205]){await touch('touchMove',px,320);await m.waitForTimeout(18)}
