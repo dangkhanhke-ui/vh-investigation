@@ -13,7 +13,7 @@
   let fallback=0;
 
   function warmPhone(){
-    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/');
+    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/?fresh='+Date.now());
   }
   if('requestIdleCallback' in window){
     requestIdleCallback(warmPhone,{timeout:650});
