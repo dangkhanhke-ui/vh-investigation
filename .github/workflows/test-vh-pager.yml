@@ -65,6 +65,8 @@ jobs:
               for(const [app,id] of [['notes','notesApp'],['messages','messagesApp'],['safari','safariApp']]){
                 await frame.locator('#homeScreen [data-app="'+app+'"]').click();
                 await frame.locator('#screen > #'+id+'.open').waitFor({timeout:4500});
+                // Cauã intentionally treats two Home presses under 330ms as multitasking.
+                await p.waitForTimeout(380);
                 await frame.locator('#caua-home-gesture').click();
                 await frame.locator('#screen > #'+id+'.open').waitFor({state:'hidden',timeout:4500});
               }
