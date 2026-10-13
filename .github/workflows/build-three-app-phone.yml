@@ -141,13 +141,13 @@ jobs:
                   if script.get('id')=='messages-app-script':
                       pattern=r'  const threads = \[[\s\S]*?\n  \];\s*\n\s*(?=const state = )'
                       new_threads="""  const threads = [{
-    id:'neymarinho', listName:'Điều tra viên Neymarinho',
-    displayName:'Điều tra viên Neymarinho', number:'Điều tra viên VH',
-    saved:true, transport:'iMessage', unread:false, preview:'Cuộc trò chuyện điều tra',
-    order:1, messages:[]
-  }];
+                        id:'neymarinho', listName:'Điều tra viên Neymarinho',
+                        displayName:'Điều tra viên Neymarinho', number:'Điều tra viên VH',
+                        saved:true, transport:'iMessage', unread:false, preview:'Cuộc trò chuyện điều tra',
+                        order:1, messages:[]
+                      }];
 
-  """
+                      """
                       code,n=re.subn(pattern,lambda _:new_threads,code,count=1)
                       if n!=1:raise SystemExit('Cannot replace Cauã message archive')
                   # Fresh editable personal notebook; never resurrect old Cauã
@@ -155,11 +155,11 @@ jobs:
                   if script.get('id')=='notes-app-script':
                       pattern=r'  const DEFAULT_NOTES=\[[\s\S]*?\];\s*\n\s*(?=const STORAGE_KEY=)'
                       new_notes="""  const DEFAULT_NOTES=[{
-    id:'vh-player-notebook',num:1,descriptor:'Sổ tay điều tra',
-    timestamp:'2015-08-29T12:00:00',
-    lines:['Hãy ghi chú những gì bạn muốn...','']
-  }];
-  """
+                        id:'vh-player-notebook',num:1,descriptor:'Sổ tay điều tra',
+                        timestamp:'2015-08-29T12:00:00',
+                        lines:['Hãy ghi chú những gì bạn muốn...','']
+                      }];
+                      """
                       code,n=re.subn(pattern,lambda _:new_notes,code,count=1)
                       code=code.replace('caua-notes-player-state-v1','vh-investigator-player-note-v1')
                       if n!=1:raise SystemExit('Cannot replace Cauã notes archive')
