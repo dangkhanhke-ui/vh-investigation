@@ -6,7 +6,7 @@ let seq=0;
 function unlockAudio(){window.VHSound?.prepare()}
 function screen(mode){load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
-function finish(){window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding')}
+function finish(){window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding');document.dispatchEvent(new Event('vh:intro-finished'))}
 async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(220)}await sleep(420);window.VHSound?.stop('loading');if(id!==seq)return;if(final)finish();else dialogue(id)}
 async function say(t,id){
 if(id!==seq)return;
