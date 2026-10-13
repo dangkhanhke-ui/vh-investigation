@@ -61,6 +61,21 @@ jobs:
                 const frame=p.frameLocator('#vhPhoneIframe');
                 await frame.locator('#lockScreen.active').waitFor({timeout:12000});
                 assert.equal(await frame.locator('#homeScreen.active,#passcodeScreen.active').count(),0,'Must start locked, not at PIN or Home');
+                // Verify the player's real uploaded wallpaper loads and paints
+                // above the screen background, not merely that GitHub has a file.
+                const wallpaper=await frame.locator('#screen > .wallpaper').evaluate(async el=>{
+                  const style=getComputedStyle(el);
+                  const url=style.backgroundImage.match(/url\\(["']?([^"')]+)["']?\\)/)?.[1];
+                  if(!url)throw Error('No computed wallpaper URL');
+                  const img=new Image();
+                  img.src=url;
+                  await img.decode();
+                  return {url,zIndex:style.zIndex,width:img.naturalWidth,height:img.naturalHeight};
+                });
+                assert.ok(wallpaper.url.includes('phone_screen.png?v='),'Wallpaper URL must have upload hash: '+JSON.stringify(wallpaper));
+                assert.equal(wallpaper.zIndex,'0','Wallpaper must paint above screen background');
+                assert.ok(wallpaper.width>0&&wallpaper.height>0,'Uploaded PNG must decode');
+                console.log('WALLPAPER OK',wallpaper);
                 const swipeBox=await frame.locator('#swipeTarget').boundingBox();
                 assert.ok(swipeBox,'Lock screen swipe area must exist');
                 const swipeX=swipeBox.x+30,swipeY=swipeBox.y+swipeBox.height*.7;
