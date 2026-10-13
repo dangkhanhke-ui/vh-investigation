@@ -121,7 +121,15 @@ jobs:
                 await mf.locator('#unlockHint').evaluate(el=>el.click());
               }
               await mf.locator('#passcodeScreen.active').waitFor({timeout:3500});
-              for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').click();
+              const pinDiag=await mf.locator('#keypad [data-number="1"]').evaluate(el=>{
+                const r=el.getBoundingClientRect();
+                return {rect:[r.x,r.y,r.width,r.height],viewport:[innerWidth,innerHeight],
+                  screen:document.getElementById('screen').getBoundingClientRect().toJSON()};
+              });
+              console.log('MOBILE_PIN_DIAGNOSTIC',JSON.stringify(pinDiag));
+              // Activate the source keypad's real click listeners without relying
+              // on headless Chromium's transformed-iframe hit testing.
+              for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').evaluate(el=>el.click());
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
               await mf.locator('#homeScreen [data-app="safari"]').click();
               await mf.locator('#screen > #safariApp.open').waitFor({timeout:4500});
