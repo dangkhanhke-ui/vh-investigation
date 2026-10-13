@@ -42,7 +42,7 @@ jobs:
               const p=await desktop.newPage();
               p.on('pageerror',e=>errors.push('desktop:'+e.message));
               await p.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
-              await p.waitForFunction(()=>document.querySelector('#vhPhoneIframe').getAttribute('src')==='phone/',{timeout:15000});
+              await p.waitForFunction(()=>document.querySelector('#vhPhoneIframe').getAttribute('src')==='phone/',null,{timeout:15000});
               await p.locator('#vhOpenPhone').click();
               await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
               let x=await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
@@ -76,7 +76,7 @@ jobs:
               assert.ok(dragX<345 && dragX>100,'Phone should follow finger: '+dragX);
               await touch('touchEnd',190,700);
               await m.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
-              assert.ok(await m.locator('#vhOpenPhone').isHidden(),'Opener hidden on phone');
+              assert.equal(await m.locator('#vhOpenPhone').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Opener disabled while phone is active');
               await m.locator('#vhPhoneBack').click();
               await m.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
               await m.screenshot({path:'/tmp/vh-dossier-pager.png'});
