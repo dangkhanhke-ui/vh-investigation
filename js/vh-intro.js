@@ -15,7 +15,7 @@ const now=audio.currentTime;if(now-lastKeySound<.042)return;lastKeySound=now;
 const length=Math.floor(audio.sampleRate*.065),buffer=audio.createBuffer(1,length,audio.sampleRate),samples=buffer.getChannelData(0);
 for(let i=0;i<length;i++){const time=i/audio.sampleRate;const impact=Math.exp(-time*105),body=Math.exp(-time*48)*Math.sin(2*Math.PI*(190+Math.random()*25)*time);samples[i]=((Math.random()*2-1)*impact*.8+body*.36)}
 const src=audio.createBufferSource(),filter=audio.createBiquadFilter(),gain=audio.createGain();
-src.buffer=buffer;filter.type='highpass';filter.frequency.value=320;gain.gain.value=.24+Math.random()*.08;
+src.buffer=buffer;filter.type='highpass';filter.frequency.value=320;gain.gain.value=.72+Math.random()*.24;
 src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.start(now);
 }catch{}
 }
