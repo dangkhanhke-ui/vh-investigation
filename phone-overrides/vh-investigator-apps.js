@@ -14,7 +14,7 @@
     #vh-investigator-notification{position:absolute;top:26px;left:8px;right:8px;z-index:160;padding:0;border:0;border-radius:13px;background:rgba(226,227,232,.97);color:#171717;font:13px -apple-system,sans-serif;overflow:hidden;box-shadow:0 5px 20px #0004;text-align:left;cursor:pointer;opacity:0;transform:translateY(-130%);pointer-events:none;transition:transform .24s,opacity .2s}
     #vh-investigator-notification.show{opacity:1;transform:translateY(0);pointer-events:auto}
     #vh-investigator-notification .vh-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#eeeef0;color:#59595d;font-size:11px}
-    #vh-investigator-notification .vh-icon{background:#35c85b;border-radius:5px;color:white;width:19px;height:19px;line-height:19px;text-align:center}
+    #vh-investigator-notification .vh-icon{display:block;width:19px;height:19px;border-radius:5px;object-fit:cover;flex-shrink:0}
     #vh-investigator-notification .vh-more{margin-left:auto}
     #vh-investigator-notification .vh-body{display:flex;gap:8px;justify-content:space-between;padding:11px 12px;font-size:14px}
     #vh-investigator-notification .vh-body span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -27,7 +27,7 @@
 
   const toast=document.createElement('button');
   toast.id='vh-investigator-notification';toast.type='button';
-  toast.innerHTML='<div class="vh-head"><b class="vh-icon">●</b>MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
+  toast.innerHTML='<div class="vh-head"><img class="vh-icon" src="../messages.png.png" alt="">MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
   document.getElementById('screen')?.appendChild(toast);
   let hide=0;
   function openInvestigator(){
