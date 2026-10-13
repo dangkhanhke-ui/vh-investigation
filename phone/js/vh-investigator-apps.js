@@ -78,10 +78,10 @@
     const p=e.data;
     if(p.type==='vh:sync'||p.type==='vh:new'){
       update(p.history,p.phase);
-      if(p.type==='vh:new'&&typeof p.text==='string'){
+      if(p.type==='vh:new'&&typeof p.text==='string' && !(bridge.state.view==='conversation' && bridge.state.currentThread==='neymarinho')){
         toast.querySelector('.vh-body span').textContent=p.text;
         toast.classList.add('show');
-        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),9000);
+        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),4800);
       }
     }else if(p.type==='vh:open'){
       if(Array.isArray(p.history))update(p.history,p.phase);
