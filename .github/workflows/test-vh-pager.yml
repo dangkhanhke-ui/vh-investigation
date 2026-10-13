@@ -1,0 +1,88 @@
+name: Test VH pager gestures
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'js/vh-phone.js'
+      - 'vh-phone.css'
+      - 'index.html'
+      - '.github/workflows/test-vh-pager.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  chromium-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install headless Chromium driver
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Check JavaScript syntax
+        run: node --check js/vh-phone.js
+      - name: Serve VH
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/vh-http.log 2>&1 &
+          echo $! > /tmp/vh-server.pid
+      - name: Test desktop and touch gestures
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const assert=require('node:assert/strict');
+          (async()=>{
+            const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+            try{
+              const errors=[];
+              const desktop=await browser.newContext({viewport:{width:1280,height:800}});
+              const p=await desktop.newPage();
+              p.on('pageerror',e=>errors.push('desktop:'+e.message));
+              await p.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+              await p.waitForFunction(()=>document.querySelector('#vhPhoneIframe').getAttribute('src')==='phone/',{timeout:15000});
+              await p.locator('#vhOpenPhone').click();
+              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
+              let x=await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
+              assert.ok(Math.abs(x)<2,'Phone must settle at viewport left: '+x);
+              const frame=p.frameLocator('#vhPhoneIframe');
+              await frame.locator('#lockScreen').waitFor({state:'attached',timeout:15000});
+              await p.locator('#vhPhoneBack').click();
+              await p.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
+              x=await p.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
+              assert.ok(x>1200,'Phone must move fully off screen: '+x);
+              await p.locator('#vhOpenPhone').click();
+              await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
+              assert.equal(await frame.locator('#lockScreen').count(),1,'iFrame stays mounted');
+              await desktop.close();
+
+              const mobile=await browser.newContext({viewport:{width:390,height:844},isMobile:true,hasTouch:true,deviceScaleFactor:2});
+              const m=await mobile.newPage();
+              m.on('pageerror',e=>errors.push('mobile:'+e.message));
+              await m.goto('http://127.0.0.1:8765/',{waitUntil:'domcontentloaded'});
+              await m.waitForFunction(()=>!!document.querySelector('#vhPhoneIframe').getAttribute('src'),null,{timeout:15000});
+              const cdp=await mobile.newCDPSession(m);
+              async function touch(type,x,y){
+                await cdp.send('Input.dispatchTouchEvent',{type,touchPoints:type==='touchEnd'?[]:[{x,y}]});
+              }
+              await touch('touchStart',335,700);
+              for(const px of [310,275,235,190]){
+                await touch('touchMove',px,700);
+                await m.waitForTimeout(20);
+              }
+              const dragX=await m.locator('#vhPhoneLayer').evaluate(el=>el.getBoundingClientRect().left);
+              assert.ok(dragX<345 && dragX>100,'Phone should follow finger: '+dragX);
+              await touch('touchEnd',190,700);
+              await m.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
+              assert.ok(await m.locator('#vhOpenPhone').isHidden(),'Opener hidden on phone');
+              await m.locator('#vhPhoneBack').click();
+              await m.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
+              await m.screenshot({path:'/tmp/vh-dossier-pager.png'});
+              await mobile.close();
+              assert.equal(errors.length,0,'Uncaught runtime errors: '+errors.join(', '));
+              console.log('PASS: desktop click navigation, iframe preservation, mobile finger-follow, snap back, and no page errors');
+            }finally{await browser.close()}
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
