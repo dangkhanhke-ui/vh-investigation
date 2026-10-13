@@ -194,7 +194,9 @@ jobs:
           if not custom_app.is_file():raise SystemExit('Missing VH investigator apps script')
           (out/'js').mkdir(parents=True,exist_ok=True)
           shutil.copy2(custom_app,out/'js/vh-investigator-apps.js')
-          dest.body.append(dest.new_tag('script',src='js/vh-investigator-apps.js?v=hotfix-freeze-20261013'))
+          # Version the runtime script by its bytes: deploys can never serve stale code.
+          investigator_js_version=hashlib.sha256(custom_app.read_bytes()).hexdigest()[:14]
+          dest.body.append(dest.new_tag('script',src='js/vh-investigator-apps.js?v='+investigator_js_version))
           # Copy only original imagery for selected apps, wallpaper and shared UI.
           for name in ('screen','safari','media','embedded','app-icons'):
               d=src/'assets'/name
