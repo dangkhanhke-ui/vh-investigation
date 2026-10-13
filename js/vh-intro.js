@@ -21,7 +21,7 @@ src.connect(filter);filter.connect(gain);gain.connect(audio.destination);src.sta
 }
 function screen(mode){load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
-function finish(){seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding')}
+function finish(){window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding')}
 async function code(id,final=false){screen('access');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kết nối...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>4)stream.firstChild.remove();await sleep(190)}await sleep(420);if(id!==seq)return;if(final)finish();else dialogue(id)}
 async function say(t,id){
 if(id!==seq)return;
@@ -30,10 +30,10 @@ const img=document.createElement('img');img.className='vh-intro-avatar';img.src=
 const bubble=document.createElement('div');bubble.className='vh-intro-bubble vh-typing';bubble.textContent='•••';
 row.append(img,bubble);messages.replaceChildren(row);messages.scrollTop=messages.scrollHeight;
 await sleep(Math.min(1850,750+t.length*12));if(id!==seq)return;
-bubble.classList.remove('vh-typing');bubble.textContent='';
+bubble.classList.remove('vh-typing');bubble.textContent='';window.VHKeyboardAudio?.start();
 for(let i=0;i<t.length;i++){
 if(id!==seq)return;
-const ch=t[i];bubble.textContent+=ch;if(ch.trim())sound();
+const ch=t[i];bubble.textContent+=ch;
 if(i%4===0)messages.scrollTop=messages.scrollHeight;
 let delay=25+Math.random()*23;
 if(ch===','||ch===';')delay+=180;
@@ -41,7 +41,7 @@ if(ch==='.'||ch==='?'||ch==='!')delay+=280;
 if(ch===' ')delay+=12;
 await sleep(delay);
 }
-messages.scrollTop=messages.scrollHeight;
+window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
 await sleep(650+Math.min(500,t.length*3));
 }
 function arrow(){return new Promise(resolve=>{next.hidden=false;next.onclick=()=>{unlockAudio();next.hidden=true;messages.replaceChildren();resolve()}})}
