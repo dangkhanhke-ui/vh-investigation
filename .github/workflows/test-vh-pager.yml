@@ -59,8 +59,11 @@ jobs:
                 await p.locator('#vhOpenPhone').click();
                 await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
                 const frame=p.frameLocator('#vhPhoneIframe');
-                await frame.locator('#homeScreen.active').waitFor({timeout:12000});
-                assert.equal(await frame.locator('#lockScreen.active,#passcodeScreen.active').count(),0,'No lock or PIN screen');
+                await frame.locator('#lockScreen.active').waitFor({timeout:12000});
+                assert.equal(await frame.locator('#homeScreen.active,#passcodeScreen.active').count(),0,'Must start locked, not at PIN or Home');
+                await frame.locator('#unlockHint').click();
+                await frame.locator('#homeScreen.active').waitFor({timeout:5000});
+                assert.equal(await frame.locator('#passcodeScreen.active').count(),0,'Unlock must bypass PIN');
                 assert.equal(await frame.locator('.battery-percent').textContent(),'98%');
                 // Cauã's iOS status-chrome script may replace the fill DOM node.
                 // The visible percentage remains the stable public UI contract.
