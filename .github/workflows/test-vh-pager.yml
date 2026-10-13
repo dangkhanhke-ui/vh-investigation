@@ -50,7 +50,13 @@ jobs:
               const frame=p.frameLocator('#vhPhoneIframe');
               await frame.locator('#lockScreen').waitFor({state:'attached',timeout:15000});
               // Exercise the original iOS 8 app interactions, not just the outer pager.
-              await frame.locator('#unlockHint').click();
+              const desktopSwipe=await frame.locator('#swipeTarget').boundingBox();
+              assert.ok(desktopSwipe,'Unlock drag target must exist');
+              const dx=desktopSwipe.x+Math.min(20,desktopSwipe.width*.2),dy=desktopSwipe.y+desktopSwipe.height/2;
+              await p.mouse.move(dx,dy);
+              await p.mouse.down();
+              await p.mouse.move(dx+155,dy,{steps:12});
+              await p.mouse.up();
               await frame.locator('#passcodeScreen.active').waitFor({timeout:3500});
               for(let i=0;i<4;i++)await frame.locator('#keypad [data-number="1"]').click();
               await frame.locator('#homeScreen.active').waitFor({timeout:3500});
@@ -91,7 +97,13 @@ jobs:
               await m.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
               assert.equal(await m.locator('#vhOpenPhone').evaluate(el=>getComputedStyle(el).pointerEvents),'none','Opener disabled while phone is active');
               const mf=m.frameLocator('#vhPhoneIframe');
-              await mf.locator('#unlockHint').click();
+              const mobileSwipe=await mf.locator('#swipeTarget').boundingBox();
+              assert.ok(mobileSwipe,'Mobile unlock drag target must exist');
+              const mx=mobileSwipe.x+Math.min(18,mobileSwipe.width*.2),my=mobileSwipe.y+mobileSwipe.height/2;
+              await m.mouse.move(mx,my);
+              await m.mouse.down();
+              await m.mouse.move(mx+145,my,{steps:12});
+              await m.mouse.up();
               await mf.locator('#passcodeScreen.active').waitFor({timeout:3500});
               for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').click();
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
