@@ -1,65 +1,81 @@
-/* VH — cinematic horizontal dossier ↔ investigator-phone transition.
-   Deliberately no global swipe listener: Safari keeps its native horizontal gestures. */
-:root{--vh-slide-time:620ms;--vh-slide-ease:cubic-bezier(.22,1,.36,1)}
+/* VH page navigation — one composited phone surface, no expensive background animations. */
+:root{
+  --vh-nav-duration:260ms;
+  --vh-nav-easing:cubic-bezier(.2,.75,.25,1);
+}
+.vh-open-phone,.vh-phone-back{
+  position:fixed;top:50%;display:grid;place-items:center;
+  width:32px;height:84px;padding:0;
+  border:1px solid rgba(235,200,187,.33);
+  background:rgba(19,13,16,.78);color:#e6c3bb;
+  box-shadow:0 3px 14px rgba(0,0,0,.24);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  touch-action:none;user-select:none;
+}
 .vh-open-phone{
- position:fixed;right:max(0px,env(safe-area-inset-right));top:50%;left:auto;bottom:auto;
- transform:translateY(-50%);z-index:120;display:flex;flex-direction:column;
- align-items:center;justify-content:center;gap:8px;
- width:clamp(57px,7vw,80px);height:clamp(118px,19vh,176px);
- border:1px solid rgba(224,184,169,.38);border-right:0;
- border-radius:17px 0 0 17px;
- background:linear-gradient(135deg,rgba(39,15,19,.93),rgba(9,8,10,.94));
- color:#eed1c5;cursor:pointer;box-shadow:-14px 0 36px rgba(0,0,0,.35);
- -webkit-backdrop-filter:blur(17px);backdrop-filter:blur(17px);
- transition:background .25s,border-color .25s,transform .3s,opacity .25s;
- -webkit-tap-highlight-color:transparent
+  right:0;left:auto;bottom:auto;z-index:60;
+  border-right:0;border-radius:10px 0 0 10px;
+  transform:translateY(-50%);
 }
-.vh-open-phone::before{content:"";position:absolute;left:0;top:23%;height:54%;width:2px;background:linear-gradient(transparent,#b63d48,transparent);opacity:.85}
-.vh-open-phone:hover{background:linear-gradient(135deg,rgba(77,22,31,.97),rgba(20,10,14,.98));border-color:rgba(250,189,176,.65)}
-.vh-open-phone:active{transform:translateY(-50%) translateX(3px)}
-.vh-open-phone svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.3;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s}
-.vh-open-phone:hover svg{transform:translateX(4px)}
-.vh-open-phone .vh-arrow-caption{font:600 9px/1.5 ui-monospace,monospace;letter-spacing:.24em;writing-mode:vertical-rl;transform:rotate(180deg);opacity:.78}
-.vh-phone-layer{
- position:fixed;inset:0;z-index:10000;display:block;background:#060506;
- visibility:hidden;opacity:1;pointer-events:none;
- transform:translate3d(102%,0,0);
- transition:transform var(--vh-slide-time) var(--vh-slide-ease),visibility 0s linear var(--vh-slide-time);
- will-change:transform;overflow:hidden
-}
-.vh-phone-layer.open{
- transform:translate3d(0,0,0);visibility:visible;pointer-events:auto;
- transition:transform var(--vh-slide-time) var(--vh-slide-ease),visibility 0s
-}
-.vh-phone-layer iframe{display:block;width:100%;height:100%;border:0;background:#000}
 .vh-phone-back{
- position:absolute;z-index:5;
- left:max(0px,env(safe-area-inset-left));top:50%;
- transform:translateY(-50%);width:clamp(46px,6vw,60px);height:clamp(86px,16vh,138px);
- border:1px solid rgba(255,255,255,.23);border-left:0;
- border-radius:0 14px 14px 0;
- background:linear-gradient(125deg,rgba(12,12,16,.85),rgba(31,18,23,.64));
- color:#f2e2dd;display:grid;place-items:center;cursor:pointer;
- -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
- box-shadow:8px 0 28px rgba(0,0,0,.18);
- -webkit-tap-highlight-color:transparent;transition:background .2s
+  position:absolute;left:0;right:auto;bottom:auto;z-index:5;
+  border-left:0;border-radius:0 10px 10px 0;
+  transform:translateY(-50%);
 }
-.vh-phone-back:hover{background:rgba(67,25,35,.94)}
-.vh-phone-back svg{width:28px;height:28px;stroke:currentColor;fill:none;stroke-width:1.45;stroke-linecap:round;stroke-linejoin:round}
-body.vh-phone-visible{overflow:hidden}
-body.vh-phone-visible .vh-open-phone{opacity:0;pointer-events:none}
-body .shell,body .backdrop-art,body .cinema-atmosphere,body .dock{
- transition:transform var(--vh-slide-time) var(--vh-slide-ease),opacity var(--vh-slide-time) var(--vh-slide-ease);
+.vh-open-phone svg,.vh-phone-back svg{
+  display:block;width:18px;height:18px;
+  fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  pointer-events:none;
 }
-body.vh-phone-visible .shell,body.vh-phone-visible .backdrop-art,body.vh-phone-visible .cinema-atmosphere,body.vh-phone-visible .dock{
- transform:translate3d(-30vw,0,0);opacity:.25;pointer-events:none;
+.vh-open-phone .vh-arrow-caption{display:none}
+.vh-open-phone:hover,.vh-phone-back:hover{
+  background:rgba(58,22,30,.92);border-color:rgba(242,185,180,.7)
 }
-@media(max-width:600px){
- .vh-open-phone{width:57px;height:126px;border-radius:14px 0 0 14px}
- .vh-open-phone svg{width:30px;height:30px}
- .vh-phone-back{width:43px;height:104px}
+.vh-open-phone:focus-visible,.vh-phone-back:focus-visible{
+  outline:2px solid #e9afb2;outline-offset:3px
 }
+body.vh-phone-active .vh-open-phone,
+body.vh-nav-dragging .vh-open-phone{opacity:0;pointer-events:none}
+.vh-phone-layer{
+  position:fixed;inset:0;z-index:10000;
+  width:100%;height:100%;height:100dvh;
+  display:block;overflow:hidden;background:#050505;
+  transform:translate3d(100%,0,0);
+  pointer-events:none;
+  overscroll-behavior:contain;
+}
+.vh-phone-layer.is-interactive{pointer-events:auto}
+.vh-phone-layer iframe{
+  display:block;position:absolute;inset:0;
+  width:100%;height:100%;border:0;
+  background:#050505;
+}
+body.vh-nav-snapping .vh-phone-layer,
+body.vh-nav-snapping .shell{
+  transition:transform var(--vh-nav-duration) var(--vh-nav-easing)!important;
+}
+body.vh-nav-dragging .vh-phone-layer,
+body.vh-nav-dragging .shell{
+  transition:none!important;
+}
+body.vh-phone-active{overflow:hidden}
+body.vh-phone-active .shell{pointer-events:none}
+@media(pointer:coarse){
+  body .shell,body .folder-scene{touch-action:pan-y}
+}
+body.vh-nav-dragging,body.vh-nav-snapping{overscroll-behavior-x:none}
+/* The atmospheric animations cost GPU time even when behind the phone.
+   Pause them during navigation; disable the entire layer once the phone is open. */
+body.vh-nav-dragging .cinema-dust,
+body.vh-nav-dragging .cinema-grain,
+body.vh-nav-snapping .cinema-dust,
+body.vh-nav-snapping .cinema-grain,
+body.vh-phone-active .cinema-dust,
+body.vh-phone-active .cinema-grain{
+  animation-play-state:paused!important;
+}
+body.vh-phone-active .cinema-atmosphere{visibility:hidden}
 @media(prefers-reduced-motion:reduce){
- :root{--vh-slide-time:0ms}
- .vh-open-phone,.vh-open-phone svg,.vh-phone-back{transition:none}
+  :root{--vh-nav-duration:0ms}
 }
