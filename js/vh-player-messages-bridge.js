@@ -40,27 +40,7 @@
    #vh-new-message-banner .vh-body small{color:#777;flex-shrink:0}
  `;
  document.head.appendChild(style);document.body.appendChild(toast);
- // Short double-chime inspired by iPhone SMS alert, generated locally with Web Audio.
- // Browsers may block sound before any user gesture; unlock an audio context on interaction.
- let audioCtx=null;
- function soundAlert(){
-   try{
-     const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
-     audioCtx=audioCtx||new C();
-     if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
-     const now=audioCtx.currentTime;
-     for(const [offset,freq] of [[0,880],[0.115,1174.66]]){
-       const o=audioCtx.createOscillator(),g=audioCtx.createGain();
-       o.type='sine';o.frequency.setValueAtTime(freq,now+offset);
-       g.gain.setValueAtTime(0.0001,now+offset);
-       g.gain.exponentialRampToValueAtTime(0.11,now+offset+0.012);
-       g.gain.exponentialRampToValueAtTime(0.0001,now+offset+0.32);
-       o.connect(g);g.connect(audioCtx.destination);o.start(now+offset);o.stop(now+offset+0.33);
-     }
-   }catch(_){}
- }
- document.addEventListener('pointerdown',()=>{try{if(audioCtx?.state==='suspended')audioCtx.resume()}catch(_){}},{passive:true});
-
+ function soundAlert(){window.VHSound?.play('notification')}
  toast.addEventListener('click',()=>{toast.classList.remove('show');openPhoneMessages()});
  function onNewPartner(){
    const h=history().history;const m=[...h].reverse().find(x=>x.who==='partner');
