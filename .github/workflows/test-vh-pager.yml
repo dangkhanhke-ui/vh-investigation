@@ -72,7 +72,7 @@ jobs:
                   await img.decode();
                   return {url,zIndex:style.zIndex,width:img.naturalWidth,height:img.naturalHeight};
                 });
-                assert.ok(wallpaper.url.includes('phone_screen.png?v='),'Wallpaper URL must have upload hash: '+JSON.stringify(wallpaper));
+                assert.ok(wallpaper.url.includes('vh-wallpaper-'),'Wallpaper URL must have upload hash: '+JSON.stringify(wallpaper));
                 assert.equal(wallpaper.zIndex,'0','Wallpaper must paint above screen background');
                 assert.ok(wallpaper.width>0&&wallpaper.height>0,'Uploaded PNG must decode');
                 console.log('WALLPAPER OK',wallpaper);
