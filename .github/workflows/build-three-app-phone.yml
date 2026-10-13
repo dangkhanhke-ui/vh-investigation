@@ -9,6 +9,7 @@ on:
       - 'phone-overrides/phone_screen.png'
       - 'phone-overrides/vh-investigator-home.css'
       - 'phone-overrides/vh-investigator-apps.js'
+      - 'assets/investigator-avatar.png'
 
 permissions:
   contents: write
@@ -200,6 +201,10 @@ jobs:
               if d.is_dir():shutil.copytree(d,out/'assets'/name,dirs_exist_ok=True)
           for name in ('safari.png.png','messages.png.png','notes.png.png'):
               shutil.copy2(src/name,out/name)
+          # Ship the actual investigator portrait used by Messages inside the phone iframe.
+          portrait=Path('assets/investigator-avatar.png')
+          if not portrait.is_file():raise SystemExit('Missing investigator portrait')
+          shutil.copy2(portrait,out/'assets/investigator-avatar.png')
           # Optional player-specific wallpaper. Upload a PNG at the stable
           # path below; it overrides Cauã's image on every future rebuild.
           custom_wallpaper=Path('phone-overrides/phone_screen.png')
