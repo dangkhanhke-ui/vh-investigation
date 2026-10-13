@@ -8,6 +8,7 @@ on:
       - '.github/workflows/build-three-app-phone.yml'
       - 'phone-overrides/phone_screen.png'
       - 'phone-overrides/vh-investigator-home.css'
+      - 'phone-overrides/vh-investigator-apps.js'
 
 permissions:
   contents: write
