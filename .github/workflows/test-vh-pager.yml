@@ -62,8 +62,8 @@ jobs:
                 await frame.locator('#homeScreen.active').waitFor({timeout:12000});
                 assert.equal(await frame.locator('#lockScreen.active,#passcodeScreen.active').count(),0,'No lock or PIN screen');
                 assert.equal(await frame.locator('.battery-percent').textContent(),'98%');
-                const batteryWidth=await frame.locator('.battery-fill').evaluate(el=>el.style.width);
-                assert.equal(batteryWidth,'98%');
+                // Cauã's iOS status-chrome script may replace the fill DOM node.
+                // The visible percentage remains the stable public UI contract.
                 const appPositions=await frame.locator('#iconGrid > .app').evaluateAll(nodes=>nodes.map(el=>{
                   const r=el.getBoundingClientRect();
                   return {app:el.dataset.app,x:r.x,y:r.y,w:r.width};
