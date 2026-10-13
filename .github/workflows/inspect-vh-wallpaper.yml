@@ -1,0 +1,27 @@
+name: Inspect VH uploaded wallpapers
+on:
+  push:
+    paths:
+      - '.github/workflows/inspect-vh-wallpaper.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip -q install pillow
+      - name: Report wallpaper previews
+        run: |
+          python - <<'PY'
+          import io,base64,hashlib
+          from PIL import Image
+          for path in ['phone-overrides/phone_screen.png','phone-overrides/9c90df5147aaa11fd14db0503927fcb4.jpg','phone/assets/screen/phone_screen.png']:
+              with Image.open(path) as im:
+                  print('FILE',path,im.size,im.mode)
+                  im.thumbnail((200,360))
+                  buf=io.BytesIO()
+                  im.convert('RGB').save(buf,format='JPEG',quality=55)
+                  print('THUMB_'+path.split('/')[-1]+'='+base64.b64encode(buf.getvalue()).decode())
+          PY
