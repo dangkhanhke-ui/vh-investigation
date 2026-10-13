@@ -9,6 +9,8 @@
   thread.number=investigatorNumber;
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
+  thread.listName='Neymarinho';
+  thread.displayName='Neymarinho';
 
   // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
