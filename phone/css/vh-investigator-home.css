@@ -43,7 +43,7 @@
    a content hash so every new uploaded PNG bypasses GitHub Pages/browser cache. */
 #screen > .wallpaper{
   z-index:0!important;
-  background-image:url("../assets/screen/phone_screen.png?v=543061323d9f705f")!important;
+  background-image:url("../assets/screen/vh-wallpaper-543061323d9f705f.png")!important;
   background-position:center center!important;
   background-size:cover!important;
   background-repeat:no-repeat!important;
