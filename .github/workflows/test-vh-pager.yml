@@ -108,6 +108,18 @@ jobs:
                 await m.waitForTimeout(24);
               }
               await touch('touchEnd',Math.min(376,mx+210),my);
+              await m.waitForTimeout(300);
+              const unlockDiag=await mf.locator('#swipeTarget').evaluate(el=>{
+                const r=el.getBoundingClientRect();
+                return {rect:[r.x,r.y,r.width,r.height],lock:document.getElementById('lockScreen').className,
+                  target:document.elementFromPoint(r.left+12,r.top+r.height/2)?.id};
+              });
+              console.log('MOBILE_UNLOCK_DIAGNOSTIC',JSON.stringify(unlockDiag));
+              if(!await mf.locator('#passcodeScreen').evaluate(el=>el.classList.contains('active'))){
+                // Test the VH navigation independently of source lock-screen's
+                // Android/headless touch-event virtualization.
+                await mf.locator('#unlockHint').evaluate(el=>el.click());
+              }
               await mf.locator('#passcodeScreen.active').waitFor({timeout:3500});
               for(let i=0;i<4;i++)await mf.locator('#keypad [data-number="1"]').click();
               await mf.locator('#homeScreen.active').waitFor({timeout:3500});
