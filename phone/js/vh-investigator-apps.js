@@ -171,6 +171,32 @@
     }
   `;
   document.head.appendChild(avatarStyle);
+  // No red unread badges anywhere on the simulated phone.
+  const vhBadgeOff=document.createElement('style');
+  vhBadgeOff.textContent=`
+    #homeScreen [class*="badge"],#homeScreen [class*="Badge"],
+    #homeScreen [class*="notification-count"],#homeScreen [class*="notif-count"],
+    #homeScreen .messages-launch::after,#homeScreen .messages-launch .icon::after,
+    #messagesApp .msg-unread-dot{display:none!important;visibility:hidden!important}
+    #messagesApp .msg-detail-action[data-detail-call] .circle{
+      display:grid!important;place-items:center!important;color:#007aff!important
+    }
+    #messagesApp .msg-detail-action[data-detail-call] .circle svg{
+      width:19px;height:19px;display:block;stroke:currentColor;fill:none;
+      stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round
+    }
+  `;
+  document.head.appendChild(vhBadgeOff);
+  const phoneSvg='<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.19 18a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.09 3.18 2 2 0 0 1 4.08 1h3a2 2 0 0 1 2 1.72c.12.96.34 1.91.66 2.81a2 2 0 0 1-.45 2.11L8.03 8.9a16 16 0 0 0 6 6l1.27-1.26a2 2 0 0 1 2.11-.45c.9.32 1.85.54 2.81.66A2 2 0 0 1 22 16.92Z"/></svg>';
+  // Detail content is recreated on each open; patch it at its render entry point.
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#messagesApp'))return;
+    requestAnimationFrame(()=>{
+      const circle=document.querySelector('#messagesApp [data-detail-call] .circle');
+      if(circle&&circle.querySelector('svg')===null)circle.innerHTML=phoneSvg;
+    });
+  },true);
+
 
   // Ask the parent for existing history on the initial phone load.
   if(window.parent!==window)window.parent.postMessage({type:'vh:ready'},ORIGIN);
