@@ -7,6 +7,7 @@ on:
     paths:
       - '.github/workflows/build-three-app-phone.yml'
       - 'phone-overrides/phone_screen.png'
+      - 'phone-overrides/vh-investigator-home.css'
 
 permissions:
   contents: write
@@ -30,7 +31,7 @@ jobs:
           python3 - <<'PY'
           from bs4 import BeautifulSoup
           from pathlib import Path
-          import shutil, re, subprocess, html as htmlmod
+          import shutil, re, subprocess, hashlib, html as htmlmod
           src=Path('/tmp/caua')
           out=Path('phone')
           if out.exists(): shutil.rmtree(out)
@@ -87,8 +88,19 @@ jobs:
           # The investigator-only override is outside the regenerated folder.
           custom_css=Path('phone-overrides/vh-investigator-home.css')
           if not custom_css.is_file():raise SystemExit('Missing investigator home override')
-          shutil.copy2(custom_css,out/'css/vh-investigator-home.css')
-          dest.head.append(dest.new_tag('link',rel='stylesheet',href='css/vh-investigator-home.css'))
+          # Version BOTH the CSS link and its wallpaper URL by the actual image
+          # bytes. A new upload must never reuse an old cached phone wallpaper.
+          player_wallpaper=Path('phone-overrides/phone_screen.png')
+          source_wallpaper=player_wallpaper if player_wallpaper.is_file() else src/'assets/screen/phone_screen.png'
+          if not source_wallpaper.is_file():raise SystemExit('Phone wallpaper missing')
+          wallpaper_version=hashlib.sha256(source_wallpaper.read_bytes()).hexdigest()[:16]
+          override_text=custom_css.read_text(encoding='utf-8')
+          if '__VH_WALLPAPER_VERSION__' not in override_text:
+              raise SystemExit('Wallpaper cache-bust token missing')
+          (out/'css/vh-investigator-home.css').write_text(
+              override_text.replace('__VH_WALLPAPER_VERSION__',wallpaper_version),encoding='utf-8')
+          dest.head.append(dest.new_tag('link',rel='stylesheet',
+              href='css/vh-investigator-home.css?v='+wallpaper_version))
           scripts=original.find_all('script')
           # Preserve the original startup sequence and code of the three apps,
           # plus switcher, clock, scrollbars and Cauã's immersive controls.
@@ -159,7 +171,9 @@ jobs:
           assert not dest.select('#homeScreen .dock,#homeScreen .page-dots')
           assert 'battery: 98' in result and 'showLock();' in result
           assert 'function showPasscode() {' in result and 'showHome(true);' in result
-          assert 'css/vh-investigator-home.css' in result
+          assert 'css/vh-investigator-home.css?v='+wallpaper_version in result
+          assert (out/'assets/screen/phone_screen.png').read_bytes()==source_wallpaper.read_bytes()
+          assert '?v='+wallpaper_version in (out/'css/vh-investigator-home.css').read_text(encoding='utf-8')
           assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
           assert len(refs)>45,len(refs)
           assert 'mode(true)' in result and 'caua-home-gesture' in result
