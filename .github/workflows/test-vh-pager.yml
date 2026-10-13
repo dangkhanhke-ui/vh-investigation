@@ -166,6 +166,16 @@ jobs:
                 await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
                 assert.equal(await p.locator('#vhPhoneIframe').getAttribute('src'),src);
                 assert.equal(await p.locator('#vhPhoneBack').count(),1);
+                // On the dossier, an incoming Neymarinho message must raise
+                // a tappable banner and open directly into his phone thread.
+                await p.locator('#vhPhoneBack').click();
+                await p.waitForFunction(()=>!document.body.classList.contains('vh-phone-active'),null,{timeout:5000});
+                await p.evaluate(()=>document.getElementById('hint')?.click());
+                await p.locator('#vh-new-message-banner.show').waitFor({timeout:6500});
+                await p.locator('#vh-new-message-banner').click();
+                await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:5000});
+                await frame.locator('#messagesConversationView.active').waitFor({timeout:5000});
+                console.log('PASS dossier banner opens Neymarinho chat',viewport.width);
                 assert.deepEqual(errors,[]);
                 console.log('PASS',viewport.width,'px: open, close, reopen, iframe preserved');
                 await context.close();
