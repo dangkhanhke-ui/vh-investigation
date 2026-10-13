@@ -1,43 +1,35 @@
-/* Investigative navigation and first-run assistance */
-.vh-menu-trigger{position:fixed;top:14px;left:16px;z-index:10020;color:#f0e9e8;background:#171314eb;border:1px solid #7a5855;border-radius:7px;padding:7px 11px;font:18px Arial,sans-serif;cursor:pointer}
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;600&display=swap');
+/* Minimal robotic editorial UI */
+.vh-menu-trigger{position:fixed;top:17px;left:17px;z-index:10020;display:flex;flex-direction:column;justify-content:center;gap:5px;align-items:center;width:44px;height:44px;padding:10px;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important;color:#fff;cursor:pointer}
+.vh-menu-trigger span{display:block;width:23px;height:1.5px;background:#fff}
 body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:none}
-.vh-menu-panel{position:fixed;z-index:10021;top:54px;left:16px;width:min(290px,calc(100vw - 32px));background:#141314;color:#f3eeee;border:1px solid #4b3333;border-radius:9px;box-shadow:0 16px 38px #0009;padding:16px;font:14px Roboto,Arial,sans-serif}
 .vh-menu-panel[hidden],.vh-guide-shade[hidden],.vh-guide-dialog[hidden],.vh-tour-tip[hidden],.vh-menu-settings[hidden]{display:none!important}
-.vh-menu-title{display:flex;align-items:center;justify-content:space-between;font-size:12px;letter-spacing:.1em;padding-bottom:13px;border-bottom:1px solid #393031}
-.vh-menu-panel button{color:inherit;background:none;border:0;text-align:left;cursor:pointer}
-.vh-menu-title button{font-size:24px}
-.vh-menu-panel>button{display:flex;align-items:center;justify-content:space-between;width:100%;padding:15px 2px;border-bottom:1px solid #292526;font-size:14px}
-.vh-menu-panel>button:hover,.vh-menu-settings button:hover{color:#e5a9a2}
-.vh-menu-panel small{display:block;margin-top:20px;color:#8e8282;font-size:10px}
-.vh-menu-settings{padding:14px 4px;background:#222021;border-radius:5px}
-.vh-menu-settings label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px}
-.vh-menu-settings input{accent-color:#933127;width:18px;height:18px}
-.vh-menu-settings button{margin-top:17px;font-size:13px;padding:4px 0;color:#f0c0bc}
-/* Editorial red / black reference treatment for the guide */
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700&display=swap');
-.vh-guide-shade{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:11000}
-.vh-guide-dialog{
- position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);
- width:min(590px,calc(100vw - 34px));max-height:calc(100dvh - 28px);overflow-y:auto;
- box-sizing:border-box;background:#ff1010;color:#090909;border:0;border-radius:0;
- padding:clamp(24px,5vw,50px) clamp(22px,6vw,54px) clamp(23px,4vw,39px);
- box-shadow:none;font:400 12px/1.22 "Roboto Condensed","Arial Narrow",Arial,sans-serif;
-}
-.vh-guide-close{position:absolute;right:13px;top:9px;background:transparent;border:0;color:#0b0b0b;font:400 19px/1 "Roboto Condensed",Arial,sans-serif;cursor:pointer;padding:5px}
-.vh-guide-eyebrow{font:500 9px/1.2 "Roboto Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.055em;color:#390303;margin:0 0 16px;text-transform:uppercase}
-.vh-guide-dialog h2{font:500 clamp(22px,4.2vw,34px)/.95 "Roboto Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:-.055em;text-transform:uppercase;color:#080808;margin:0 18px 22px 0;max-width:390px}
-.vh-guide-steps{border-top:1px solid rgba(0,0,0,.7)}
-.vh-guide-steps p{margin:0;padding:10px 0 11px;border:0;border-bottom:1px solid rgba(0,0,0,.56);color:#180000;font:400 11px/1.3 "Roboto Condensed","Arial Narrow",Arial,sans-serif}
-.vh-guide-steps b{display:block;font-weight:600;color:#090909;margin:0 0 3px;text-transform:uppercase;letter-spacing:-.013em}
-.vh-guide-footnote{font:400 9px/1.35 "Roboto Condensed","Arial Narrow",Arial,sans-serif;color:#3e0505;margin:12px 0 14px;text-transform:uppercase;letter-spacing:.025em}
-.vh-guide-primary{display:block;width:100%;min-height:29px;border:0;border-radius:100px;background:#060606;color:#f5f5f5;padding:7px 13px;cursor:pointer;text-align:center;font:500 10px/1 "Roboto Condensed","Arial Narrow",Arial,sans-serif;letter-spacing:.035em;text-transform:uppercase;transition:background .15s,transform .15s}
-.vh-guide-primary:hover{background:#202020}
-.vh-guide-primary:active{transform:scale(.992)}
-.vh-guide-dialog button:focus-visible{outline:2px solid #000;outline-offset:3px}
-@media(max-width:480px){.vh-guide-dialog{padding:29px 23px 24px}.vh-guide-dialog h2{font-size:27px}.vh-guide-steps p{font-size:11px;padding:11px 0}.vh-guide-eyebrow{margin-bottom:18px}}
-.vh-tour-open #vhOpenPhone{z-index:12002!important;box-shadow:0 0 0 6px #933127,0 0 25px #fff7!important;animation:vh-tour-glow 1s ease-in-out infinite alternate}
-.vh-tour-tip{position:fixed;top:76px;right:18px;z-index:12003;background:#1a1617;color:#f8efed;border:1px solid #8c4540;padding:16px;width:min(275px,calc(100vw - 36px));border-radius:7px;box-shadow:0 12px 35px #0009;font:13px/1.55 Roboto,Arial,sans-serif}
-.vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:8px}.vh-tour-tip button{border:0;border-bottom:1px solid #cb8a82;background:none;color:#f9d6d2;padding:3px 0;cursor:pointer}
-.vh-tour-phone .vh-tour-tip{top:75px;right:18px}
-@keyframes vh-tour-glow{to{box-shadow:0 0 0 8px #933127,0 0 38px #fff9}}
-@media(prefers-reduced-motion:reduce){.vh-tour-open #vhOpenPhone{animation:none}}
+.vh-menu-panel{position:fixed;z-index:10021;top:0;left:0;bottom:0;width:min(340px,85vw);box-sizing:border-box;overflow:auto;background:#f01414;color:#080808;border:0;border-radius:0;box-shadow:16px 0 45px #0008;padding:35px 25px 28px;font:400 12px/1.45 'Roboto Mono',Consolas,monospace;animation:vh-panel-enter .22s ease-out}
+@keyframes vh-panel-enter{from{transform:translateX(-18px);opacity:.4}to{transform:translateX(0);opacity:1}}
+.vh-menu-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:64px;font:500 11px 'Roboto Mono',monospace;letter-spacing:.06em}
+.vh-menu-panel button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.vh-menu-title button{font-size:23px;font-weight:400;padding:0 4px}
+.vh-menu-panel>button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:22px 0;border-top:1px solid #320000;text-align:left;font-size:12px;font-weight:500;letter-spacing:-.04em}
+.vh-menu-panel>button:last-of-type{border-bottom:1px solid #320000}
+.vh-menu-panel>button span:last-child{font-size:18px;font-weight:400}
+.vh-menu-panel>button:active{opacity:.6}
+.vh-menu-settings{padding:16px 0 22px;border-bottom:1px solid #320000;font-size:10px}
+.vh-menu-settings label{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vh-menu-settings input{accent-color:#080808;width:15px;height:15px}
+.vh-menu-settings button{display:block;margin-top:20px;padding:0;font-size:10px}
+.vh-guide-shade{position:fixed;inset:0;background:#080808f5;z-index:11000}
+.vh-guide-dialog{position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);width:min(590px,calc(100vw - 34px));min-height:min(365px,calc(100dvh - 34px));max-height:calc(100dvh - 34px);overflow:auto;box-sizing:border-box;background:#f01414;color:#090909;border:0;border-radius:0;box-shadow:none;padding:clamp(24px,5vw,45px);display:flex;flex-direction:column;justify-content:space-between;font:400 11px/1.55 'Roboto Mono',Consolas,monospace}
+.vh-guide-head{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.05em}
+.vh-guide-close{border:0;background:none;color:#090909;font:400 23px 'Roboto Mono',monospace;cursor:pointer}
+.vh-guide-copy{padding:35px 0 44px}
+.vh-guide-copy h2{font:500 clamp(22px,5vw,32px)/1.08 'Roboto Mono',Consolas,monospace;letter-spacing:-.075em;margin:0 0 17px;text-transform:uppercase}
+.vh-guide-description{max-width:390px;margin:0;font-size:11px;line-height:1.65}
+.vh-guide-bottom{border-top:1px solid #330000;padding-top:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}
+.vh-guide-count{font-size:11px}
+.vh-guide-primary{border:0;border-radius:30px;background:#050505;color:white;min-height:29px;min-width:155px;padding:7px 17px;font:500 10px/1 'Roboto Mono',monospace;cursor:pointer}
+.vh-guide-primary:active{transform:scale(.985)}
+.vh-tour-open #vhOpenPhone{z-index:12002!important;outline:1px solid #fff!important;outline-offset:5px!important}
+.vh-tour-tip{position:fixed;top:76px;right:18px;z-index:12003;background:#f01414;color:#0b0000;border:0;border-radius:0;padding:16px;width:min(275px,calc(100vw - 36px));font:400 11px/1.6 'Roboto Mono',monospace}
+.vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:9px}.vh-tour-tip button{border:0;border-radius:20px;background:#050505;color:white;font:500 10px 'Roboto Mono',monospace;padding:7px 15px;cursor:pointer}
+@media(max-width:480px){.vh-guide-dialog{padding:25px;min-height:min(340px,calc(100dvh - 34px))}.vh-guide-copy h2{font-size:24px}.vh-guide-primary{min-width:130px;font-size:9px;padding:7px 10px}}
+@media(prefers-reduced-motion:reduce){.vh-menu-panel{animation:none}}
