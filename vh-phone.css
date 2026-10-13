@@ -40,7 +40,7 @@
 .vh-nav-prev{
   position:absolute;
   z-index:3;
-  top:calc(52px + env(safe-area-inset-top,0px));
+  top:calc(14px + env(safe-area-inset-top,0px));
   left:calc(12px + env(safe-area-inset-left,0px));
   right:auto;
 }
@@ -96,7 +96,7 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
     right:calc(12px + env(safe-area-inset-right,0px));
   }
   .vh-nav-prev{
-    top:calc(49px + env(safe-area-inset-top,0px));
+    top:calc(12px + env(safe-area-inset-top,0px));
     left:calc(10px + env(safe-area-inset-left,0px));
   }
 }
