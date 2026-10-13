@@ -258,6 +258,27 @@ jobs:
           fi
       - name: Configure Pages
         uses: actions/configure-pages@v5
+      - name: Fingerprint website assets for automatic cache refresh
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, re
+          page=Path('index.html')
+          html=page.read_text(encoding='utf-8')
+          def version(m):
+              prefix,url=m.groups()
+              path=url.split('?',1)[0]
+              if not path.startswith(('js/','css/')) and path not in ('styles.css','vh-phone.css','app.js'):
+                  return m.group(0)
+              asset=Path(path)
+              if not asset.is_file():
+                  return m.group(0)
+              digest=hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
+              return prefix+path+'?v='+digest+'"'
+          html=re.sub(r'((?:src|href)=")([^"]+)"',version,html)
+          page.write_text(html,encoding='utf-8')
+          print('Fingerprinted local scripts and stylesheets')
+          PY
       - name: Upload latest built three-app site
         uses: actions/upload-pages-artifact@v3
         with:
