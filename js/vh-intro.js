@@ -8,7 +8,27 @@ function screen(mode){load.hidden=mode!=='load';form.hidden=mode!=='name';access
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
 function finish(){seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding')}
 async function code(id,final=false){screen('access');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kết nối...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>4)stream.firstChild.remove();await sleep(190)}await sleep(420);if(id!==seq)return;if(final)finish();else dialogue(id)}
-async function say(t,id){if(id!==seq)return;const row=document.createElement('div');row.className='vh-intro-message-row';const img=document.createElement('img');img.className='vh-intro-avatar';img.src='assets/investigator-avatar.png';img.alt='';const b=document.createElement('div');b.className='vh-intro-bubble vh-typing';b.textContent='•••';row.append(img,b);messages.appendChild(row);messages.scrollTop=messages.scrollHeight;await sleep(Math.min(1050,Math.max(420,t.length*16)));if(id!==seq)return;b.classList.remove('vh-typing');b.textContent=t;tone();messages.scrollTop=messages.scrollHeight;await sleep(180)}
+async function say(t,id){
+if(id!==seq)return;
+const row=document.createElement('div');row.className='vh-intro-message-row';
+const img=document.createElement('img');img.className='vh-intro-avatar';img.src='assets/investigator-avatar.png';img.alt='';
+const bubble=document.createElement('div');bubble.className='vh-intro-bubble vh-typing';bubble.textContent='•••';
+row.append(img,bubble);messages.appendChild(row);messages.scrollTop=messages.scrollHeight;
+await sleep(Math.min(1850,750+t.length*12));if(id!==seq)return;
+bubble.classList.remove('vh-typing');bubble.textContent='';tone();
+for(let i=0;i<t.length;i++){
+if(id!==seq)return;
+const ch=t[i];bubble.textContent+=ch;
+if(i%4===0)messages.scrollTop=messages.scrollHeight;
+let delay=25+Math.random()*23;
+if(ch===','||ch===';')delay+=180;
+if(ch==='.'||ch==='?'||ch==='!')delay+=280;
+if(ch===' ')delay+=12;
+await sleep(delay);
+}
+messages.scrollTop=messages.scrollHeight;
+await sleep(650+Math.min(500,t.length*3));
+}
 function arrow(){return new Promise(resolve=>{next.hidden=false;next.onclick=()=>{next.hidden=true;resolve()}})}
 function option(t){const b=document.createElement('button');b.type='button';b.className='vh-intro-choice';b.textContent=t;actions.appendChild(b);return b}
 async function dialogue(id){screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;const n=get(KEY);await say(n+', đã đến rồi à?',id);await arrow();if(id!==seq)return;await say('Tên anh là Neymarinho, điều tra viên của vụ án về cái chết của Cauã.',id);await arrow();if(id!==seq)return;await say('Chắc hẳn em đã nhận được vài tài liệu mà anh đã thu thập được rồi? Đúng chứ?',id);if(id!==seq)return;const answer=await new Promise(resolve=>{option('Đã nhận').onclick=()=>resolve('yes');option('Chưa nhận').onclick=()=>resolve('no')});actions.replaceChildren();if(answer==='no'){await say('Gì vậy má? Em kiểm tra kỹ chưa thế? Anh gửi cả đống tài liệu rồi mà!',id);await new Promise(resolve=>{option('Đã nhận').onclick=resolve});actions.replaceChildren()}if(id!==seq)return;for(const t of ['Dù sao thì','Vụ án này có vẻ phức tạp hơn anh nghĩ, nên anh mới cần thêm một người trợ giúp.','Giúp anh nhé, '+n+'.','Anh tin mày.']){await say(t,id);if(id!==seq)return}await arrow();if(id!==seq)return;put(DONE,'yes');await code(id,true)}
