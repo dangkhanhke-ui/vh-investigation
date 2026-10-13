@@ -8,6 +8,9 @@ on:
       - 'index.html'
       - 'vh-phone.css'
       - 'js/vh-phone.js'
+      - 'phone/index.html'
+      - 'phone/css/vh-investigator-home.css'
+      - 'phone-overrides/vh-investigator-home.css'
       - '.github/workflows/test-vh-pager.yml'
 
 permissions:
@@ -56,7 +59,22 @@ jobs:
                 await p.locator('#vhOpenPhone').click();
                 await p.waitForFunction(()=>document.body.classList.contains('vh-phone-active'),null,{timeout:4000});
                 const frame=p.frameLocator('#vhPhoneIframe');
-                await frame.locator('#lockScreen').waitFor({state:'attached',timeout:12000});
+                await frame.locator('#homeScreen.active').waitFor({timeout:12000});
+                assert.equal(await frame.locator('#lockScreen.active,#passcodeScreen.active').count(),0,'No lock or PIN screen');
+                assert.equal(await frame.locator('.battery-percent').textContent(),'98%');
+                const batteryWidth=await frame.locator('.battery-fill').evaluate(el=>el.style.width);
+                assert.equal(batteryWidth,'98%');
+                const appPositions=await frame.locator('#iconGrid > .app').evaluateAll(nodes=>nodes.map(el=>{
+                  const r=el.getBoundingClientRect();
+                  return {app:el.dataset.app,x:r.x,y:r.y,w:r.width};
+                }));
+                assert.deepEqual(appPositions.map(a=>a.app),['notes','messages','safari']);
+                assert.ok(appPositions.every(a=>Math.abs(a.y-appPositions[0].y)<2),'Three apps must share top row: '+JSON.stringify(appPositions));
+                assert.ok(appPositions[0].x<appPositions[1].x&&appPositions[1].x<appPositions[2].x,'Apps must sit side by side');
+                assert.equal(await frame.locator('#homeScreen .dock,#homeScreen .page-dots').count(),0);
+                const topNext=await p.locator('#vhOpenPhone').evaluate(el=>el.getBoundingClientRect().top);
+                const topBack=await p.locator('#vhPhoneBack').evaluate(el=>el.getBoundingClientRect().top);
+                assert.ok(Math.abs(topNext-topBack)<2,'Both chevrons must align vertically: '+topNext+' '+topBack);
                 const src=await p.locator('#vhPhoneIframe').getAttribute('src');
                 await p.locator('#vhPhoneBack').click();
                 await p.waitForFunction(()=>!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-phone-transitioning'),null,{timeout:4000});
