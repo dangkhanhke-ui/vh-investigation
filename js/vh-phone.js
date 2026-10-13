@@ -189,22 +189,36 @@
    document.body.classList.remove('vh-phone-active');
    document.documentElement.style.setProperty('--vh-nav-duration',duration+'ms');
    document.body.classList.add('vh-nav-snapping');
-   // Force the current finger-followed transform to be the transition origin.
+   let finished=false;
+   function complete(){
+     if(finished)return;
+     finished=true;
+     clearTimeout(snapTimer);
+     layer.removeEventListener('transitionend',onTransitionEnd);
+     snapping=false;
+     page=destination?'phone':'dossier';
+     document.body.classList.remove('vh-nav-snapping');
+     // At the end of the browser's actual transform transition, not
+     // a guessed number of milliseconds, the panel becomes interactive.
+     render(destination);
+     document.body.classList.toggle('vh-phone-active',!!destination);
+     layer.classList.toggle('is-interactive',!!destination);
+     layer.setAttribute('aria-hidden',destination?'false':'true');
+     if(destination)layer.removeAttribute('inert');
+     else layer.setAttribute('inert','');
+     open.setAttribute('aria-expanded',destination?'true':'false');
+     if(focus)(destination?back:open).focus({preventScroll:true});
+   }
+   function onTransitionEnd(event){
+     if(event.target===layer&&event.propertyName==='transform')complete();
+   }
+   layer.addEventListener('transitionend',onTransitionEnd);
    void layer.offsetWidth;
    requestAnimationFrame(()=>{
      render(destination);
-     snapTimer=setTimeout(()=>{
-       snapping=false;
-       page=destination?'phone':'dossier';
-       document.body.classList.remove('vh-nav-snapping');
-       document.body.classList.toggle('vh-phone-active',!!destination);
-       layer.classList.toggle('is-interactive',!!destination);
-       layer.setAttribute('aria-hidden',destination?'false':'true');
-       if(destination)layer.removeAttribute('inert');
-       else layer.setAttribute('inert','');
-       open.setAttribute('aria-expanded',destination?'true':'false');
-       if(focus)(destination?back:open).focus({preventScroll:true});
-     },duration+24);
+     if(duration===0){complete();return}
+     // Fallback only for browsers that omit transitionend (e.g. tab hidden).
+     snapTimer=setTimeout(complete,duration+240);
    });
  }
  open.addEventListener('click',e=>{
