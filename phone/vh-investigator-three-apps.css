@@ -1,6 +1,0 @@
-
-/* VH investigator preview: use original Cauã iOS 8 app implementations.
-   Only Safari, Messages and GoodReader/Files appear on the home screen. */
-#homeScreen .app[data-app]:not([data-app="safari"]):not([data-app="messages"]):not([data-app="goodreader"]) {
-  display: none !important;
-}
