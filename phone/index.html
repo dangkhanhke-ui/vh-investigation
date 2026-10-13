@@ -43,7 +43,7 @@
 <span class="battery"><span class="battery-fill"></span></span>
 </div>
 </div>
-<section aria-label="Màn hình khóa" class="lock-screen view" id="lockScreen">
+<section aria-label="Màn hình khóa" class="lock-screen view active" id="lockScreen">
 <div class="lock-time" id="lockTime">21:41</div>
 <div class="lock-date" id="lockDate">Thứ Ba, 18 tháng 11</div>
 <div class="lock-spacer"></div>
@@ -77,7 +77,7 @@
 </div><!-- end caua-passcode-stack -->
 <button class="emergency" type="button">Khẩn cấp</button>
 </section>
-<section aria-label="Màn hình chính" class="home-screen view active" id="homeScreen">
+<section aria-label="Màn hình chính" class="home-screen view" id="homeScreen">
 <div class="icon-grid" id="iconGrid">
 
 
@@ -317,14 +317,9 @@
   }
 
   function showPasscode() {
-    state = 'passcode';
-    entered = '';
-    refreshDots();
-    screen.classList.add('unlocking');
-    setTimeout(() => {
-      screen.classList.remove('unlocking');
-      setActive(passcodeScreen);
-    }, 210);
+    // Investigator phone has a lock screen, but no PIN challenge.
+    // Both swipe-to-unlock and the unlock hint go straight to Home.
+    showHome(true);
   }
 
   function showHome(animate = true) {
@@ -465,7 +460,7 @@
   window.addEventListener('resize', fitPhone, { passive:true });
   window.visualViewport?.addEventListener('resize',fitPhone,{passive:true});
   fitPhone();
-  showHome(false);
+  showLock();
 })();
 
 </script><script id="messages-app-script">
