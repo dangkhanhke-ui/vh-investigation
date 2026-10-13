@@ -12,6 +12,7 @@ on:
       - 'phone/css/vh-investigator-home.css'
       - 'phone-overrides/vh-investigator-home.css'
       - 'phone-overrides/vh-investigator-apps.js'
+      - 'phone/js/vh-investigator-apps.js'
       - 'js/vh-player-messages-bridge.js'
       - '.github/workflows/test-vh-pager.yml'
 
