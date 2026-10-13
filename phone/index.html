@@ -16,7 +16,7 @@
   outline:0 !important;
   box-shadow:none !important;
 }
-</style><meta content="c8f5fdfaa12710f16d4a646f787c0f7d37d488d6" name="vh-caua-source-commit"/></head><body><main aria-label="iPhone 5 iOS 8" class="stage">
+</style><meta content="c8f5fdfaa12710f16d4a646f787c0f7d37d488d6" name="vh-caua-source-commit"/><link href="css/vh-investigator-home.css" rel="stylesheet"/></head><body><main aria-label="iPhone 5 iOS 8" class="stage">
 <div class="phone-wrap" id="phoneWrap">
 <section aria-label="iPhone 5 đen slate" class="iphone">
 <div aria-hidden="true" class="power-button"></div>
@@ -39,11 +39,11 @@
 <div class="status-time" id="statusTime">21:41</div>
 <div class="status-right">
 <span class="bluetooth">ᛒ</span>
-<span class="battery-percent">62%</span>
+<span class="battery-percent">98%</span>
 <span class="battery"><span class="battery-fill"></span></span>
 </div>
 </div>
-<section aria-label="Màn hình khóa" class="lock-screen view active" id="lockScreen">
+<section aria-label="Màn hình khóa" class="lock-screen view" id="lockScreen">
 <div class="lock-time" id="lockTime">21:41</div>
 <div class="lock-date" id="lockDate">Thứ Ba, 18 tháng 11</div>
 <div class="lock-spacer"></div>
@@ -77,33 +77,13 @@
 </div><!-- end caua-passcode-stack -->
 <button class="emergency" type="button">Khẩn cấp</button>
 </section>
-<section aria-label="Màn hình chính" class="home-screen view" id="homeScreen">
+<section aria-label="Màn hình chính" class="home-screen view active" id="homeScreen">
 <div class="icon-grid" id="iconGrid">
-
-
-
 <div class="app notes-launch" data-app="notes"><div class="icon image-icon"><img alt="" data-app-icon="notes" data-fallback-src="./assets/media/66edf0697d90edcdf3562c4b.png" decoding="async" fetchpriority="high" loading="eager" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc" src="./notes.png.png"/></div><span>Ghi chú</span></div>
-
-
-
-
-
-
-</div>
-<div aria-hidden="true" class="page-dots single-page"><i></i></div>
-<div aria-label="Dock" class="dock">
-
-<div class="app dock-app messages-launch" data-app="messages"><div class="icon image-icon"><img alt="" data-app-icon="messages" data-fallback-src="./assets/media/898c09d3c8af0b9b7effdb61.png" decoding="async" fetchpriority="high" loading="eager" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc" src="./messages.png.png"/></div><span>Tin nhắn</span></div>
-
-<div class="app dock-app safari-launch" data-app="safari"><div class="icon image-icon"><img alt="" data-app-icon="safari" data-fallback-src="./assets/media/8e47cee68a3cc75603f05f14.png" decoding="async" fetchpriority="high" loading="eager" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc" src="./safari.png.png"/></div><span>Safari</span></div>
+<div class="app messages-launch" data-app="messages"><div class="icon image-icon"><img alt="" data-app-icon="messages" data-fallback-src="./assets/media/898c09d3c8af0b9b7effdb61.png" decoding="async" fetchpriority="high" loading="eager" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc" src="./messages.png.png"/></div><span>Tin nhắn</span></div>
+<div class="app safari-launch" data-app="safari"><div class="icon image-icon"><img alt="" data-app-icon="safari" data-fallback-src="./assets/media/8e47cee68a3cc75603f05f14.png" decoding="async" fetchpriority="high" loading="eager" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc" src="./safari.png.png"/></div><span>Safari</span></div>
 </div>
 </section>
-
-
-
-
-
-
 <section aria-label="Ghi chú" class="notes-app" id="notesApp">
 <div class="notes-shell notes26-shell">
 <section class="notes-list-view" id="notesListView">
@@ -248,7 +228,7 @@
     carrier: 'VIVO',
     time: (() => { const d = new Date(); const z = n => String(n).padStart(2, '0'); return `${z(d.getHours())}:${z(d.getMinutes())}`; })(),
     date: 'Thứ Bảy, 29 tháng 8',
-    battery: 62,
+    battery: 98,
   };
 
   const phoneWrap = document.getElementById('phoneWrap');
@@ -470,7 +450,7 @@
   window.addEventListener('resize', fitPhone, { passive:true });
   window.visualViewport?.addEventListener('resize',fitPhone,{passive:true});
   fitPhone();
-  showLock();
+  showHome(false);
 })();
 
 </script><script id="messages-app-script">
