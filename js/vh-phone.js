@@ -15,11 +15,8 @@
   function warmPhone(){
     if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/?fresh='+Date.now());
   }
-  if('requestIdleCallback' in window){
-    requestIdleCallback(warmPhone,{timeout:650});
-  }else{
-    setTimeout(warmPhone,130);
-  }
+  // CRASH GUARD: never preload the heavyweight phone during dossier startup.
+  // Only create the iframe after the player explicitly opens the phone.
 
   function duration(){
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:245;
