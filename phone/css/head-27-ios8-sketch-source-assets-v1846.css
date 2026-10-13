@@ -1,0 +1,143 @@
+
+/*
+ v1.8.47 — actual vectors extracted from the user-supplied “iOS8 UI Kit +.sketch”.
+ Home-screen app icons are deliberately untouched.
+*/
+
+/* --- Phone tab bar: exact Sketch vectors --- */
+.phone-tab-icon {
+  background:currentColor !important;
+  -webkit-mask-repeat:no-repeat !important;
+  mask-repeat:no-repeat !important;
+  -webkit-mask-position:center !important;
+  mask-position:center !important;
+}
+.phone-tab-icon::before,.phone-tab-icon::after,.phone-tab-icon i{content:none !important;display:none !important;}
+.phone-tab-icon.favorites {
+  -webkit-mask-image:url("../assets/embedded/5951dbeb908854da1dc40ec5.svg") !important;
+  mask-image:url("../assets/embedded/5951dbeb908854da1dc40ec5.svg") !important;
+  -webkit-mask-size:26px 24px !important; mask-size:26px 24px !important;
+}
+.phone-tab-icon.recents {
+  -webkit-mask-image:url("../assets/embedded/64dfa96089076dd15e32c70c.svg") !important;
+  mask-image:url("../assets/embedded/64dfa96089076dd15e32c70c.svg") !important;
+  -webkit-mask-size:24px 24px !important; mask-size:24px 24px !important;
+}
+.phone-tab-icon.contacts {
+  -webkit-mask-image:url("../assets/embedded/8935b852eeeca4da535a912c.svg") !important;
+  mask-image:url("../assets/embedded/8935b852eeeca4da535a912c.svg") !important;
+  -webkit-mask-size:24px 24px !important; mask-size:24px 24px !important;
+}
+.phone-tab-icon.keypad {
+  display:block !important;
+  -webkit-mask-image:url("../assets/embedded/d7e89b78f3a879e4800ed2cc.svg") !important;
+  mask-image:url("../assets/embedded/d7e89b78f3a879e4800ed2cc.svg") !important;
+  -webkit-mask-size:22px 22px !important; mask-size:22px 22px !important;
+}
+.phone-tab-icon.voicemail {
+  -webkit-mask-image:url("../assets/embedded/07e2ff9df305777d27cbd047.svg") !important;
+  mask-image:url("../assets/embedded/07e2ff9df305777d27cbd047.svg") !important;
+  -webkit-mask-size:25px 13px !important; mask-size:25px 13px !important;
+}
+
+/* --- Phone in-call controls: use actual kit vectors where the kit contains them --- */
+.phone-call-control i.call-glyph::before,
+.phone-call-control i.call-glyph::after{content:none !important;display:none !important;}
+.phone-call-control i.call-glyph {
+  background-color:rgba(255,255,255,.19) !important;
+}
+.phone-call-control i.call-glyph.mute::before{display:block !important;}
+.call-glyph.mute {
+  position:relative !important;
+}
+.call-glyph.mute span{display:none}
+.call-glyph.mute::before {
+  content:"" !important; display:block !important; position:absolute !important; inset:14px 20px 10px !important;
+  background:#fff !important;
+  -webkit-mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+}
+.call-glyph.mute::after {
+  content:"" !important; display:block !important; position:absolute !important; left:15px !important; top:29px !important;
+  width:31px !important; height:2px !important; background:#fff !important; border-radius:2px !important;
+  transform:rotate(45deg) !important;
+}
+.call-glyph.dialpad {
+  background-color:rgba(255,255,255,.19) !important;
+}
+.call-glyph.dialpad::before {
+  content:"" !important;display:block !important;position:absolute !important;inset:15px !important;background:#fff !important;
+  -webkit-mask:url("../assets/embedded/d7e89b78f3a879e4800ed2cc.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/d7e89b78f3a879e4800ed2cc.svg") center/contain no-repeat !important;
+}
+.call-glyph.addcall::before {
+  content:"" !important;display:block !important;position:absolute !important;inset:18px !important;background:#fff !important;
+  -webkit-mask:url("../assets/embedded/d905fb51575daf086139e055.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/d905fb51575daf086139e055.svg") center/contain no-repeat !important;
+}
+.call-glyph.facetime::before {
+  content:"" !important;display:block !important;position:absolute !important;inset:17px 15px !important;background:#fff !important;
+  -webkit-mask:url("../assets/embedded/61d5e3b819f273a0b8b62fcb.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/61d5e3b819f273a0b8b62fcb.svg") center/contain no-repeat !important;
+}
+.call-glyph.contacts::before {
+  content:"" !important;display:block !important;position:absolute !important;inset:14px !important;background:#fff !important;
+  -webkit-mask:url("../assets/embedded/8935b852eeeca4da535a912c.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/8935b852eeeca4da535a912c.svg") center/contain no-repeat !important;
+}
+/* Speaker stays CSS for now: the kit's speaker symbol is split into multiple styled groups. */
+
+/* --- Search loupe from the Sketch kit --- */
+.phone-search .glass,.msg-search-box .glass {
+  font-size:0 !important;width:15px !important;height:15px !important;display:inline-block !important;background:currentColor !important;
+  -webkit-mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+}
+.notes-search-icon {
+  border:0 !important;border-radius:0 !important;width:17px !important;height:17px !important;
+  background:#777 !important;
+  -webkit-mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+}
+.notes-search-icon::after{content:none !important;}
+
+/* --- Camera: actual iOS 8 UI-kit camera vector --- */
+.msg-camera::before {
+  content:"" !important;position:absolute !important;inset:5px 3px 3px !important;width:auto !important;height:auto !important;
+  border:0 !important;border-radius:0 !important;background:#8e8e93 !important;
+  -webkit-mask:url("../assets/embedded/ddebf91a7d68dbe98959c8c5.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/ddebf91a7d68dbe98959c8c5.svg") center/contain no-repeat !important;
+}
+.msg-camera::after{content:none !important;}
+#whatsappApp .wa-camera::before {
+  content:"" !important;position:absolute !important;inset:2px !important;width:auto !important;height:auto !important;
+  border:0 !important;border-radius:0 !important;background:#8a8a8a !important;
+  -webkit-mask:url("../assets/embedded/ddebf91a7d68dbe98959c8c5.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/ddebf91a7d68dbe98959c8c5.svg") center/contain no-repeat !important;
+}
+#whatsappApp .wa-camera::after{content:none !important;}
+
+/* --- Microphone: vector extracted from the keyboard/dictation symbol in the kit --- */
+.msg-sendmic:not(.send)::before {
+  content:"" !important;position:absolute !important;inset:5px 8px !important;width:auto !important;height:auto !important;
+  border:0 !important;border-radius:0 !important;background:#8e8e93 !important;
+  -webkit-mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+}
+.msg-sendmic:not(.send)::after{content:none !important;}
+#whatsappApp .wa-mic::before {
+  content:"" !important;position:absolute !important;inset:8px 11px !important;width:auto !important;height:auto !important;
+  border:0 !important;border-radius:0 !important;background:#fff !important;
+  -webkit-mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/4bba93cf80ed0867d81a9352.svg") center/contain no-repeat !important;
+}
+#whatsappApp .wa-mic::after{content:none !important;}
+
+/* WhatsApp top search button also uses the real UI-kit loupe */
+#whatsappApp .wa-icon-search::before {
+  content:"" !important;position:absolute !important;inset:1px !important;width:auto !important;height:auto !important;
+  background:#fff !important;border:0 !important;border-radius:0 !important;
+  -webkit-mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+  mask:url("../assets/embedded/485b51734764a0bad19643b5.svg") center/contain no-repeat !important;
+}
+#whatsappApp .wa-icon-search::after{content:none !important;}
