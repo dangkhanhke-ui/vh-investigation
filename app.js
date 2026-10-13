@@ -39,7 +39,7 @@ function renderChat(){const box=$('messages');box.innerHTML=state.chat.map(m=>`<
 function openChat(){document.body.classList.add('lock');$('dim').classList.add('open');$('chatSheet').classList.add('open');state.unread=0;renderDock();renderChat();save()}
 function closeChat(){document.body.classList.remove('lock');$('dim').classList.remove('open');$('chatSheet').classList.remove('open')}
 function flashInvestigator(){const el=$('dock');el.classList.remove('message-arrived');void el.offsetWidth;el.classList.add('message-arrived');setTimeout(()=>el.classList.remove('message-arrived'),1400)}
-function partnerReply(text){if(typing){setTimeout(()=>partnerReply(text),1100);return}typing=true;renderChat();timer=setTimeout(()=>{typing=false;appendMessage('partner',text);state.unread=$('chatSheet').classList.contains('open')?0:(Number(state.unread)||0)+1;renderDock();renderChat();if(state.unread)flashInvestigator();save();},900)}
+function partnerReply(text){const playerName=window.VHPlayer?.name;if(playerName&&!String(text).startsWith(playerName+','))text=playerName+', '+text;if(typing){setTimeout(()=>partnerReply(text),1100);return}typing=true;renderChat();timer=setTimeout(()=>{typing=false;appendMessage('partner',text);state.unread=$('chatSheet').classList.contains('open')?0:(Number(state.unread)||0)+1;renderDock();renderChat();if(state.unread)flashInvestigator();save();},900)}
 function notify(t){$('toast').textContent=t;$('toast').classList.add('show');clearTimeout(notify.t);notify.t=setTimeout(()=>$('toast').classList.remove('show'),1900)}
 function check(){let q=cur(),a=state.answer,good=false;if(q.type==='single')good=a===q.correct;else if(q.type==='input')good=q.accept.includes(String(a).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim());else if(q.type==='multi')good=Array.isArray(a)&&a.length===q.correct.length&&q.correct.every(x=>a.includes(x));else if(q.type==='match')good=Object.keys(a||{}).length===q.left.length&&q.correct.every((v,i)=>a[i]===v);else if(q.type==='order')good=JSON.stringify(a||q.items)===JSON.stringify(q.correct);
  if(!good){$('feedback').textContent='Chưa khớp';return}state.phase='await';$('feedback').textContent='✓';$('feedback').classList.add('good');$('submit').disabled=true;partnerReply(q.reply);renderDock();save();}
@@ -54,15 +54,16 @@ $('answers').onclick=e=>{let c=e.target.closest('[data-choice]'),l=e.target.clos
 document.addEventListener('input',e=>{if(e.target.id==='textAnswer'){state.answer=e.target.value;$('submit').disabled=!e.target.value.trim();save()}});
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{let stage=+btn.dataset.stage-1;const limit=currStage();if(stage===limit){if(state.phase==='report')openReport(stage,true);else if(state.phase==='finished')openReport(stage,false);return}if(state.reports.includes(stage)){openReport(stage,false);return}notify(stage>limit?'Chưa mở':'Chưa có báo cáo')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('chatSheet').classList.contains('open'))closeChat();else closeReport()}if(e.key==='Enter'&&e.target.id==='textAnswer'){e.preventDefault();check()}});
-/* Explicit replay control; only clears this game's local progress after confirmation. */
-(function setupReplay(){
+/* Return control: never erase game progress. */
+(function setupReturn(){
  const button=document.createElement('button');
  button.type='button';button.id='replayGame';button.className='replay-game';
- button.textContent='↻ Chơi lại';button.title='Chơi lại hồ sơ từ đầu';
+ button.textContent='←';button.title='Quay lại màn hình bắt đầu';
+ button.setAttribute('aria-label','Quay lại màn hình bắt đầu');
  button.addEventListener('click',()=>{
-  if(!window.confirm('Chơi lại từ đầu? Tiến trình và cuộc trò chuyện hiện tại sẽ được đặt lại.'))return;
-  try{localStorage.removeItem('vh_v3_save')}catch{}
-  window.location.reload();
+  if(window.confirm('Quay lại màn hình bắt đầu? Tiến trình điều tra sẽ được giữ nguyên.')){
+    window.dispatchEvent(new Event('vh:show-intro'));
+  }
  });
  document.body.appendChild(button);
 })();
