@@ -1,42 +1,106 @@
-/* VH seamless horizontal pager: zero visible controls, swipe-only navigation.
-   The only animated element is the composited phone surface. */
-:root{--vh-snap-duration:235ms;--vh-snap-ease:cubic-bezier(.22,.8,.25,1)}
-html,body{overscroll-behavior-x:none}
-body:not(.vh-phone-active){touch-action:pan-y}
+/* VH / dossier <-> phone: discreet corner chevrons, click-only.
+   No global touch listeners and no animated dossier layers. */
+:root{
+  --vh-nav-duration:245ms;
+  --vh-nav-ease:cubic-bezier(.22,.78,.25,1);
+}
+.vh-nav-control{
+  position:fixed;
+  z-index:65;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  margin:0;
+  padding:0 0 3px;
+  border:1px solid rgba(226,185,181,.25);
+  border-radius:50%;
+  background:rgba(24,16,19,.73);
+  color:#e9d3d0;
+  box-shadow:0 3px 13px rgba(0,0,0,.22);
+  appearance:none;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:background-color 150ms ease,border-color 150ms ease,opacity 150ms ease;
+}
+.vh-nav-control span{
+  display:block;
+  font-family:Georgia,"Times New Roman",serif;
+  font-weight:300;
+  font-size:30px;
+  line-height:1;
+  transform:translateY(-1px);
+  pointer-events:none;
+}
+.vh-nav-next{
+  top:calc(14px + env(safe-area-inset-top,0px));
+  right:calc(14px + env(safe-area-inset-right,0px));
+}
+.vh-nav-prev{
+  position:absolute;
+  z-index:3;
+  top:calc(52px + env(safe-area-inset-top,0px));
+  left:calc(12px + env(safe-area-inset-left,0px));
+  right:auto;
+}
+.vh-nav-prev span{transform:translate(-1px,-1px)}
+.vh-nav-control:hover{
+  background:rgba(74,30,40,.92);
+  border-color:rgba(235,189,187,.7);
+}
+.vh-nav-control:focus-visible{
+  outline:2px solid #e6a4a8;
+  outline-offset:3px;
+}
+body.vh-phone-active .vh-nav-next,
+body.vh-phone-transitioning .vh-nav-next{
+  opacity:0;
+  pointer-events:none;
+}
 .vh-phone-layer{
- position:fixed;inset:0;z-index:10000;
- width:100%;height:100%;height:100dvh;
- overflow:hidden;background:#050505;
- transform:translate3d(100%,0,0);
- pointer-events:none;
- overscroll-behavior:contain;
- contain:layout style;
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  display:block;
+  width:100%;
+  height:100%;
+  height:100dvh;
+  overflow:hidden;
+  background:#050505;
+  transform:translate3d(100%,0,0);
+  pointer-events:none;
+  overscroll-behavior:contain;
 }
 .vh-phone-layer.is-interactive{pointer-events:auto}
 .vh-phone-layer iframe{
- position:absolute;inset:0;display:block;
- width:100%;height:100%;border:0;background:#050505;
+  position:absolute;
+  inset:0;
+  display:block;
+  width:100%;
+  height:100%;
+  border:0;
+  background:#050505;
 }
-.vh-phone-swipe-edge{
- position:absolute;top:0;bottom:0;left:0;
- width:20px;z-index:2;
- background:transparent;
- touch-action:none;
- pointer-events:none;
- -webkit-tap-highlight-color:transparent;
+.vh-phone-layer.is-animating{
+  transition:transform var(--vh-nav-duration) var(--vh-nav-ease);
 }
-.vh-phone-layer.is-interactive .vh-phone-swipe-edge{pointer-events:auto}
-body.vh-nav-snapping .vh-phone-layer{
- transition:transform var(--vh-snap-duration) var(--vh-snap-ease)!important;
-}
-body.vh-nav-dragging .vh-phone-layer{transition:none!important}
-body.vh-nav-dragging{user-select:none;-webkit-user-select:none;touch-action:none}
 body.vh-phone-active{overflow:hidden}
 body.vh-phone-active .cinema-atmosphere{visibility:hidden}
 body.vh-phone-active .cinema-dust,
-body.vh-phone-active .cinema-grain,
-body.vh-nav-dragging .cinema-dust,
-body.vh-nav-dragging .cinema-grain,
-body.vh-nav-snapping .cinema-dust,
-body.vh-nav-snapping .cinema-grain{animation-play-state:paused!important}
-@media(prefers-reduced-motion:reduce){:root{--vh-snap-duration:0ms}}
+body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
+@media(max-width:600px){
+  .vh-nav-control{width:32px;height:32px}
+  .vh-nav-next{
+    top:calc(12px + env(safe-area-inset-top,0px));
+    right:calc(12px + env(safe-area-inset-right,0px));
+  }
+  .vh-nav-prev{
+    top:calc(49px + env(safe-area-inset-top,0px));
+    left:calc(10px + env(safe-area-inset-left,0px));
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  :root{--vh-nav-duration:0ms}
+  .vh-nav-control{transition:none}
+}
