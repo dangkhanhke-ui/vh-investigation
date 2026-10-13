@@ -65,7 +65,29 @@ jobs:
               if section.get('id') not in allowed: section.decompose()
           for icon in list(stage.select('#homeScreen .app[data-app]')):
               if icon.get('data-app') not in {'safari','messages','notes'}:icon.decompose()
+          # Investigator's phone starts unlocked; keep unused lock/PIN nodes
+          # only because Cauã's original core script references their IDs.
+          stage.select_one('#lockScreen')['class']=['lock-screen','view']
+          stage.select_one('#homeScreen')['class']=['home-screen','view','active']
+          # Move all three real app launchers into one top row, not the iOS dock.
+          grid=stage.select_one('#iconGrid')
+          for name in ('notes','messages','safari'):
+              icon=stage.select_one('#homeScreen .app[data-app="'+name+'"]')
+              if icon is None:raise SystemExit('Missing investigator app '+name)
+              icon.extract()
+              icon['class']=[c for c in icon.get('class',[]) if c!='dock-app']
+              grid.append(icon)
+          for selector in ('#homeScreen .dock','#homeScreen .page-dots'):
+              el=stage.select_one(selector)
+              if el:el.decompose()
+          status_battery=stage.select_one('.battery-percent')
+          if status_battery:status_battery.string='98%'
           dest.body.append(stage.extract())
+          # The investigator-only override is outside the regenerated folder.
+          custom_css=Path('phone-overrides/vh-investigator-home.css')
+          if not custom_css.is_file():raise SystemExit('Missing investigator home override')
+          shutil.copy2(custom_css,out/'css/vh-investigator-home.css')
+          dest.head.append(dest.new_tag('link',rel='stylesheet',href='css/vh-investigator-home.css'))
           scripts=original.find_all('script')
           # Preserve the original startup sequence and code of the three apps,
           # plus switcher, clock, scrollbars and Cauã's immersive controls.
@@ -90,6 +112,10 @@ jobs:
               elif i in inline_ids:
                   code=script.string
                   if not code:raise SystemExit('Missing inline script '+str(i))
+                  if i==1:
+                      code,n=re.subn(r'(battery:\\s*)\\d+',r'\\g<1>98',code,count=1)
+                      code,n2=re.subn(r'(fitPhone\\(\\);\\s*\\n\\s*)showLock\\(\\);',r'\\1showHome(false);',code,count=1)
+                      if n!=1 or n2!=1:raise SystemExit('Investigator unlock/battery startup not found')
                   if i==14:
                       code,n=re.subn(r'  const APPS = \{[\s\S]*?\n  \};', """  const APPS = {
                         notes:{id:'notesApp',name:'Ghi chú',screenClass:'notes-open'},
@@ -117,6 +143,11 @@ jobs:
           (out/'index.html').write_text(result,encoding='utf-8')
           actual_apps=[x['data-app'] for x in dest.select('#homeScreen .app[data-app]')]
           assert set(actual_apps)=={'safari','messages','notes'},actual_apps
+          assert [x['data-app'] for x in dest.select('#iconGrid > .app')]==['notes','messages','safari']
+          assert dest.select_one('#homeScreen').has_attr('class') and 'active' in dest.select_one('#homeScreen')['class']
+          assert not dest.select('#homeScreen .dock,#homeScreen .page-dots')
+          assert 'battery: 98' in result and 'showHome(false);' in result
+          assert 'css/vh-investigator-home.css' in result
           assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
           assert len(refs)>45,len(refs)
           assert 'mode(true)' in result and 'caua-home-gesture' in result
