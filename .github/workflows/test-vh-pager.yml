@@ -11,6 +11,8 @@ on:
       - 'phone/index.html'
       - 'phone/css/vh-investigator-home.css'
       - 'phone-overrides/vh-investigator-home.css'
+      - 'phone-overrides/vh-investigator-apps.js'
+      - 'js/vh-player-messages-bridge.js'
       - '.github/workflows/test-vh-pager.yml'
 
 permissions:
@@ -115,6 +117,34 @@ jobs:
                 assert.ok(appPositions.every(a=>Math.abs(a.y-appPositions[0].y)<2),'Three apps must share top row: '+JSON.stringify(appPositions));
                 assert.ok(appPositions[0].x<appPositions[1].x&&appPositions[1].x<appPositions[2].x,'Apps must sit side by side');
                 assert.equal(await frame.locator('#homeScreen .dock,#homeScreen .page-dots').count(),0);
+                // Player notebook: one clean, editable note, no Cauã archive.
+                await frame.locator('[data-app="notes"]').click();
+                await frame.locator('#notesList .notes-row').first().waitFor({timeout:5000});
+                assert.equal(await frame.locator('#notesList .notes-row').count(),1);
+                await frame.locator('#notesList .notes-row').first().click();
+                assert.ok((await frame.locator('#notesDetailBody').textContent()).includes('Hãy ghi chú những gì bạn muốn'));
+                // Home gesture returns from Notes and then launches Messages.
+                await frame.locator('#caua-home-gesture').click();
+                await frame.locator('[data-app="messages"]').click();
+                await frame.locator('#messagesThreads [data-thread-id="neymarinho"]').waitFor({timeout:5000});
+                assert.equal(await frame.locator('#messagesThreads [data-thread-id]').count(),1);
+                // The bridge must use the actual case log, not baked-in messages.
+                await frame.locator('#messagesThreads [data-thread-id="neymarinho"]').click();
+                await p.waitForFunction(()=>{
+                  const f=document.getElementById('vhPhoneIframe');
+                  const b=f?.contentWindow?.CauaMessagesBridge;
+                  const h=JSON.parse(localStorage.getItem('vh_v3_save')||'{}').chat||[];
+                  return !!b&&b.threads.length===1&&h.length>0&&b.threads[0].messages.length===h.length;
+                },null,{timeout:5000});
+                const draft='Tôi đang kiểm tra hồ sơ.';
+                await frame.locator('#messagesReplyInput').fill(draft);
+                await frame.locator('#messagesSendBtn').click();
+                await p.waitForFunction(text=>{
+                  const h=JSON.parse(localStorage.getItem('vh_v3_save')||'{}').chat||[];
+                  return h.some(m=>m.who==='me'&&m.text===text);
+                },draft,{timeout:5000});
+                console.log('PASS phone notebook + Neymarinho live Messages',viewport.width);
+
                 const topNext=await p.locator('#vhOpenPhone').evaluate(el=>el.getBoundingClientRect().top);
                 const topBack=await p.locator('#vhPhoneBack').evaluate(el=>el.getBoundingClientRect().top);
                 assert.ok(Math.abs(topNext-topBack)<2,'Both chevrons must align vertically: '+topNext+' '+topBack);
