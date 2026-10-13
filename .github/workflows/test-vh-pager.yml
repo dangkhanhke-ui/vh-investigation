@@ -65,7 +65,7 @@ jobs:
                 // above the screen background, not merely that GitHub has a file.
                 const wallpaper=await frame.locator('#screen > .wallpaper').evaluate(async el=>{
                   const style=getComputedStyle(el);
-                  const url=style.backgroundImage.match(/url\\(["']?([^"')]+)["']?\\)/)?.[1];
+                  const url=style.backgroundImage.startsWith('url(')?style.backgroundImage.slice(4,-1).replace(/^["']|["']$/g,''):null;
                   if(!url)throw Error('No computed wallpaper URL');
                   const img=new Image();
                   img.src=url;
