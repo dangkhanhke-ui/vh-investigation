@@ -104,3 +104,7 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
   :root{--vh-nav-duration:0ms}
   .vh-nav-control{transition:none}
 }
+
+/* Investigator chat has moved into the iOS Messages app. Retain its hidden
+   game engine/actions so hints and phase progression work via the phone. */
+#dock,#chatSheet,#dim{display:none!important}
