@@ -9,7 +9,7 @@ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return;audio=au
 let lastKeySound=0;
 function sound(){
 try{
-if(get('vh_sound_enabled')==='false')return;
+
 unlockAudio();if(!audio||audio.state!=='running')return;
 const now=audio.currentTime;if(now-lastKeySound<.042)return;lastKeySound=now;
 const length=Math.floor(audio.sampleRate*.065),buffer=audio.createBuffer(1,length,audio.sampleRate),samples=buffer.getChannelData(0);
