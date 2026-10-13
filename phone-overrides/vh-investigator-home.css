@@ -1,0 +1,39 @@
+/* VH investigator phone: unlocked by default; only 3 top-row apps.
+   This file is loaded AFTER Cauã's original CSS cascade. */
+#lockScreen,#passcodeScreen,#wrongCode{
+  display:none!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+#homeScreen .icon-grid{
+  display:grid!important;
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  grid-auto-rows:94px!important;
+  justify-content:stretch!important;
+  align-content:start!important;
+  width:100%!important;
+  height:auto!important;
+  padding:15px 10px 0!important;
+  gap:0!important;
+}
+#homeScreen .icon-grid .app{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  min-width:0!important;
+  cursor:pointer;
+  touch-action:manipulation;
+}
+#homeScreen .icon-grid .app .icon{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}
+#homeScreen .icon-grid .app>span{
+  display:block;
+  text-align:center!important;
+}
+#homeScreen .dock,#homeScreen .page-dots{
+  display:none!important;
+}
