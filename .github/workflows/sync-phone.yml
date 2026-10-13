@@ -9,10 +9,15 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 jobs:
   import-phone:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,5 +56,16 @@ jobs:
             echo "Phone source already up to date"
           else
             git commit -m "feat: import Cauã iOS phone and Safari Messages Files into VH"
+            git fetch origin main
+            git rebase origin/main
             git push origin HEAD:main
           fi
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload imported site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+      - name: Publish updated Pages site
+        id: publish
+        uses: actions/deploy-pages@v5
