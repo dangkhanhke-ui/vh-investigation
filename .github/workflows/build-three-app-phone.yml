@@ -136,6 +136,33 @@ jobs:
               elif i in inline_ids:
                   code=script.string
                   if not code:raise SystemExit('Missing inline script '+str(i))
+                  # Replace Cauã's historical message archive with only the
+                  # investigator's live thread. Never ship NPC messages in VH.
+                  if script.get('id')=='messages-app-script':
+                      pattern=r'  const threads = \\[[\\s\\S]*?\\n  \\];\\s*\\n\\s*(?=const state = )'
+                      new_threads="""  const threads = [{
+    id:'neymarinho', listName:'Điều tra viên Neymarinho',
+    displayName:'Điều tra viên Neymarinho', number:'Điều tra viên VH',
+    saved:true, transport:'iMessage', unread:false, preview:'Cuộc trò chuyện điều tra',
+    order:1, messages:[]
+  }];
+
+  """
+                      code,n=re.subn(pattern,lambda _:new_threads,code,count=1)
+                      if n!=1:raise SystemExit('Cannot replace Cauã message archive')
+                  # Fresh editable personal notebook; never resurrect old Cauã
+                  # notes, even for users with legacy localStorage entries.
+                  if script.get('id')=='notes-app-script':
+                      pattern=r'  const DEFAULT_NOTES=\\[[\\s\\S]*?\\];\\s*\\n\\s*(?=const STORAGE_KEY=)'
+                      new_notes="""  const DEFAULT_NOTES=[{
+    id:'vh-player-notebook',num:1,descriptor:'Sổ tay điều tra',
+    timestamp:'2015-08-29T12:00:00',
+    lines:['Hãy ghi chú những gì bạn muốn...','']
+  }];
+  """
+                      code,n=re.subn(pattern,lambda _:new_notes,code,count=1)
+                      code=code.replace('caua-notes-player-state-v1','vh-investigator-player-note-v1')
+                      if n!=1:raise SystemExit('Cannot replace Cauã notes archive')
                   if i==1:
                       code,n=re.subn(r'(battery:\s*)\d+',r'\g<1>98',code,count=1)
                       # Keep showLock() at startup. Bypass only the PIN transition.
@@ -191,6 +218,8 @@ jobs:
           assert 'function showPasscode() {' in result and 'showHome(true);' in result
           assert 'css/vh-investigator-home.css?v='+wallpaper_version in result
           assert 'js/vh-investigator-apps.js' in result
+          assert "id:'neymarinho'" in result and "id:'marcela'" not in result
+          assert "id:'vh-player-notebook'" in result and '"id":"note01"' not in result
           assert (out/'assets/screen/phone_screen.png').read_bytes()==source_wallpaper.read_bytes()
           assert wallpaper_name in (out/'css/vh-investigator-home.css').read_text(encoding='utf-8')
           assert wallpaper_name in result
