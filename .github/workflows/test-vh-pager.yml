@@ -66,7 +66,7 @@ jobs:
                 await frame.locator('#homeScreen [data-app="'+app+'"]').click();
                 await frame.locator('#screen > #'+id+'.open').waitFor({timeout:4500});
                 await frame.locator('#caua-home-gesture').click();
-                await frame.locator('#'+id+'.open').waitFor({state:'hidden',timeout:4500});
+                await frame.locator('#screen > #'+id+'.open').waitFor({state:'hidden',timeout:4500});
               }
               await p.locator('#vhPhoneBack').click();
               await p.waitForFunction(()=>!document.body.classList.contains('vh-nav-snapping')&&!document.body.classList.contains('vh-phone-active'),null,{timeout:3500});
@@ -115,7 +115,7 @@ jobs:
               await touch('touchEnd',205,320);
               assert.ok(await m.evaluate(()=>document.body.classList.contains('vh-phone-active')),'Safari gesture must keep phone active');
               await mf.locator('#caua-home-gesture').click();
-              await mf.locator('#safariApp.open').waitFor({state:'hidden',timeout:4500});
+              await mf.locator('#screen > #safariApp.open').waitFor({state:'hidden',timeout:4500});
               // Home screen CAN swipe right from the first 23px to return to dossier.
               await touch('touchStart',12,330);
               for(const px of [35,90,160,240]){await touch('touchMove',px,330);await m.waitForTimeout(18)}
