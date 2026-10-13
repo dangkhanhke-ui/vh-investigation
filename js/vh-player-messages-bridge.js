@@ -64,7 +64,13 @@
      const form=document.getElementById('chatForm');
      if(field&&form){field.value=text;form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));send('vh:sync')}
    }else if(e.data.type==='vh:action'){
-     if(e.data.action==='continue')document.getElementById('continue')?.click();
+     if(e.data.action==='continue'){
+       document.getElementById('continue')?.click();
+       // Reports/questions live on the dossier page, so return from the
+       // phone when continuing a case phase.
+       if(document.body.classList.contains('vh-phone-active'))
+         document.getElementById('vhPhoneBack')?.click();
+     }
      if(e.data.action==='hint')document.getElementById('hint')?.click();
      send('vh:sync');
    }
