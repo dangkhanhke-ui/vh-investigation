@@ -1,0 +1,20 @@
+// DOM event wiring; load after case data, state, rendering, chat and game.
+$('dock').onclick=openChat;$('dim').onclick=closeChat;$('minimize').onclick=closeChat;$('closeChat').onclick=closeChat;$('submit').onclick=check;$('hint').onclick=()=>{if(!typing)hint()};$('continue').onclick=continueGame;$('modalClose').onclick=closeReport;$('modalLater').onclick=closeReport;$('modalNext').onclick=nextStage;
+$('chatForm').onsubmit=e=>{e.preventDefault();const input=$('chatInput'),text=input.value.trim();if(!text||typing)return;input.value='';appendMessage('me',text);renderChat();const norm=text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');if(norm.includes('goi y')||norm.includes('hint')){partnerReply(cur().hints[Math.min(state.hint[state.i]||0,cur().hints.length-1)]);state.hint[state.i]=(state.hint[state.i]||0)+1}else partnerReply(state.phase==='await'?'Chúng ta đã xác lập được điều này. Khi sẵn sàng, hãy tiếp tục.':'Hãy đối chiếu những gì có trong hồ sơ giấy. Tôi chỉ có thể xác nhận điều mà chứng cứ hỗ trợ.')};
+$('answers').onclick=e=>{let c=e.target.closest('[data-choice]'),l=e.target.closest('[data-left]'),r=e.target.closest('[data-right]'),m=e.target.closest('[data-move]');if(state.phase!=='solve')return;if(c){let i=+c.dataset.choice;if(cur().type==='multi'){let a=Array.isArray(state.answer)?[...state.answer]:[];state.answer=a.includes(i)?a.filter(x=>x!==i):[...a,i]}else state.answer=i;render()}if(l){matchingLeft=+l.dataset.left;render()}if(r){if(matchingLeft===null){notify('Chọn bên trái trước');return}let pairs={...(state.answer||{})};Object.keys(pairs).forEach(x=>{if(pairs[x]===+r.dataset.right)delete pairs[x]});pairs[matchingLeft]=+r.dataset.right;state.answer=pairs;matchingLeft=null;render()}if(m){let [i,d]=m.dataset.move.split(',').map(Number),a=[...(Array.isArray(state.answer)?state.answer:(cur().start||cur().items))];if(i+d<0||i+d>=a.length)return;[a[i],a[i+d]]=[a[i+d],a[i]];state.answer=a;render()}};
+document.addEventListener('input',e=>{if(e.target.id==='textAnswer'){state.answer=e.target.value;$('submit').disabled=!e.target.value.trim();save()}});
+document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{let stage=+btn.dataset.stage-1;const limit=currStage();if(stage===limit){if(state.phase==='report')openReport(stage,true);else if(state.phase==='finished')openReport(stage,false);return}if(state.reports.includes(stage)){openReport(stage,false);return}notify(stage>limit?'Chưa mở':'Chưa có báo cáo')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('chatSheet').classList.contains('open'))closeChat();else closeReport()}if(e.key==='Enter'&&e.target.id==='textAnswer'){e.preventDefault();check()}});
+/* Explicit replay control; only clears this game's local progress after confirmation. */
+(function setupReplay(){
+ const button=document.createElement('button');
+ button.type='button';button.id='replayGame';button.className='replay-game';
+ button.textContent='↻ Chơi lại';button.title='Chơi lại hồ sơ từ đầu';
+ button.addEventListener('click',()=>{
+  if(!window.confirm('Chơi lại từ đầu? Tiến trình và cuộc trò chuyện hiện tại sẽ được đặt lại.'))return;
+  try{localStorage.removeItem('vh_v3_save')}catch{}
+  window.location.reload();
+ });
+ document.body.appendChild(button);
+})();
+render();
