@@ -1062,4 +1062,383 @@ screen.addEventListener('scroll',event=>{
 window.addEventListener('resize',()=>{if(current&&thumb.classList.contains('visible')&&!tick)tick=requestAnimationFrame(refresh);},{passive:true});
 document.getElementById('homeButton')?.addEventListener('click',()=>{thumb.classList.remove('visible');current=null;},true);
 })();
-</script><script src="js/safari.js"></script><script src="js/caua-messages-ios8-complete.js"></script><script src="js/caua-safari-ios8-links.js"></script><script src="js/ios8-system-chrome.js"></script><script src="js/ui-universal-back.js"></script><script src="js/caua-ios-app-motion.js"></script></body></html>
+</script><script src="js/safari.js"></script><script src="js/caua-messages-ios8-complete.js"></script><script src="js/caua-safari-ios8-links.js"></script><script src="js/ios8-system-chrome.js"></script><script src="js/ui-universal-back.js"></script><script src="js/caua-ios-app-motion.js"></script><script id="ios8-app-switcher-script">
+(() => {
+  const home = document.getElementById('homeButton');
+  const screen = document.getElementById('screen');
+  const switcher = document.getElementById('ios8AppSwitcher');
+  const track = document.getElementById('ios8SwitcherTrack');
+  const contacts = document.getElementById('ios8SwitcherContacts');
+  const lockScreen = document.getElementById('lockScreen');
+  const passcodeScreen = document.getElementById('passcodeScreen');
+  const passcodeBack = document.getElementById('passcodeBack');
+  if (!home || !screen || !switcher || !track) return;
+
+  const APPS = {
+    notes: { id:'notesApp', name:'Ghi chú', screenClass:'notes-open' },
+    messages: { id:'messagesApp', name:'Tin nhắn', screenClass:'messages-open' },
+    safari: { id:'safariApp', name:'Safari', screenClass:'safari-open' }
+  };
+  const RECENT_CONTACTS = [
+    ['Rafaela','RL'], ['Luísa','LM'], ['Diego','DV'], ['Helena','HP'], ['Dudu','D']
+  ];
+  const allScreenClasses = Object.values(APPS).map(a => a.screenClass);
+  const recents = [];
+  const launched = new Set();
+  let homeClickTimer = null;
+  let homeClickCount = 0;
+  let switcherOpen = false;
+  let suppressCardClickUntil = 0;
+
+  function launcherFor(key) { return document.querySelector(`[data-app="${key}"]`); }
+  function appEl(key) { const cfg=APPS[key]; return cfg ? document.getElementById(cfg.id) : null; }
+  function currentOpenKey() { return Object.keys(APPS).find(key => appEl(key)?.classList.contains('open')) || null; }
+  function remember(key) {
+    if (!APPS[key]) return;
+    const i = recents.indexOf(key);
+    if (i >= 0) recents.splice(i, 1);
+    recents.unshift(key);
+    if (recents.length > 7) recents.length = 7;
+  }
+  function iconSrcFor(key) { return launcherFor(key)?.querySelector('img')?.src || ''; }
+  function stripIds(node) {
+    if (node.nodeType !== 1) return;
+    node.removeAttribute('id');
+    node.removeAttribute('aria-live');
+    node.querySelectorAll('[id]').forEach(el => el.removeAttribute('id'));
+    node.querySelectorAll('input,button,select,textarea,a').forEach(el => el.setAttribute('tabindex','-1'));
+  }
+  function renderContacts() {
+    if (!contacts) return;
+    contacts.innerHTML = RECENT_CONTACTS.map(([name,initials]) =>
+      `<div class="ios8-switcher-contact"><div class="avatar">${initials}</div><div class="name">${name}</div></div>`
+    ).join('');
+  }
+  // Switcher must not deep-clone heavy app DOM on every navigation gesture.
+  function makePreview(key) {
+    const cfg = APPS[key];
+    const source = appEl(key);
+    const card = document.createElement('article');
+    card.className = 'ios8-switcher-card';
+    card.dataset.switchApp = key;
+
+    const head = document.createElement('div');
+    head.className = 'ios8-switcher-apphead';
+    const src = iconSrcFor(key);
+    if (src) {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = '';
+      head.appendChild(img);
+    }
+    const label = document.createElement('span');
+    label.textContent = cfg.name;
+    head.appendChild(label);
+    card.appendChild(head);
+
+    const preview = document.createElement('div');
+    preview.className = 'ios8-switcher-preview';
+    const inner = document.createElement('div');
+    inner.className = 'ios8-switcher-preview-inner';
+
+    const status = document.createElement('div');
+    status.className = 'ios8-switcher-preview-status';
+    const now = new Date(); const livePreviewTime = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`; status.innerHTML = `<span>VIVO</span><span class="center">${livePreviewTime}</span><span>62%</span>`;
+    inner.appendChild(status);
+
+    if (source) {
+      const clone = source.cloneNode(true);
+      clone.setAttribute('inert',''); clone.setAttribute('aria-hidden','true');
+      clone.classList.add('open');
+      clone.style.pointerEvents = 'none';
+      clone.style.zIndex = '1';
+      inner.appendChild(clone);
+    }
+    preview.appendChild(inner);
+    card.appendChild(preview);
+    return card;
+  }
+  function renderSwitcher(activeKey) {
+    track.innerHTML = '';
+    renderContacts();
+    if (!recents.length) {
+      track.innerHTML = '<div class="ios8-switcher-empty">Chưa có ứng dụng nào trong danh sách gần đây.</div>';
+      return;
+    }
+    recents.forEach(key => track.appendChild(makePreview(key)));
+    requestAnimationFrame(() => {
+      const idx = Math.max(0, recents.indexOf(activeKey));
+      const card = track.children[idx];
+      if (card) {
+        const left = card.offsetLeft - (track.clientWidth - card.offsetWidth) / 2;
+        track.scrollLeft = Math.max(0, left);
+      }
+    });
+  }
+  function showSwitcher() {
+    const activeKey = currentOpenKey();
+    if (activeKey) { launched.add(activeKey); remember(activeKey); }
+    renderSwitcher(activeKey || recents[0]);
+    switcher.classList.add('open');
+    switcherOpen = true;
+  }
+  function hideSwitcher() {
+    switcher.classList.remove('open');
+    switcherOpen = false;
+  }
+  function suspendApps() {
+    Object.keys(APPS).forEach(key => appEl(key)?.classList.remove('open'));
+    allScreenClasses.forEach(cls => screen.classList.remove(cls));
+  }
+  function activateApp(key) {
+    const cfg = APPS[key];
+    const el = appEl(key);
+    if (!cfg || !el) return;
+    suspendApps();
+    hideSwitcher();
+    el.classList.add('open');
+    screen.classList.add(cfg.screenClass);
+    launched.add(key);
+    remember(key);
+  }
+  function terminateApp(key) {
+    const cfg = APPS[key];
+    const el = appEl(key);
+    const idx = recents.indexOf(key);
+    if (idx >= 0) recents.splice(idx,1);
+    launched.delete(key);
+    if (el) el.classList.remove('open');
+    if (cfg) screen.classList.remove(cfg.screenClass);
+  }
+  function goHomePreservingState() { hideSwitcher(); suspendApps(); }
+  function lockedOrPasscode() { return lockScreen?.classList.contains('active') || passcodeScreen?.classList.contains('active'); }
+  function handleLockedHome() {
+    if (passcodeScreen?.classList.contains('active')) { passcodeBack?.click(); return; }
+    if (lockScreen?.classList.contains('active')) {
+      lockScreen.animate([{filter:'brightness(1)'},{filter:'brightness(1.13)'},{filter:'brightness(1)'}],{duration:180});
+    }
+  }
+
+  // Resume an app from its icon if it is still suspended in the recents list.
+  document.addEventListener('click', (event) => {
+    const launcher = event.target.closest('[data-app]');
+    if (!launcher || launcher.closest('#ios8AppSwitcher')) return;
+    const key = launcher.dataset.app;
+    if (!APPS[key]) return;
+    if (launched.has(key)) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      activateApp(key);
+    } else {
+      setTimeout(() => {
+        if (appEl(key)?.classList.contains('open')) { launched.add(key); remember(key); }
+      }, 0);
+    }
+  }, true);
+
+  // Pointer gesture: horizontal drag browses apps; upward drag force-quits the selected app.
+  let gesture = null;
+  track.addEventListener('pointerdown', (event) => {
+    if (event.button !== undefined && event.button !== 0) return;
+    const card = event.target.closest('[data-switch-app]');
+    gesture = {
+      id:event.pointerId,
+      startX:event.clientX,
+      startY:event.clientY,
+      lastX:event.clientX,
+      lastY:event.clientY,
+      startScroll:track.scrollLeft,
+      card,
+      mode:null,
+      moved:false
+    };
+    track.classList.add('dragging');
+    try { track.setPointerCapture(event.pointerId); } catch(e) {}
+  });
+  track.addEventListener('pointermove', (event) => {
+    if (!gesture || gesture.id !== event.pointerId) return;
+    const dx = event.clientX - gesture.startX;
+    const dy = event.clientY - gesture.startY;
+    gesture.lastX=event.clientX; gesture.lastY=event.clientY;
+    if (!gesture.mode && Math.hypot(dx,dy) > 7) {
+      gesture.mode = (gesture.card && Math.abs(dy) > Math.abs(dx)*1.08) ? 'vertical' : 'horizontal';
+      gesture.moved = true;
+    }
+    if (gesture.mode === 'horizontal') {
+      event.preventDefault();
+      track.scrollLeft = gesture.startScroll - dx;
+    } else if (gesture.mode === 'vertical' && gesture.card) {
+      event.preventDefault();
+      const y = Math.min(55, Math.max(-330, dy));
+      const opacity = Math.max(.22, 1 - Math.max(0,-y)/310);
+      gesture.card.style.transition='none';
+      gesture.card.style.transform=`translateY(${y}px)`;
+      gesture.card.style.opacity=String(opacity);
+    }
+  }, {passive:false});
+  function finishGesture(event) {
+    if (!gesture || (event.pointerId !== undefined && gesture.id !== event.pointerId)) return;
+    const g=gesture;
+    gesture=null;
+    track.classList.remove('dragging');
+
+    // Pointer capture can retarget the browser's synthetic click to the track.
+    // Treat an unmoved pointer-up on a card as the actual iOS-style tap here.
+    if (!g.moved && g.card) {
+      const key=g.card.dataset.switchApp;
+      try { track.releasePointerCapture(g.id); } catch(e) {}
+      suppressCardClickUntil = performance.now()+320;
+      activateApp(key);
+      return;
+    }
+
+    if (g.moved) suppressCardClickUntil = performance.now()+320;
+    if (g.mode === 'vertical' && g.card) {
+      const dy = (g.lastY ?? g.startY) - g.startY;
+      if (dy < -78) {
+        const key=g.card.dataset.switchApp;
+        g.card.style.transition='transform .17s ease-out, opacity .17s ease-out';
+        g.card.classList.add('ios8-dismissing');
+        setTimeout(() => {
+          terminateApp(key);
+          renderSwitcher(recents[0]);
+          if (!recents.length) goHomePreservingState();
+        },175);
+      } else {
+        g.card.style.transition='transform .18s ease-out, opacity .18s ease-out';
+        g.card.style.transform='';
+        g.card.style.opacity='';
+      }
+    }
+    try { track.releasePointerCapture(g.id); } catch(e) {}
+  }
+  track.addEventListener('pointerup', finishGesture);
+  track.addEventListener('pointercancel', finishGesture);
+
+  track.addEventListener('click', (event) => {
+    if (performance.now() < suppressCardClickUntil) return;
+    const card = event.target.closest('[data-switch-app]');
+    if (!card) return;
+    activateApp(card.dataset.switchApp);
+  });
+
+  // One Home press goes Home. A quick double-press opens the real iOS-style app switcher.
+  home.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    if (lockedOrPasscode()) {
+      if (homeClickTimer) clearTimeout(homeClickTimer);
+      homeClickCount=0;
+      handleLockedHome();
+      return;
+    }
+    if (switcherOpen) {
+      if (homeClickTimer) clearTimeout(homeClickTimer);
+      homeClickCount=0;
+      goHomePreservingState();
+      return;
+    }
+    homeClickCount += 1;
+    if (homeClickCount === 1) {
+      homeClickTimer=setTimeout(() => { homeClickCount=0; goHomePreservingState(); },280);
+    } else {
+      clearTimeout(homeClickTimer);
+      homeClickTimer=null;
+      homeClickCount=0;
+      showSwitcher();
+    }
+  }, true);
+  // Immediate navigation path for immersive gestures (no Home click timers).
+  screen.addEventListener('caua:home-now',()=>{
+    if(homeClickTimer)clearTimeout(homeClickTimer);
+    homeClickTimer=null;homeClickCount=0;
+    if(lockedOrPasscode()){handleLockedHome();return}
+    goHomePreservingState();
+  });
+  screen.addEventListener('caua:switcher-now',()=>{
+    if(homeClickTimer)clearTimeout(homeClickTimer);
+    homeClickTimer=null;homeClickCount=0;
+    if(lockedOrPasscode()||switcherOpen)return;
+    showSwitcher();
+  });
+})();
+</script><script id="caua-immersive-mode-script">
+(()=>{'use strict';
+  const screen=document.getElementById('screen');
+  if(!screen)return;
+  const toggle=document.createElement('button');
+  toggle.id='caua-immersive-toggle';
+  toggle.type='button';
+  toggle.setAttribute('aria-label','Phóng to iPhone');
+  toggle.setAttribute('aria-pressed','false');
+  toggle.innerHTML=[
+    '<svg class="caua-zoom-icon caua-zoom-enter" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>',
+    '<svg class="caua-zoom-icon caua-zoom-exit" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M20 4l-6 6M4 20l6-6"/></svg>'
+  ].join('');
+  // VH always starts in Cauã's immersive mode; no zoom toggle.
+
+  const homeBar=document.createElement('div');
+  homeBar.id='caua-home-gesture';
+  homeBar.setAttribute('role','button');
+  homeBar.setAttribute('aria-label','Chạm về Home; chạm hai lần để mở đa nhiệm');
+  homeBar.setAttribute('tabindex','0');
+  screen.appendChild(homeBar);
+
+  let active=false,lastTap=0;
+  // Preserve the old 320x568 portrait design and scale it as one image-sized UI.
+  // The browser viewport (including Safari's own toolbars) is the available area.
+  function fit(){
+    const field=document.activeElement;
+    const typing=!!(field&&field.closest&&field.closest('#phoneWrap')&&field.matches('input:not([type=hidden]),textarea,select,[contenteditable],[role=textbox]'));
+    if(typing)return;
+    const viewport=window.visualViewport;
+    const availableWidth=Math.max(1,Math.min(window.innerWidth,viewport?.width||window.innerWidth));
+    const availableHeight=Math.max(1,Math.min(window.innerHeight,viewport?.height||window.innerHeight));
+    const scale=Math.max(.15,Math.min(availableWidth/320,availableHeight/568));
+    document.documentElement.style.setProperty('--immersive-scale',scale.toFixed(5));
+  }
+  // Always anchor to the top-right of the browser viewport, in BOTH modes.
+  // Do not inherit a previously drifted position from a mode transition.
+  const ZOOM_TOP=2;
+  const ZOOM_RIGHT=2;
+  function positionZoomToggle(){
+    toggle.style.setProperty('top',ZOOM_TOP+'px','important');
+    toggle.style.setProperty('right',ZOOM_RIGHT+'px','important');
+    toggle.style.setProperty('left','auto','important');
+    toggle.style.setProperty('bottom','auto','important');
+  }
+  function mode(on){
+    active=!!on;
+    lastTap=0;
+    document.body.classList.toggle('caua-immersive',active);
+    toggle.setAttribute('aria-label',active?'Thu nhỏ iPhone':'Phóng to iPhone');
+    toggle.setAttribute('aria-pressed',String(active));
+    positionZoomToggle();
+    fit();
+  }
+  function action(name){
+    if(!active)return;
+    screen.dispatchEvent(new CustomEvent('caua:'+name));
+  }
+  // Act immediately on a single tap. A second tap opens multitasking.
+  // No swipe recognizer, app scaling, synthetic button clicks or 280 ms Home delay.
+  function tapped(event){
+    if(!active)return;
+    event.preventDefault();event.stopPropagation();
+    const now=performance.now();
+    if(now-lastTap<330){lastTap=0;action('switcher-now')}
+    else{lastTap=now;action('home-now')}
+  }
+  // This button zooms the iPhone UI only; do not request browser fullscreen.
+  toggle.addEventListener('click',()=>mode(!active));
+  homeBar.addEventListener('click',tapped);
+  homeBar.addEventListener('keydown',event=>{
+    if(event.key==='Enter'||event.key===' '){event.preventDefault();tapped(event)}
+    else if(event.key==='ArrowUp'){event.preventDefault();action('switcher-now')}
+  });
+  window.addEventListener('resize',()=>{positionZoomToggle();fit();},{passive:true});
+  window.visualViewport?.addEventListener('resize',()=>{positionZoomToggle();fit();},{passive:true});
+  positionZoomToggle();fit();mode(true);
+})();
+</script></body></html>
