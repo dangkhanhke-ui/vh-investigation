@@ -27,19 +27,17 @@
  const toast=document.createElement('button');
  toast.type='button';toast.id='vh-new-message-banner';
  toast.setAttribute('aria-label','Xem tin nhắn mới của Neymarinho');
- toast.innerHTML='<strong>Điều tra viên Neymarinho</strong><span></span>';
+ toast.innerHTML='<div class="vh-head"><b class="vh-icon">●</b>MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
  const style=document.createElement('style');
  style.textContent=`
-   #vh-new-message-banner{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));
-    left:50%;width:min(92vw,360px);transform:translate(-50%,-160%);
-    z-index:10050;padding:12px 15px;text-align:left;cursor:pointer;
-    color:#eee;background:rgba(26,27,33,.96);border:1px solid rgba(255,255,255,.22);
-    border-radius:14px;box-shadow:0 8px 28px rgba(0,0,0,.3);
-    font:13px -apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;
-    pointer-events:none;opacity:0;transition:transform .23s ease,opacity .2s ease}
+   #vh-new-message-banner{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(92vw,360px);transform:translate(-50%,-160%);z-index:10050;padding:0;text-align:left;cursor:pointer;color:#161616;background:rgba(226,227,231,.97);border:0;border-radius:13px;overflow:hidden;box-shadow:0 8px 28px #0005;font:13px -apple-system,sans-serif;pointer-events:none;opacity:0;transition:transform .23s,opacity .2s}
    #vh-new-message-banner.show{transform:translate(-50%,0);pointer-events:auto;opacity:1}
-   #vh-new-message-banner strong{display:block;margin-bottom:4px}
-   #vh-new-message-banner span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+   #vh-new-message-banner .vh-head{display:flex;align-items:center;gap:8px;padding:9px 11px;background:#eeeff1;color:#555;font-size:11px}
+   #vh-new-message-banner .vh-icon{background:#35c85b;border-radius:5px;color:white;width:19px;height:19px;line-height:19px;text-align:center}
+   #vh-new-message-banner .vh-more{margin-left:auto}
+   #vh-new-message-banner .vh-body{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 13px;font-size:14px}
+   #vh-new-message-banner .vh-body span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+   #vh-new-message-banner .vh-body small{color:#777;flex-shrink:0}
  `;
  document.head.appendChild(style);document.body.appendChild(toast);
  toast.addEventListener('click',()=>{toast.classList.remove('show');openPhoneMessages()});
@@ -49,9 +47,9 @@
    const onPhone=document.body.classList.contains('vh-phone-active');
    send('vh:new',{text:m.text,notifyOnPhone:onPhone});
    if(!onPhone){
-     toast.querySelector('span').textContent=m.text;
+     toast.querySelector('.vh-body span').textContent=m.text;
      toast.classList.add('show');clearTimeout(timer);
-     timer=setTimeout(()=>toast.classList.remove('show'),6500);
+     timer=setTimeout(()=>toast.classList.remove('show'),9000);
    }
  }
  document.addEventListener('vh:partner-message',onNewPartner);
