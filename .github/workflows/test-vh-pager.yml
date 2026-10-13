@@ -76,6 +76,25 @@ jobs:
                 assert.equal(wallpaper.zIndex,'0','Wallpaper must paint above screen background');
                 assert.ok(wallpaper.width>0&&wallpaper.height>0,'Uploaded PNG must decode');
                 console.log('WALLPAPER OK',wallpaper);
+                // Decode an ACTUAL screenshot, not just the background asset.
+                // The newly uploaded investigator image is monochrome, while
+                // Cauã's stale beach image is distinctly blue.
+                const screenShot=await frame.locator('#screen').screenshot();
+                const rendered=await frame.locator('#screen').evaluate(async(el,dataUrl)=>{
+                  const img=new Image();
+                  img.src=dataUrl;
+                  await img.decode();
+                  const canvas=document.createElement('canvas');
+                  canvas.width=img.naturalWidth;canvas.height=img.naturalHeight;
+                  const ctx=canvas.getContext('2d',{willReadFrequently:true});
+                  ctx.drawImage(img,0,0);
+                  return [[.46,.41],[.74,.57],[.32,.72]].map(([x,y])=>{
+                    const p=ctx.getImageData(Math.floor(x*canvas.width),Math.floor(y*canvas.height),1,1).data;
+                    return {rgb:[p[0],p[1],p[2]],spread:Math.max(p[0],p[1],p[2])-Math.min(p[0],p[1],p[2])};
+                  });
+                },'data:image/png;base64,'+screenShot.toString('base64'));
+                console.log('RENDERED WALLPAPER PIXELS',rendered);
+                assert.ok(rendered.every(p=>p.spread<17),'Actual screen is still showing colored old Cauã beach wallpaper: '+JSON.stringify(rendered));
                 const swipeBox=await frame.locator('#swipeTarget').boundingBox();
                 assert.ok(swipeBox,'Lock screen swipe area must exist');
                 const swipeX=swipeBox.x+30,swipeY=swipeBox.y+swipeBox.height*.7;
