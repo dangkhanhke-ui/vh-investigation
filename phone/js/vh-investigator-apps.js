@@ -145,14 +145,6 @@
   const avatarUrl=new URL('assets/investigator-avatar.png?v=neymarinho-2218553',location.href).href;
   function decorateInvestigator(){
     const row=document.querySelector('#messagesApp .msg-thread-row[data-thread-id="neymarinho"]');
-    if(row){
-      const date=row.querySelector('.msg-thread-date');
-      if(date){
-        const full=date.getAttribute('data-vh-full-date')||date.textContent.trim();
-        const parts=full.match(/^(\d{1,2})\/(\d{1,2})\/\d{4}$/);
-        if(parts){date.setAttribute('data-vh-full-date',full);date.title=full;date.textContent=parts[1]+'/'+parts[2];}
-      }
-    }
     if(row&&!row.querySelector('.vh-thread-avatar')){
       const img=document.createElement('img');img.className='vh-thread-avatar';img.src=avatarUrl;img.alt='Ảnh điều tra viên Neymarinho';img.loading='eager';img.decoding='sync';
       const main=row.querySelector('.msg-thread-main');
