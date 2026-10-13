@@ -7,7 +7,6 @@
   const thread=bridge?.threads.find(t=>t.id==='neymarinho');
   if(!bridge||!thread)return;
   thread.number=investigatorNumber;
-  thread.listName='Neymarinho';thread.displayName='Neymarinho';
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
 
@@ -109,20 +108,51 @@
   // Add the fictional investigator portrait without changing the Messages renderer.
   const avatarStyle=document.createElement('style');
   avatarStyle.textContent=`
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:grid!important;grid-template-columns:10px 48px minmax(0,1fr) 72px!important;column-gap:8px!important;align-items:center!important;min-height:76px!important;padding:8px 16px!important;box-sizing:border-box!important;width:100%!important;max-width:100%!important;overflow:hidden!important}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{grid-column:1;grid-row:1;margin:0!important;align-self:center}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .vh-thread-avatar{grid-column:2;grid-row:1}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{grid-column:3;grid-row:1;min-width:0;overflow:hidden;padding:0!important}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{grid-column:4!important;grid-row:1!important;align-self:center!important;justify-self:end!important;text-align:right!important;width:72px!important;max-width:72px!important;min-width:0!important;white-space:nowrap!important;overflow:hidden!important;font-size:11px!important;padding:0!important}
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-name,#messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-preview{display:block;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #messagesApp .msg-thread-row[data-thread-id='neymarinho'] img.vh-thread-avatar{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;max-width:44px!important;max-height:44px!important;object-fit:cover!important;border-radius:50%!important;grid-column:2!important;grid-row:1!important;align-self:center!important;justify-self:center!important;background:#d9d9de!important}
-    
+    /* Keep the entire row within the simulated iPhone; never reserve a year-width date column. */
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{
+      display:grid!important;grid-template-columns:9px 46px minmax(0,1fr) auto!important;
+      grid-template-rows:1fr!important;column-gap:8px!important;align-items:center!important;
+      width:100%!important;max-width:100%!important;min-width:0!important;min-height:76px!important;
+      padding:9px 12px!important;box-sizing:border-box!important;overflow:hidden!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{
+      grid-column:1!important;grid-row:1!important;margin:0!important;align-self:center!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] img.vh-thread-avatar{
+      display:block!important;visibility:visible!important;opacity:1!important;
+      width:44px!important;height:44px!important;min-width:44px!important;max-width:44px!important;
+      object-fit:cover!important;border-radius:50%!important;grid-column:2!important;grid-row:1!important;
+      align-self:center!important;justify-self:center!important;background:#d9d9de!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{
+      grid-column:3!important;grid-row:1!important;min-width:0!important;
+      width:100%!important;overflow:hidden!important;padding:0!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-name,
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-preview{
+      display:block!important;min-width:0!important;width:100%!important;
+      white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important
+    }
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-meta{
+      grid-column:4!important;grid-row:1!important;justify-self:end!important;align-self:center!important;
+      width:auto!important;max-width:none!important;min-width:0!important;
+      white-space:nowrap!important;overflow:visible!important;text-align:right!important;
+      padding:0!important;font-size:11px!important
+    }
     #messagesApp .vh-detail-avatar{width:100%;height:100%;object-fit:cover;border-radius:50%}
   `;
   document.head.appendChild(avatarStyle);
   const avatarUrl=new URL('assets/investigator-avatar.png?v=neymarinho-2218553',location.href).href;
   function decorateInvestigator(){
     const row=document.querySelector('#messagesApp .msg-thread-row[data-thread-id="neymarinho"]');
+    if(row){
+      const date=row.querySelector('.msg-thread-date');
+      if(date){
+        const full=date.getAttribute('data-vh-full-date')||date.textContent.trim();
+        const parts=full.match(/^(\\d{1,2})\\/(\\d{1,2})\\/\\d{4}$/);
+        if(parts){date.setAttribute('data-vh-full-date',full);date.title=full;date.textContent=parts[1]+'/'+parts[2];}
+      }
+    }
     if(row&&!row.querySelector('.vh-thread-avatar')){
       const img=document.createElement('img');img.className='vh-thread-avatar';img.src=avatarUrl;img.alt='Ảnh điều tra viên Neymarinho';img.loading='eager';img.decoding='sync';
       const main=row.querySelector('.msg-thread-main');
