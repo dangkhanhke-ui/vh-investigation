@@ -1,14 +1,18 @@
-/* VH interaction soundscape: synthesized paper foley and discreet comms tones. No music. */
+/* VH sound effects: one central controller for uploaded audio assets. */
 (()=>{'use strict';
-let ctx,noise,last=0;const VOLUME_BOOST=4.5;const enabled=true;
-const audioContext=()=>{if(!ctx){const C=window.AudioContext||window.webkitAudioContext;if(!C)return null;ctx=new C();}if(ctx.state==='suspended')ctx.resume().catch(()=>{});return ctx};
-function tone(freq,duration=.11,volume=.035,type='sine',delay=0){if(!enabled)return;const c=audioContext();if(!c)return;const t=c.currentTime+delay,o=c.createOscillator(),g=c.createGain();o.type=type;o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*.88,t+duration);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume*VOLUME_BOOST,t+.009);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g).connect(c.destination);o.start(t);o.stop(t+duration+.02)}
-function paper(kind='touch'){if(!enabled)return;const c=audioContext();if(!c)return;const duration=kind==='flip'?.26:kind==='stamp'?.14:.105;const len=Math.ceil(c.sampleRate*duration),buf=c.createBuffer(1,len,c.sampleRate),a=buf.getChannelData(0);let prev=0;for(let i=0;i<len;i++){const n=(Math.random()*2-1);prev=prev*.72+n*.28;const pos=i/len;const scratch=(Math.sin(pos*105+(kind==='flip'?2:0))*.24+.76);a[i]=prev*scratch*(1-pos)*.8}const src=c.createBufferSource(),filter=c.createBiquadFilter(),gain=c.createGain();src.buffer=buf;filter.type='bandpass';filter.frequency.value=kind==='stamp'?850:kind==='flip'?1750:2400;filter.Q.value=.55;gain.gain.value=(kind==='stamp'?.11:kind==='flip'?.075:.055)*VOLUME_BOOST;src.connect(filter).connect(gain).connect(c.destination);src.start()}
-function play(name){if(!enabled||document.hidden)return;const now=performance.now();if(now-last<45)return;last=now;if(name==='paper'||name==='flip'||name==='stamp')paper(name==='paper'?'touch':name);else if(name==='notification'){tone(790,.15,.036);tone(1175,.23,.028,'sine',.10)}else if(name==='message'){tone(590,.065,.018,'sine');tone(760,.075,.012,'sine',.055)}else if(name==='send'){tone(430,.075,.022,'triangle')}else if(name==='open'){tone(370,.07,.021,'triangle')}else if(name==='close'){tone(270,.06,.014,'triangle')}}
-window.VHSound={play,isEnabled:()=>enabled};
-document.addEventListener('pointerdown',e=>{const b=e.target.closest('button');if(!b||b.disabled||b.id==='soundToggle')return;let name='paper';if(b.matches('.tab,#continue,#modalNext'))name='flip';else if(b.matches('#submit'))name='stamp';else if(b.matches('#dock'))name='open';else if(b.matches('#minimize,#closeChat,#modalClose,#modalLater'))name='close';else if(b.closest('.chat-compose'))name='send';else if(b.closest('.chat-sheet'))name='open';play(name)},true);
-document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('button:not(:disabled)')&&e.target.id!=='soundToggle')play(e.target.matches('.tab')?'flip':'paper')},true);
-document.addEventListener('vh:partner-message',()=>{play(document.getElementById('chatSheet')?.classList.contains('open')?'message':'notification')});
-function init(){const old=document.getElementById('soundToggle');if(old)old.remove();try{localStorage.setItem('vh_sound_enabled','true')}catch{}}
+const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3'};
+const pools={};let keyboard=null,loading=null,lastClick=0;const enabled=true;
+function make(name,loop=false){const a=new Audio(SOURCES[name]);a.preload='auto';a.loop=loop;a.volume=name==='keyboard'?.8:name==='loading'?.55:name==='notification'?.9:.55;return a}
+function getLoop(name){if(name==='keyboard')return keyboard||(keyboard=make(name,true));return loading||(loading=make(name,true))}
+function start(name){if(!SOURCES[name])return;if(name!=='keyboard'&&name!=='loading'){play(name);return}const a=getLoop(name);if(!a.paused)return;a.currentTime=0;const p=a.play();if(p?.catch)p.catch(()=>{})}
+function stop(name){if(name!=='keyboard'&&name!=='loading')return;const a=name==='keyboard'?keyboard:loading;if(a){a.pause();try{a.currentTime=0}catch(_){}}}
+function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name==='keyboard'||name==='loading'){start(name);return}if(name==='click'){const now=performance.now();if(now-lastClick<65)return;lastClick=now}
+let pool=pools[name];if(!pool)pool=pools[name]=[];let a=pool.find(x=>x.paused||x.ended);if(!a){a=make(name);if(pool.length<5)pool.push(a);else{a=pool.shift();a.pause();pool.push(a)}}try{a.currentTime=0}catch(_){}const p=a.play();if(p?.catch)p.catch(()=>{})}
+function unlock(){for(const name of ['keyboard','loading']){const a=getLoop(name);a.load()}for(const name of ['click','notification']){if(!pools[name])pools[name]=[make(name)]}}
+window.VHSound={play,start,stop,prepare:unlock,isEnabled:()=>enabled};
+window.VHKeyboardAudio={prepare:unlock,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
+document.addEventListener('pointerdown',e=>{const b=e.target.closest('button,[role="button"],a[href]');if(b&&!(b.disabled||b.id==='soundToggle'))play('click')},true);
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('button:not(:disabled),[role="button"],a[href]'))play('click')},true);
+function init(){document.getElementById('soundToggle')?.remove();try{localStorage.setItem('vh_sound_enabled','true')}catch(_){}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
