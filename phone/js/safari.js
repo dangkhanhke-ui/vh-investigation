@@ -160,7 +160,14 @@ const SAFARI_HISTORY = [
   const TABS_KEY='caua.safari.ios8.tabs.v2';
   const HISTORY_KEY='caua.safari.ios8.visits.v2';
   let privateMode=false, privateTabs=[], privateCurrentId=null, normalTabs=[], normalCurrentId=null;
-  let historyState={cleared:false,visits:[]}, sessionTimer=0;
+  let historyState={cleared:true,visits:[]}, sessionTimer=0;
+  // Reset inherited Cauã browser data once; preserve player-created data afterward.
+  const VH_RESET='vh.safari.clean.start.v1';
+  if(localStorage.getItem(VH_RESET)!=='1'){
+    localStorage.removeItem(TABS_KEY);
+    localStorage.removeItem(HISTORY_KEY);
+    localStorage.setItem(VH_RESET,'1');
+  }
   try {
     const h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'null');
     if(h && Array.isArray(h.visits))historyState={
@@ -275,15 +282,8 @@ const SAFARI_HISTORY = [
     return { pageId, url:meta.url, title:meta.title, scroll:extra.scroll || 0, extra };
   }
   function initTabs() {
-    state.tabs = [
-      { id:'t1', title:'Subsolo', historyStack:[makeEntry('subsolo-home',{scroll:360})], historyIndex:0 },
-      { id:'t3', title:'Chủ Estúdio Vértice tiếp tục hồi phục sau vụ cháy', historyStack:[makeEntry('article-vertice')], historyIndex:0 },
-      { id:'t4', title:'Mặt bằng thương mại - Santa Teresa', historyStack:[makeEntry('property-santa',{scroll:250})], historyIndex:0 },
-      { id:'t5', title:'Khảo sát sớm cho thấy cuộc đua thị trưởng Rio năm 2016 vẫn còn rộng mở', historyStack:[makeEntry('radar-rio-poll')], historyIndex:0 },
-      { id:'t6', title:'Braga lại đối mặt chỉ trích về bồi thường trong dự án tái phát triển', historyStack:[makeEntry('caderno-braga')], historyIndex:0 },
-      { id:'t7', title:'Intranet UFRJ', historyStack:[makeEntry('ufrj-intranet')], historyIndex:0 }
-    ];
-    state.currentTabId = 't7';
+    state.tabs = [{id:'t1',title:'Tab mới',historyStack:[makeEntry('new-tab')],historyIndex:0}];
+    state.currentTabId='t1';
     try{
       const saved=JSON.parse(localStorage.getItem(TABS_KEY)||'null');
       if(saved && Array.isArray(saved.tabs)){
