@@ -23,7 +23,8 @@
     #vh-investigator-notification.show{opacity:1;transform:translateY(0);pointer-events:auto}
     #vh-investigator-notification strong{display:block;margin-bottom:3px;font-weight:650}
     #vh-investigator-notification span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    #vh-investigator-actions{display:flex;justify-content:flex-end;gap:8px;padding:8px 12px;background:#f7f7f7}
+    #messagesConversationView .msg-convo-scroll{bottom:88px!important}
+    #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
     #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
   `;
   document.head.appendChild(style);
@@ -49,7 +50,7 @@
   actions.id='vh-investigator-actions';
   actions.innerHTML='<button id="vh-message-hint" type="button">Gợi ý</button><button id="vh-message-continue" type="button">Tiếp tục →</button>';
   const convo=document.getElementById('messagesConversationView');
-  convo?.appendChild(actions);
+  convo?.querySelector('.msg-convo')?.appendChild(actions);
   actions.querySelector('#vh-message-hint').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'hint'},ORIGIN));
   actions.querySelector('#vh-message-continue').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'continue'},ORIGIN));
 
