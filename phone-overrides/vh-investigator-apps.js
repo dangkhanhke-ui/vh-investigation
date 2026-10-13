@@ -7,13 +7,15 @@
   const thread=bridge?.threads.find(t=>t.id==='neymarinho');
   if(!bridge||!thread)return;
   thread.number=investigatorNumber;
+  thread.listName='Neymarinho';
+  thread.displayName='Neymarinho';
 
   // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
   style.textContent=`
-    #vh-investigator-notification{position:absolute;top:26px;left:8px;right:8px;z-index:160;padding:0;border:0;border-radius:13px;background:rgba(226,227,232,.97);color:#171717;font:13px -apple-system,sans-serif;overflow:hidden;box-shadow:0 5px 20px #0004;text-align:left;cursor:pointer;opacity:0;transform:translateY(-130%);pointer-events:none;transition:transform .24s,opacity .2s}
+    #vh-investigator-notification{position:absolute;top:26px;left:8px;right:8px;z-index:160;padding:0;border:0;border-radius:15px;background:rgba(218,219,223,.96);color:#171717;font:13px -apple-system,sans-serif;overflow:hidden;box-shadow:0 5px 20px #0004;text-align:left;cursor:pointer;opacity:0;transform:translateY(-130%);pointer-events:none;transition:transform .24s,opacity .2s}
     #vh-investigator-notification.show{opacity:1;transform:translateY(0);pointer-events:auto}
-    #vh-investigator-notification .vh-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#eeeef0;color:#59595d;font-size:11px}
+    #vh-investigator-notification .vh-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(242,242,244,.94);color:#59595d;font-size:11px}
     #vh-investigator-notification .vh-icon{display:block;width:19px;height:19px;border-radius:5px;object-fit:cover;flex-shrink:0}
     #vh-investigator-notification .vh-more{margin-left:auto}
     #vh-investigator-notification .vh-body{display:flex;gap:8px;justify-content:space-between;padding:11px 12px;font-size:14px}
@@ -81,7 +83,8 @@
       if(p.type==='vh:new'&&typeof p.text==='string' && !document.getElementById('messagesApp')?.classList.contains('open')){
         toast.querySelector('.vh-body span').textContent=p.text;
         toast.classList.add('show');
-        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),4800);
+        window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
+        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),2300);
       }
     }else if(p.type==='vh:open'){
       if(Array.isArray(p.history))update(p.history,p.phase);
@@ -105,7 +108,7 @@
   // Add the fictional investigator portrait without changing the Messages renderer.
   const avatarStyle=document.createElement('style');
   avatarStyle.textContent=`
-    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:grid!important;grid-template-columns:10px 46px minmax(0,1fr) 59px!important;grid-template-rows:auto!important;column-gap:7px!important;align-items:center!important;min-height:76px!important;padding:8px 9px!important;box-sizing:border-box!important}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{display:grid!important;grid-template-columns:9px 44px minmax(0,1fr) 69px!important;grid-template-rows:auto!important;column-gap:7px!important;align-items:center!important;min-height:76px!important;padding:8px 9px!important;box-sizing:border-box!important}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{grid-column:1;grid-row:1;margin:0!important;align-self:center}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .vh-thread-avatar{grid-column:2;grid-row:1}
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{grid-column:3;grid-row:1;min-width:0;overflow:hidden;padding:0!important}
@@ -116,7 +119,7 @@
     #messagesApp .vh-detail-avatar{width:100%;height:100%;object-fit:cover;border-radius:50%}
   `;
   document.head.appendChild(avatarStyle);
-  const avatarUrl=new URL('../assets/investigator-avatar.png?v=neymarinho-2218553',location.href).href;
+  const avatarUrl=new URL('assets/investigator-avatar.png?v=neymarinho-2218553',location.href).href;
   function decorateInvestigator(){
     const row=document.querySelector('#messagesApp .msg-thread-row[data-thread-id="neymarinho"]');
     if(row&&!row.querySelector('.vh-thread-avatar')){
