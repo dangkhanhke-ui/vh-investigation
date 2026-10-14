@@ -1,0 +1,33 @@
+/* Small in-paper hint control: zero layout shift, no full-screen modal. */
+.paper-inside{isolation:isolate}
+#vh-hint-trigger{
+ position:absolute;bottom:clamp(46px,11vw,60px);right:clamp(14px,4vw,24px);
+ z-index:17;width:26px;height:26px;min-height:26px;display:grid;place-items:center;
+ border:1px solid rgba(42,35,35,.55);border-radius:50%;
+ background:rgba(240,234,224,.85);color:#383333;
+ font:600 14px/1 'Inconsolata',Consolas,monospace;
+ padding:0;cursor:pointer;touch-action:manipulation;
+ -webkit-tap-highlight-color:transparent;
+}
+#vh-hint-trigger:active,#vh-hint-trigger[aria-expanded="true"]{background:#353033;color:#fff}
+#vh-hint-popover[hidden]{display:none!important}
+#vh-hint-popover{
+ position:absolute;right:clamp(14px,4vw,24px);
+ bottom:clamp(81px,calc(11vw + 35px),98px);z-index:18;
+ width:min(250px,calc(100% - 28px));max-height:min(260px,65%);
+ overflow:auto;box-sizing:border-box;
+ padding:12px 13px;background:#eee9df;color:#242021;
+ border:1px solid rgba(54,42,43,.38);border-radius:7px;
+ box-shadow:0 5px 18px rgba(0,0,0,.19);
+ font:400 12px/1.35 'Inconsolata',Consolas,monospace;
+}
+.vh-hint-head{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:700;letter-spacing:.035em}
+.vh-hint-head small{font-size:10px;font-weight:400;color:#827879;margin-left:5px}
+.vh-hint-close{display:grid;place-items:center;width:25px;height:25px;padding:0;border:0;background:transparent;color:#595152;font:22px/1 Georgia,serif;cursor:pointer;touch-action:manipulation}
+.vh-hint-content{margin:11px 0 14px;border-top:1px solid rgba(55,42,42,.19);padding-top:11px;min-height:35px}
+.vh-hint-more{display:block;margin-left:auto;padding:7px 10px;border:1px solid #514849;border-radius:3px;background:transparent;color:#30292a;font:500 11px/1.1 'Inconsolata',Consolas,monospace;cursor:pointer;touch-action:manipulation}
+.vh-hint-more:disabled{opacity:.45;cursor:default}
+@media(max-width:480px){
+ #vh-hint-popover{font-size:11px;width:min(212px,calc(100% - 16px));padding:10px}
+ #vh-hint-trigger{width:24px;height:24px;min-height:24px}
+}
