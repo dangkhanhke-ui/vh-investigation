@@ -5,9 +5,9 @@
 .vh-menu-trigger span{display:block;width:23px;height:1.5px;background:#fff}
 body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:none}
 .vh-menu-panel[hidden],.vh-guide-shade[hidden],.vh-guide-dialog[hidden],.vh-tour-tip[hidden],.vh-menu-settings[hidden]{display:none!important}
-.vh-menu-panel{position:fixed;z-index:10021;top:0;left:0;bottom:0;width:min(340px,85vw);box-sizing:border-box;overflow:auto;background:#f01414;color:#080808;border:0;border-radius:0;box-shadow:16px 0 45px #0008;padding:35px 25px 28px;font:400 12px/1.45 'Roboto Mono',Consolas,monospace;animation:vh-panel-enter .22s ease-out}
+.vh-menu-panel{position:fixed;z-index:10021;top:0;left:0;bottom:0;width:min(340px,85vw);box-sizing:border-box;overflow:auto;background:#f01414;color:#080808;border:0;border-radius:0;box-shadow:16px 0 45px #0008;padding:35px 25px 28px;font:400 12px/1.45 'Inconsolata',Consolas,monospace;animation:vh-panel-enter .22s ease-out}
 @keyframes vh-panel-enter{from{transform:translateX(-18px);opacity:.4}to{transform:translateX(0);opacity:1}}
-.vh-menu-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:64px;font:500 11px 'Roboto Mono',monospace;letter-spacing:.06em}
+.vh-menu-title{display:flex;justify-content:space-between;align-items:center;padding-bottom:64px;font:500 11px 'Inconsolata',monospace;letter-spacing:.06em}
 .vh-menu-panel button{font-family:inherit;color:inherit;background:none;border:0;cursor:pointer}
 .vh-menu-title button{font-size:23px;font-weight:400;padding:0 4px}
 .vh-menu-panel>button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;padding:22px 0;border-top:1px solid #320000;text-align:left;font-size:12px;font-weight:500;letter-spacing:-.04em}
@@ -19,19 +19,19 @@ body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:no
 .vh-menu-settings input{accent-color:#080808;width:15px;height:15px}
 .vh-menu-settings button{display:block;margin-top:20px;padding:0;font-size:10px}
 .vh-guide-shade{position:fixed;inset:0;background:#080808f5;z-index:11000}
-.vh-guide-dialog{position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);width:min(590px,calc(100vw - 34px));min-height:min(365px,calc(100dvh - 34px));max-height:calc(100dvh - 34px);overflow:auto;box-sizing:border-box;background:#f01414;color:#090909;border:0;border-radius:0;box-shadow:none;padding:clamp(24px,5vw,45px);display:flex;flex-direction:column;justify-content:space-between;font:400 11px/1.55 'Roboto Mono',Consolas,monospace}
+.vh-guide-dialog{position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);width:min(590px,calc(100vw - 34px));min-height:min(365px,calc(100dvh - 34px));max-height:calc(100dvh - 34px);overflow:auto;box-sizing:border-box;background:#f01414;color:#090909;border:0;border-radius:0;box-shadow:none;padding:clamp(24px,5vw,45px);display:flex;flex-direction:column;justify-content:space-between;font:400 11px/1.55 'Inconsolata',Consolas,monospace}
 .vh-guide-head{display:flex;align-items:center;justify-content:space-between;font-size:10px;letter-spacing:.05em}
-.vh-guide-close{border:0;background:none;color:#090909;font:400 23px 'Roboto Mono',monospace;cursor:pointer}
+.vh-guide-close{border:0;background:none;color:#090909;font:400 23px 'Inconsolata',monospace;cursor:pointer}
 .vh-guide-copy{padding:35px 0 44px}
-.vh-guide-copy h2{font:500 clamp(22px,5vw,32px)/1.08 'Roboto Mono',Consolas,monospace;letter-spacing:-.075em;margin:0 0 17px;text-transform:uppercase}
+.vh-guide-copy h2{font:500 clamp(22px,5vw,32px)/1.08 'Inconsolata',Consolas,monospace;letter-spacing:-.075em;margin:0 0 17px;text-transform:uppercase}
 .vh-guide-description{max-width:390px;margin:0;font-size:11px;line-height:1.65}
 .vh-guide-bottom{border-top:1px solid #330000;padding-top:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}
 .vh-guide-count{font-size:11px}
-.vh-guide-primary{border:0;border-radius:30px;background:#050505;color:white;min-height:29px;min-width:155px;padding:7px 17px;font:500 10px/1 'Roboto Mono',monospace;cursor:pointer}
+.vh-guide-primary{border:0;border-radius:30px;background:#050505;color:white;min-height:29px;min-width:155px;padding:7px 17px;font:500 10px/1 'Inconsolata',monospace;cursor:pointer}
 .vh-guide-primary:active{transform:scale(.985)}
 .vh-tour-open #vhOpenPhone{z-index:12002!important;outline:1px solid #fff!important;outline-offset:5px!important}
-.vh-tour-tip{position:fixed;top:76px;right:18px;z-index:12003;background:#f01414;color:#0b0000;border:0;border-radius:0;padding:16px;width:min(275px,calc(100vw - 36px));font:400 11px/1.6 'Roboto Mono',monospace}
-.vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:9px}.vh-tour-tip button{border:0;border-radius:20px;background:#050505;color:white;font:500 10px 'Roboto Mono',monospace;padding:7px 15px;cursor:pointer}
+.vh-tour-tip{position:fixed;top:76px;right:18px;z-index:12003;background:#f01414;color:#0b0000;border:0;border-radius:0;padding:16px;width:min(275px,calc(100vw - 36px));font:400 11px/1.6 'Inconsolata',monospace}
+.vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:9px}.vh-tour-tip button{border:0;border-radius:20px;background:#050505;color:white;font:500 10px 'Inconsolata',monospace;padding:7px 15px;cursor:pointer}
 @media(max-width:480px){.vh-guide-dialog{padding:25px;min-height:min(340px,calc(100dvh - 34px))}.vh-guide-copy h2{font-size:24px}.vh-guide-primary{min-width:130px;font-size:9px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){.vh-menu-panel{animation:none}}
 
@@ -40,3 +40,10 @@ body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:no
 .vh-menu-trigger span{width:25px!important;height:1.3px!important;flex:0 0 1.3px!important}
 body.vh-phone-active .vh-menu-trigger,body.vh-phone-transitioning .vh-menu-trigger,body.vh-phone-active .vh-menu-panel,body.vh-phone-transitioning .vh-menu-panel{display:none!important}
 @media(max-width:600px){.vh-menu-trigger{top:calc(12px + env(safe-area-inset-top,0px))!important;left:calc(12px + env(safe-area-inset-left,0px))!important}}
+
+/* Larger menu labels and restrained custom sound checkbox. */
+.vh-menu-panel>button{font-size:15px!important}
+.vh-menu-settings{font-size:13px!important}
+.vh-menu-settings input[type="checkbox"]{appearance:none!important;-webkit-appearance:none!important;display:inline-grid!important;place-items:center!important;width:15px!important;height:15px!important;min-width:15px!important;margin:0!important;border:1px solid #090909!important;border-radius:0!important;background:transparent!important;cursor:pointer;position:relative}
+.vh-menu-settings input[type="checkbox"]:checked::after{content:"";display:block;width:7px;height:4px;border-left:1px solid #090909;border-bottom:1px solid #090909;transform:translateY(-1px) rotate(-45deg)}
+.vh-menu-settings input[type="checkbox"]:focus-visible{outline:1px solid #090909;outline-offset:3px}
