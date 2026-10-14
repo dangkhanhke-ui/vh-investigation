@@ -6,7 +6,7 @@
  const ORIGIN=location.origin;
  const story=window.VHNeymarinhoStory;
  if(!story)return;
- let queuedOpen=false,ready=false,notified=false,q1NotificationScheduled=false,q1DeliveryTimer=0;
+ let queuedOpen=false,ready=false,notified=false,q1NotificationScheduled=false,q1DeliveryTimer=0,queuedQ1Tap=false;
  const q1Banner=document.createElement('button');
  q1Banner.type='button';q1Banner.id='vh-q1-message-notification';
  q1Banner.setAttribute('aria-label','Mở tin nhắn mới từ Neymarinho');
@@ -27,7 +27,7 @@
    if(q1NotificationScheduled||story.q1Phase()!==1)return;
    q1NotificationScheduled=true;setTimeout(()=>{q1NotificationScheduled=false;showQ1Banner()},3000);
  }
- q1Banner.addEventListener('click',()=>{q1Banner.classList.remove('show');openPhoneMessages()});
+ q1Banner.addEventListener('click',()=>{q1Banner.classList.remove('show');queuedQ1Tap=true;openPhoneMessages()});
  function beginQ1Messages(){
    if(story.q1Phase()===1){story.q1Started();send('vh:sync')}
    if(story.q1Phase()===2&&!q1DeliveryTimer){
@@ -47,12 +47,12 @@
   queuedOpen=true;
   if(!document.body.classList.contains('vh-phone-active'))
    document.getElementById('vhOpenPhone')?.click();
-  else if(ready){send('vh:open');queuedOpen=false}
+  else if(ready){send('vh:open',{q1Tap:queuedQ1Tap});queuedQ1Tap=false;queuedOpen=false}
  }
- iframe.addEventListener('load',()=>{ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()});
+ iframe.addEventListener('load',()=>{ready=true;send('vh:sync');if(queuedOpen){send('vh:open',{q1Tap:queuedQ1Tap});queuedQ1Tap=false;queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()});
  window.addEventListener('message',e=>{
   if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
-  if(e.data.type==='vh:ready'){ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()}
+  if(e.data.type==='vh:ready'){ready=true;send('vh:sync');if(queuedOpen){send('vh:open',{q1Tap:queuedQ1Tap});queuedQ1Tap=false;queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()}
   if(e.data.type==='vh:action'&&e.data.action==='q1-opened'){beginQ1Messages()}
   if(e.data.type==='vh:action'&&e.data.action==='read'){
    if(!story.isRead()){story.markRead();send('vh:sync')}
@@ -65,7 +65,7 @@
  });
  document.addEventListener('vh:intro-finished',()=>{if(ready)notify()});
  new MutationObserver(()=>{
-  if(queuedOpen&&ready&&document.body.classList.contains('vh-phone-active')){send('vh:open');queuedOpen=false}
+  if(queuedOpen&&ready&&document.body.classList.contains('vh-phone-active')){send('vh:open',{q1Tap:queuedQ1Tap});queuedQ1Tap=false;queuedOpen=false}
   else if(ready&&document.body.classList.contains('vh-phone-active'))notify();
  }).observe(document.body,{attributes:true,attributeFilter:['class']});
  window.VHOpenNeymarinhoMessages=openPhoneMessages;
