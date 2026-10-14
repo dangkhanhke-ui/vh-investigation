@@ -142,3 +142,17 @@ body.vh-phone-active .vh-nav-prev svg circle{fill:rgba(45,45,48,.32)!important;s
 /* Keep dossier light, vignette, dust and grain continuously rendered behind the phone. */
 body.vh-phone-active .cinema-atmosphere,body.vh-phone-transitioning .cinema-atmosphere{visibility:visible!important;opacity:1!important}
 body.vh-phone-active .cinema-dust,body.vh-phone-active .cinema-grain,body.vh-phone-transitioning .cinema-dust,body.vh-phone-transitioning .cinema-grain{animation-play-state:running!important}
+
+/* Safari's visible viewport owns the phone canvas, not the scrollable document. */
+html:has(body.vh-phone-active),body.vh-phone-active{height:100%;overflow:hidden!important;overscroll-behavior:none}
+.vh-phone-layer{
+  height:100dvh;
+  height:var(--vh-visible-height,100dvh);
+  max-height:var(--vh-visible-height,100dvh);
+  top:0;bottom:auto;
+  contain:layout paint;
+}
+.vh-phone-layer iframe{height:100%!important;overscroll-behavior:none}
+@media(max-width:800px) and (pointer:coarse){
+ .vh-phone-layer.is-animating{transition-duration:90ms!important}
+}
