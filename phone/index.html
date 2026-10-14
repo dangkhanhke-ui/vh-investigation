@@ -285,20 +285,26 @@
   })();
   // The visual viewport loses height when iOS opens its keyboard.
   // Size the hardware from a stable *pre-keyboard* viewport instead.
+  let stablePhoneWidth=0, stablePhoneHeight=0;
   function phoneIsTyping(){
     const e=document.activeElement;
     return !!(e && e.closest && e.closest('#phoneWrap') &&
       (e.matches('input:not([type=hidden]), textarea, select, [contenteditable], [role=textbox]')));
   }
   function fitPhone() {
-    if(phoneIsTyping())return;
-    // Never cache the tallest Safari viewport; browser toolbar changes must
-    // shrink the canvas rather than leave controls below the visible area.
     const v=window.visualViewport;
-    const width=Math.max(1,Math.min(window.innerWidth,v?.width||window.innerWidth));
-    const height=Math.max(1,Math.min(window.innerHeight,v?.height||window.innerHeight));
+    const w=window.innerWidth;
+    const typing=phoneIsTyping();
+    if (!stablePhoneWidth || Math.abs(w-stablePhoneWidth)>40) {
+      stablePhoneWidth=w;
+      stablePhoneHeight=Math.max(window.innerHeight,v?.height||0);
+    } else if (!typing) {
+      stablePhoneHeight=Math.max(stablePhoneHeight,window.innerHeight,v?.height||0);
+    }
+    if (typing) return;
+    const width=stablePhoneWidth;
     const safe=width<600?0:4;
-    const scale=Math.min((width-safe*2)/375,(height-safe*2)/791);
+    const scale=Math.min((width-safe*2)/375,(stablePhoneHeight-safe*2)/791);
     // On real mobile screens, never upscale the framed phone's 320px UI.
     // Full-bleed mode renders that same UI at 1 CSS px per CSS px.
     // Preserve desktop preview scaling, where the hardware frame benefits from enlargement.
@@ -1200,7 +1206,7 @@
     }
     homeClickCount += 1;
     if (homeClickCount === 1) {
-      homeClickTimer=setTimeout(() => { homeClickCount=0; goHomePreservingState(); },175);
+      homeClickTimer=setTimeout(() => { homeClickCount=0; goHomePreservingState(); },280);
     } else {
       clearTimeout(homeClickTimer);
       homeClickTimer=null;
