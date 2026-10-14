@@ -381,3 +381,22 @@
  html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
  button,a,[role="button"]{touch-action:manipulation}
 }
+
+
+/* Safari touch reliability: keep controls responsive and reduce paint cost on phones. */
+#vh-intro .vh-intro-scene,
+#vh-intro .vh-intro-messages{touch-action:pan-y}
+#vh-intro .vh-intro-navigation button,
+#vh-intro .vh-intro-notification,
+.vh-menu-trigger,.vh-menu-panel button,.vh-stage-card,
+.vh-guide-dialog button,.vh-nav-control,
+.folder-tabs .tab,.choice,.submit{touch-action:manipulation}
+body.vh-onboarding .shell::after,
+body.vh-onboarding .cinema-dust,
+body.vh-onboarding .cinema-grain{animation-play-state:paused!important}
+@media(max-width:800px) and (pointer:coarse){
+ /* Keep one living dust layer but avoid several simultaneous fullscreen repaints. */
+ .shell::after{animation:none!important;will-change:auto!important}
+ .cinema-grain{animation:none!important}
+ .cinema-dust--up,.cinema-dust--side,.cinema-dust--down{animation:none!important;opacity:.09!important}
+}
