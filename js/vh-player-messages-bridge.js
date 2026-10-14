@@ -36,7 +36,7 @@
  toast.innerHTML='<div class="vh-head"><img class="vh-icon" src="phone/messages.png.png" alt="">MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
  const style=document.createElement('style');
  style.textContent=`
-   #vh-new-message-banner{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(92vw,360px);transform:translate(-50%,-160%);z-index:10050;padding:0;text-align:left;cursor:pointer;color:#161616;background:rgba(218,219,223,.96);border:0;border-radius:15px;overflow:hidden;box-shadow:0 8px 28px #0005;font:13px -apple-system,sans-serif;pointer-events:none;opacity:0;transition:transform .23s,opacity .2s}
+   #vh-new-message-banner{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));left:50%;width:min(92vw,360px);transform:translate(-50%,-160%);z-index:12050;padding:0;text-align:left;cursor:pointer;color:#161616;background:rgba(218,219,223,.96);border:0;border-radius:15px;overflow:hidden;box-shadow:0 8px 28px #0005;font:13px -apple-system,sans-serif;pointer-events:none;opacity:0;transition:transform .23s,opacity .2s}
    #vh-new-message-banner.show{transform:translate(-50%,0);pointer-events:auto;opacity:1}
    #vh-new-message-banner .vh-head{display:flex;align-items:center;gap:8px;padding:9px 11px;background:rgba(242,242,244,.94);color:#555;font-size:11px}
    #vh-new-message-banner .vh-icon{display:block;width:19px;height:19px;border-radius:5px;object-fit:cover;flex-shrink:0}
