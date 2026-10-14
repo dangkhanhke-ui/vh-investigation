@@ -6,8 +6,8 @@
  const ORIGIN=location.origin;
  if(!iframe||!layer)return;
  let queuedOpen=false,timer=0;
- const GREET_SHOWN='vh.neymarinho.welcome.announced.v1';
- const GREET_ACK='vh.neymarinho.welcome.acked.v1';
+ const GREET_SHOWN='vh.neymarinho.welcome.announced.v3';
+ const GREET_ACK='vh.neymarinho.welcome.acked.v3';
  let welcomeBanner=false;
  const flag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
  const saveFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
