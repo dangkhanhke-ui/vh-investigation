@@ -10,91 +10,100 @@
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
 
-  // Scripted investigator chat. Pre-existing as soon as the phone opens:
-  // no delayed greeting, notification banner, prototype hints or freeform stage buttons.
-  const ACK_KEY='vh.neymarinho.welcome.acked.v4';
-  const pad=n=>String(n).padStart(2,'0');
-  const initialTime=new Date();
-  const stamp=pad(initialTime.getHours())+':'+pad(initialTime.getMinutes());
-  const fixedDate='29/08/2018';
-  const safeName=()=>{
-    try{return (localStorage.getItem('vh.player.name.v1')||'').trim().slice(0,36)}catch(_){return ''}
-  };
-  const initialMessages=()=>[
-    'Hey '+(safeName()||'mày'),
-    'Neymarinho nè',
-    'Anh mới có số mày',
-    'Từ giờ anh sẽ nhắn qua đây nhé'
-  ].map(body=>({date:fixedDate,time:stamp,direction:'incoming',body,status:null,unread:false}));
-  const acked=()=>{try{return localStorage.getItem(ACK_KEY)==='yes'}catch(_){return false}};
-  function saveAck(){try{localStorage.setItem(ACK_KEY,'yes')}catch(_){}}
-  function populate(){
-    thread.messages=initialMessages();
-    if(acked())thread.messages.push({
-      date:fixedDate,time:stamp,direction:'outgoing',body:'Ok anh',status:'sent',unread:false
-    });
-    thread.preview=thread.messages[thread.messages.length-1].body;
-    thread.unread=false;
-  }
-  populate();
-
+  // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
   style.textContent=`
-    #vh-investigator-actions{
-      position:absolute;left:0;right:0;bottom:44px;z-index:12;
-      height:48px;box-sizing:border-box;display:flex;align-items:center;
-      justify-content:flex-end;padding:5px 13px;
-      background:#f7f7f7;border-top:1px solid #dedee0
-    }
-    #vh-investigator-actions[hidden]{display:none!important}
-    #vh-investigator-actions button{
-      border:1px solid #cfd5e3;border-radius:9px;
-      background:#fff;color:#007aff;padding:8px 15px;
-      font:14px -apple-system,BlinkMacSystemFont,sans-serif;
-      cursor:pointer;touch-action:manipulation
-    }
-    #messagesConversationView .msg-convo-scroll.vh-awaiting-reply{bottom:92px!important}
-    #messagesConversationView .msg-composer.vh-investigator-no-compose{display:none!important}
-    #messagesConversationView .msg-convo-scroll.vh-investigator-no-compose{bottom:44px!important}
+    #vh-investigator-notification{position:absolute;top:26px;left:8px;right:8px;z-index:160;padding:0;border:0;border-radius:15px;background:rgba(218,219,223,.96);color:#171717;font:13px -apple-system,sans-serif;overflow:hidden;box-shadow:0 5px 20px #0004;text-align:left;cursor:pointer;opacity:0;transform:translateY(-130%);pointer-events:none;transition:transform .24s,opacity .2s}
+    #vh-investigator-notification.show{opacity:1;transform:translateY(0);pointer-events:auto}
+    #vh-investigator-notification .vh-head{display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(242,242,244,.94);color:#59595d;font-size:11px}
+    #vh-investigator-notification .vh-icon{display:block;width:19px;height:19px;border-radius:5px;object-fit:cover;flex-shrink:0}
+    #vh-investigator-notification .vh-more{margin-left:auto}
+    #vh-investigator-notification .vh-body{display:flex;gap:8px;justify-content:space-between;padding:11px 12px;font-size:14px}
+    #vh-investigator-notification .vh-body span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    #vh-investigator-notification .vh-body small{flex-shrink:0;color:#777}
+    #messagesConversationView .msg-convo-scroll{bottom:88px!important}
+    #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
+    #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
   `;
   document.head.appendChild(style);
-  const convo=document.getElementById('messagesConversationView');
+
+  const toast=document.createElement('button');
+  toast.id='vh-investigator-notification';toast.type='button';
+  toast.innerHTML='<div class="vh-head"><img class="vh-icon" src="../messages.png.png" alt="">MESSAGES <span class="vh-more">Show More</span></div><div class="vh-body"><span></span><small>now</small></div>';
+  document.getElementById('screen')?.appendChild(toast);
+  let hide=0;
+  function openInvestigator(){
+    toast.classList.remove('show');
+    if(document.getElementById('lockScreen')?.classList.contains('active')){
+      // Unlock only on a deliberate notification tap.
+      document.getElementById('unlockHint')?.click();
+    }
+    window.CauaMessagesOpenThread?.('neymarinho');
+  }
+  toast.addEventListener('click',openInvestigator);
+
+  // Preserve the original iOS8 conversation layout, with a small continuation
+  // option so the user can finish investigation stages entirely from Messages.
   const actions=document.createElement('div');
   actions.id='vh-investigator-actions';
-  actions.innerHTML='<button type="button" id="vh-message-ok">Ok anh</button>';
+  actions.innerHTML='<button id="vh-message-hint" type="button">Gợi ý</button><button id="vh-message-continue" type="button">Tiếp tục →</button>';
+  const convo=document.getElementById('messagesConversationView');
   convo?.querySelector('.msg-convo')?.appendChild(actions);
+  actions.querySelector('#vh-message-hint').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'hint'},ORIGIN));
+  actions.querySelector('#vh-message-continue').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'continue'},ORIGIN));
 
-  function showThread(){
-    const active=bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
-    actions.hidden=!active||acked();
-    bridge.composer?.classList.toggle('vh-investigator-no-compose',active);
-    bridge.convoScroll?.classList.toggle('vh-investigator-no-compose',active&&acked());
-    bridge.convoScroll?.classList.toggle('vh-awaiting-reply',active&&!acked());
+  function sanitize(history){
+    return Array.isArray(history)?history.slice(-350).filter(m=>m&&typeof m.text==='string'&&(m.who==='partner'||m.who==='me')).map(m=>{
+      const d=new Date(Number(m.at)||Date.now()),z=x=>String(x).padStart(2,'0');
+      return {
+        date:z(d.getDate())+'/'+z(d.getMonth()+1)+'/'+d.getFullYear(),
+        time:z(d.getHours())+':'+z(d.getMinutes()),
+        direction:m.who==='partner'?'incoming':'outgoing',
+        body:m.text,status:m.who==='me'?'sent':null,
+        unread:false
+      };
+    }):[];
   }
-  function repaint(){
-    if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho'){
-      bridge.renderConversation(thread,false);showThread();
-    }else if(bridge.state.view==='list')bridge.renderList(false);
+  function update(history,phase){
+    thread.messages=sanitize(history);
+    const last=thread.messages[thread.messages.length-1];
+    thread.preview=last?.body||'Cuộc trò chuyện điều tra';
+    thread.unread=false;
+    if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho')
+      bridge.renderConversation(thread,false);
+    else if(bridge.state.view==='list')bridge.renderList(false);
+    actions.querySelector('#vh-message-hint').hidden=phase!=='solve';
+    actions.querySelector('#vh-message-continue').hidden=phase!=='await';
   }
-  actions.querySelector('#vh-message-ok').addEventListener('click',()=>{
-    if(acked())return;
-    saveAck();populate();repaint();
-  });
-  // Capture navigation after the native Messages handlers finish.
-  document.addEventListener('click',e=>{
-    if(e.target.closest('#messagesApp'))queueMicrotask(showThread);
-  });
   window.addEventListener('message',e=>{
-    if(e.origin!==location.origin||e.source!==window.parent||!e.data)return;
-    if(e.data.type==='vh:sync'||e.data.type==='vh:open'){
-      // Parent carries no scripted dialogue; never replace with empty history.
-      populate();
-      if(e.data.type==='vh:open')window.CauaMessagesOpenThread?.('neymarinho');
-      repaint();showThread();
+    if(e.origin!==ORIGIN||e.source!==window.parent||!e.data||typeof e.data!=='object')return;
+    const p=e.data;
+    if(p.type==='vh:sync'||p.type==='vh:new'){
+      update(p.history,p.phase);
+      if(p.type==='vh:new'&&typeof p.text==='string' && !document.getElementById('messagesApp')?.classList.contains('open')){
+        toast.querySelector('.vh-body span').textContent=p.text;
+        toast.classList.add('show');
+        window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
+        clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),2300);
+      }
+    }else if(p.type==='vh:open'){
+      if(Array.isArray(p.history))update(p.history,p.phase);
+      openInvestigator();
     }
   });
-  // Native phone loads asynchronously; initial conversation/list is already populated.
-  setTimeout(()=>{populate();repaint();showThread()},0);
+  // Send player replies to the actual case engine. Do not let Cauã's sandbox
+  // handler label these as "unsent" or create unrelated local conversations.
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('#messagesSendBtn'))return;
+    if(bridge.state.currentThread!=='neymarinho')return;
+    e.preventDefault();e.stopImmediatePropagation();
+    const box=document.getElementById('messagesReplyInput');
+    const text=box?.value.trim();
+    if(!text)return;
+    box.value='';box.dispatchEvent(new Event('input',{bubbles:true}));
+    window.parent.postMessage({type:'vh:reply',text},ORIGIN);
+  },true);
+
 
   // Crash-safe portrait: CSS-only; no MutationObserver or DOM rewriting.
   // A prior mutation observer created an unbounded feedback loop in Messages.
