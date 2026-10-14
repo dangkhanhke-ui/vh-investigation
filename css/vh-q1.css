@@ -36,3 +36,5 @@
 #vh-q1 .vq-success-panel p{font-size:14px;line-height:1.7;margin:19px 0}
 #vh-q1 .vq-continue{background:#e1c5b0;border:0;color:#2b1916;padding:12px 22px;font-weight:700}
 @media(max-width:520px){#vh-q1{max-height:53vh}#vh-q1 .vq-events{grid-template-columns:1fr}#vh-q1 .vq-slot{min-height:49px}}
+
+/* Deployment retry: fresh Pages artifact after GitHub 500 and duplicate artifacts on rerun. */
