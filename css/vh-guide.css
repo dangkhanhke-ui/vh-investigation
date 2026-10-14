@@ -47,3 +47,7 @@ body.vh-phone-active .vh-menu-trigger,body.vh-phone-transitioning .vh-menu-trigg
 .vh-menu-settings input[type="checkbox"]{appearance:none!important;-webkit-appearance:none!important;display:inline-grid!important;place-items:center!important;width:15px!important;height:15px!important;min-width:15px!important;margin:0!important;border:1px solid #090909!important;border-radius:0!important;background:transparent!important;cursor:pointer;position:relative}
 .vh-menu-settings input[type="checkbox"]:checked::after{content:"";display:block;width:7px;height:4px;border-left:1px solid #090909;border-bottom:1px solid #090909;transform:translateY(-1px) rotate(-45deg)}
 .vh-menu-settings input[type="checkbox"]:focus-visible{outline:1px solid #090909;outline-offset:3px}
+
+/* Main navigation labels: +3px and bold, including nested text spans. */
+.vh-menu-panel>button{font-size:15px!important;font-weight:700!important}
+.vh-menu-panel>button span:first-child{font-size:15px!important;font-weight:700!important}
