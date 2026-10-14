@@ -33,8 +33,13 @@
     if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/');
   }
   document.addEventListener('vh:preload-phone',warmPhone);
-  // On returning visits, the intro can start before this deferred script runs.
-  try{if(localStorage.getItem('vh.access.authorized.v1')==='yes')warmPhone()}catch(_){}
+  // New players: do not load the heavy phone iframe during the opening
+  // avatar/audio decode. The intro signals once the first chat is underway.
+  // Returning completed players still get a delayed background warm-up.
+  try{
+    if(localStorage.getItem('vh.intro.finished.v1')==='yes')
+      setTimeout(warmPhone,2200);
+  }catch(_){}
 
   function duration(){
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:(window.matchMedia('(max-width:800px) and (pointer:coarse)').matches?90:160);
