@@ -32,13 +32,20 @@ function addRow(){
  const bubble=document.createElement('div');bubble.className='vh-intro-bubble';
  row.append(avatar,bubble);messages.appendChild(row);return bubble;
 }
+const cauaPreload=new Image();
+cauaPreload.src='assets/caua-opening.jpg';
 function addPhoto(){
  const bubble=addRow();bubble.classList.add('vh-intro-photo');
- const image=document.createElement('img');image.src='assets/caua-opening.jpg';image.alt='Ảnh Cauã';
+ const row=bubble.parentNode;
+ const image=document.createElement('img');image.src=cauaPreload.src;image.alt='Ảnh Cauã';
  const placeholder=document.createElement('div');placeholder.className='vh-intro-photo-placeholder';placeholder.textContent='ẢNH CAUÃ — CHƯA TẢI LÊN';
- image.addEventListener('load',()=>{placeholder.hidden=true});
- image.addEventListener('error',()=>{image.hidden=true});
+ row.style.visibility='hidden';
+ const ready=()=>{placeholder.hidden=true;row.style.visibility='visible';messages.scrollTop=messages.scrollHeight};
+ const failed=()=>{image.hidden=true;row.style.visibility='visible'};
+ image.addEventListener('load',ready,{once:true});
+ image.addEventListener('error',failed,{once:true});
  bubble.append(image,placeholder);
+ if(cauaPreload.complete){if(cauaPreload.naturalWidth)ready();else failed()}
 }
 function appendInstant(item){
  if(typeof item==='object'){addPhoto();return}
