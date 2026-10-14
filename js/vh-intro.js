@@ -185,20 +185,40 @@ function preloadSecondary(){
  secondaryStarted=true;
  IMAGE_ASSETS.slice(2).forEach(preloadImage);
 }
+async function waitForOpeningAssets(){
+ // The avatar must be fully decoded before the first chat bubble is shown.
+ const imageReady=preloadImage(IMAGE_ASSETS[0]).then(async loaded=>{
+   if(!loaded)throw new Error('Không tải được avatar Neymarinho');
+   if(avatarPreload.decode)await avatarPreload.decode();
+   if(!avatarPreload.naturalWidth)throw new Error('Avatar Neymarinho không hợp lệ');
+ });
+ const soundReady=Promise.resolve(window.VHSound?.readyIntro?.()).then(ok=>{
+   if(ok===false)throw new Error('Không tải được âm thanh mở đầu');
+ });
+ await Promise.all([imageReady,soundReady]);
+}
 async function begin(){
  if(!gateAuthorized)return;
  const id=++seq;show();screen('load');
+ load.querySelector('.vh-intro-retry-assets')?.remove();
  const start=performance.now();
- // Prioritize chat avatar and opening sounds before loading phone assets.
- const essential=Promise.allSettled([
-   preloadImage(IMAGE_ASSETS[0]),
-   window.VHSound?.readyIntro?.()||Promise.resolve()
- ]);
  window.VHSound?.start('loading');
- await Promise.race([essential,sleep(2800)]);
+ try{
+   // Never leave loading early while the portrait or audio is still loading.
+   await waitForOpeningAssets();
+ }catch(error){
+   if(id!==seq)return;
+   window.VHSound?.stop('loading');
+   console.warn('[VH intro] Opening assets not ready:',error);
+   const retry=document.createElement('button');
+   retry.type='button';retry.className='vh-intro-retry-assets';
+   retry.textContent='Không tải được ảnh hoặc âm thanh — chạm để thử lại';
+   retry.addEventListener('click',()=>{retry.remove();begin()},{once:true});
+   load.appendChild(retry);
+   return;
+ }
  if(id!==seq)return;
  preloadSecondary();
- // Small visible transition; not an artificial multi-second wait.
  const remaining=Math.max(0,450-(performance.now()-start));
  if(remaining)await sleep(remaining);
  if(id!==seq)return;
