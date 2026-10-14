@@ -19,7 +19,7 @@ const PAGES=[
 ['Anh đã chuẩn bị sẵn cho mày một tập hồ sơ rồi đấy','Trong đó có ảnh hiện trường, lời khai với một số thông tin liên quan','À, anh có gửi mày cả bản copy dữ liệu từ điện thoại của Cauã nữa','Anh xem qua rồi, thấy cũng chưa có gì đáng giá lắm','Nhưng ít nhất thì cũng nhờ nó mà hiểu thêm về Cauã với cái hội này','Mày cứ xem thử, biết đâu lại tìm được thứ gì anh bỏ sót :))'],
 ['Có điều là hiện tại vẫn còn nhiều tài liệu quan trọng bị khóa','Trong quá trình điều tra, khi nào mở khóa được thêm phần nào thì anh sẽ gửi cho mày','Nên trước mắt cứ xem những gì đang có đã nhé'],
 ['Mày đọc kỹ hồ sơ rồi thử dựng lại diễn biến đêm đó xem sao','Soi kỹ mốc thời gian và lời khai từng đứa nhé','Thấy chỗ nào chọi nhau thì ghi chú lại ngay','Trong lúc điều tra nếu bí quá thì nhắn anh','Anh sẽ gợi ý cho một chút, nhưng đừng có vội xin đáp án đấy nhé :))'],
-['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Những vụ đó mình sẽ dần giải mã sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
+['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Những bí ẩn còn lại, mình sẽ dần giải mã sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
 ];
 let activePage=0,visibleCount=0,renderToken=0,renderComplete=false,currentTyping=null;
 const previous=document.createElement('button');
