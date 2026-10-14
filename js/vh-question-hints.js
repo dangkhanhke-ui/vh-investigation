@@ -17,7 +17,6 @@
     <strong class="vh-hint-brand">GỢI Ý</strong>
     <span class="vh-hint-step" id="vh-hint-progress">00 / 03</span>
   </div>
-  <div class="vh-hint-sub"><span><b>01</b> HỖ TRỢ_</span><span><b>02</b> ĐIỀU TRA_</span></div>
   <p id="vh-hint-content" class="vh-hint-content">Bạn muốn xem gợi ý cho câu hỏi này?</p>
   <div class="vh-hint-bottom">
     <button type="button" id="vh-hint-more" class="vh-hint-more"><span>Xem gợi ý 1</span><span aria-hidden="true">↗</span></button>
@@ -38,7 +37,7 @@
  function save(){try{localStorage.setItem(activeKey,String(level))}catch(_){}}
  function paint(){
    progress.textContent=String(level).padStart(2,'0')+' / 03';
-   content.textContent=level?'Lời giải '+level:'Bạn muốn xem gợi ý cho câu hỏi này?';
+   content.textContent=level===1?'Lời giải 1':level===2?"Nếu mày muốn, tin nhắn sau tao có thể viết tiếp cho mày bản “đã chỉnh luôn JS hoàn chỉnh của file `vh-question-hints.js`” để mày chỉ việc paste nguyên file, khỏi tự mò từng đoạn.":level===3?'Lời giải 3':'Bạn muốn xem gợi ý cho câu hỏi này?';
    more.disabled=level>=3;
    more.querySelector('span').textContent=level===0?'Xem gợi ý 1':level===3?'Đã xem hết':'Gợi ý tiếp';
  }
