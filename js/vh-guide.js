@@ -5,8 +5,8 @@ const read=k=>{try{return localStorage.getItem(k)}catch(_){return null}};
 const write=(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}};
 const el=(tag,cls,html)=>{const x=document.createElement(tag);if(cls)x.className=cls;if(html!==undefined)x.innerHTML=html;return x};
 const nav=document.getElementById('vhOpenPhone');
-const menu=el('button','vh-menu-trigger','<span></span><span></span><span></span>');menu.type='button';menu.setAttribute('aria-label','Mở menu điều tra');menu.setAttribute('aria-expanded','false');
-const panel=el('aside','vh-menu-panel');panel.setAttribute('aria-label','Menu điều tra');panel.hidden=true;
+const menu=el('button','vh-menu-trigger','<span></span><span></span><span></span>');menu.type='button';menu.setAttribute('aria-label','Mở menu điều tra');menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-controls','vh-menu-panel');
+const panel=el('aside','vh-menu-panel');panel.setAttribute('aria-label','Menu điều tra');panel.hidden=true;panel.id='vh-menu-panel';
 panel.innerHTML='<div class="vh-menu-title"><span>MENU</span><button type="button" data-act="close" aria-label="Đóng menu">×</button></div><button type="button" data-act="investigate"><span>01 / ĐIỀU TRA</span><span>↗</span></button><button type="button" data-act="guide"><span>02 / HƯỚNG DẪN CHƠI</span><span>↗</span></button><button type="button" data-act="settings" aria-expanded="false"><span>03 / CÀI ĐẶT</span><span>+</span></button><div class="vh-menu-settings" hidden><label>HIỆU ỨNG ÂM THANH <input id="vhSoundSwitch" type="checkbox"></label><button type="button" data-act="restart">CHƠI LẠI TỪ ĐẦU ↺</button></div>';
 const shade=el('div','vh-guide-shade');shade.hidden=true;
 const dialog=el('section','vh-guide-dialog');dialog.hidden=true;dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
@@ -35,11 +35,12 @@ function finishGuide(){hideGuide();if(auto&&read(TOUR_DONE)!=='yes')startTour();
 dialog.querySelector('.vh-guide-primary').onclick=()=>{if(guideIndex<3){guideIndex++;renderGuide()}else finishGuide()};
 dialog.querySelector('.vh-guide-close').onclick=()=>{if(auto)finishGuide();else hideGuide()};
 shade.onclick=()=>{if(!auto)hideGuide()};
-menu.onclick=()=>{const opening=panel.hidden;panel.hidden=!opening;menu.setAttribute('aria-expanded',String(opening))};
+menu.onclick=()=>{if(document.body.classList.contains('vh-phone-active'))return;const opening=panel.hidden;panel.hidden=!opening;menu.setAttribute('aria-expanded',String(opening))};
 function restart(){closeMenu();if(!confirm('Chơi lại từ đầu? Toàn bộ tiến trình điều tra và ghi chú đã lưu trên thiết bị này sẽ bị xóa.'))return;const keepSound=read('vh_sound_enabled');try{for(const k of Object.keys(localStorage))if(k.startsWith('vh')||k.startsWith('VH'))localStorage.removeItem(k);if(keepSound!==null)localStorage.setItem('vh_sound_enabled',keepSound)}catch(_){}location.reload()}
 panel.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;switch(b.dataset.act){case'close':closeMenu();break;case'investigate':closeMenu();hideGuide();if(document.body.classList.contains('vh-phone-active'))document.getElementById('vhPhoneBack')?.click();break;case'guide':showGuide(false);break;case'settings':settings.hidden=!settings.hidden;b.setAttribute('aria-expanded',String(!settings.hidden));b.querySelector('span:last-child').textContent=settings.hidden?'+':'−';break;case'restart':restart();break}});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!dialog.hidden&&!auto)hideGuide();else closeMenu()}});
 function beginIfNeeded(){if(read(TOUR_DONE)==='yes')return;showGuide(true)}
 document.addEventListener('vh:intro-finished',beginIfNeeded);
+const phoneMenuObserver=new MutationObserver(()=>{if(document.body.classList.contains('vh-phone-active')||document.body.classList.contains('vh-phone-transitioning'))closeMenu()});phoneMenuObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 if(read(INTRO_DONE)==='yes'&&!document.body.classList.contains('vh-onboarding'))beginIfNeeded();
 })();
