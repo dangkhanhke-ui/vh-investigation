@@ -107,3 +107,31 @@ body.vh-q1-workspace #vh-q1 .vq-success{z-index:12000!important}
  body.vh-q1-workspace #vh-q1 .vq-events button{min-height:49px!important}
  body.vh-q1-workspace #vh-q1 .vq-step>small{font-size:13px;line-height:1.6}
 }
+
+/* Q1 flat investigation sheet: no cut paper art, lighting, texture or mismatched fonts. */
+body.vh-q1-workspace .paper-frame{background:#eee9df!important;box-shadow:none!important;border:0!important;filter:none!important}
+body.vh-q1-workspace .paper-frame:before,
+body.vh-q1-workspace .paper-frame:after,
+body.vh-q1-workspace .paper-frame>.paper-asset{content:none!important;display:none!important;background:none!important}
+body.vh-q1-workspace .paper-frame>.paper-inside{padding-bottom:clamp(42px,7vw,76px)!important}
+body.vh-q1-workspace .backdrop-art,
+body.vh-q1-workspace .cinema-atmosphere,
+body.vh-q1-workspace .vh-stage-beam{display:none!important}
+body.vh-q1-workspace{background:#101010!important}
+body.vh-q1-workspace .folder-scene{filter:none!important}
+body.vh-q1-workspace #vh-q1,
+body.vh-q1-workspace #vh-q1 *,
+body.vh-q1-workspace .paper-inside,
+body.vh-q1-workspace .paper-top{
+ font-family:var(--mono),"Inconsolata",Consolas,monospace!important;
+}
+body.vh-q1-workspace #vh-q1 h2{
+ font-family:var(--mono),"Inconsolata",Consolas,monospace!important;
+ font-weight:700!important;letter-spacing:-.035em!important
+}
+body.vh-q1-workspace #vh-q1 .vq-modal-panel,
+body.vh-q1-workspace #vh-q1 .vq-success-panel{
+ font-family:var(--mono),"Inconsolata",Consolas,monospace!important
+}
+body.vh-q1-workspace #vh-q1 .vq-foot{justify-content:stretch!important}
+body.vh-q1-workspace #vh-q1 .vq-check{width:100%!important;min-height:49px}
