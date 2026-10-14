@@ -45,7 +45,8 @@ function appendInstant(item){
  addRow().textContent=item;
 }
 function updateNav(){
- previous.hidden=!renderComplete||activePage===0&&visibleCount<=1;
+ previous.hidden=false;
+ previous.disabled=!renderComplete||(activePage===0&&visibleCount<=1);
  next.hidden=false;
  next.disabled=!renderComplete;
  next.setAttribute('aria-label',activePage===PAGES.length-1&&visibleCount===PAGES[activePage].length?'Bắt đầu điều tra':'Tin nhắn tiếp theo');
@@ -79,7 +80,7 @@ function showHistory(page,count){
  messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();
 }
 async function dialogue(id){
- screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;previous.hidden=true;
+ screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=false;previous.hidden=false;previous.disabled=true;next.disabled=true;
  await firstMessageAlert(id);if(id!==seq)return;
  activePage=0;visibleCount=0;renderComplete=false;updateNav();await showNextMessage(id);
 }
