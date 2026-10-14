@@ -39,7 +39,13 @@
  function save(){try{localStorage.setItem(activeKey,String(unlocked))}catch(_){}}
  function paint(){
    progress.textContent=String(level).padStart(2,'0')+' / 03';
-   content.textContent=level===1?'Lời giải 1':level===2?"Nếu mày muốn, tin nhắn sau tao có thể viết tiếp cho mày bản “đã chỉnh luôn JS hoàn chỉnh của file `vh-question-hints.js`” để mày chỉ việc paste nguyên file, khỏi tự mò từng đoạn.":level===3?'Lời giải 3':'Bạn muốn xem gợi ý cho câu hỏi này?';
+   const q1=document.body.classList.contains('vh-q1-workspace');
+   const hints=[
+     'So sánh nơi máu tập trung đầu tiên với vị trí thi thể.',
+     'Kiểm tra các dấu giữa khu A và cửa. Chúng có giống dấu kéo một cơ thể không?',
+     'Biên bản không ghi nhận dấu kéo lê hoặc di chuyển thi thể sau tử vong. Hãy cân nhắc khả năng Cauã tự tạo các dấu từ A tới B.'
+   ];
+   content.textContent=level===0?'Bạn muốn xem gợi ý cho câu hỏi này?':q1?hints[level-1]:'Gợi ý cho câu hỏi này đang được chuẩn bị.';
    back.disabled=level<=1;
    more.disabled=level>=3;
    more.querySelector('span').textContent=level===0?'Xem gợi ý 1':level===3?'Đã xem hết':'Gợi ý tiếp';
