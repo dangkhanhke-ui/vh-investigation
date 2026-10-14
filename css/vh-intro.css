@@ -48,3 +48,16 @@
 #vh-intro #vh-player-start{display:flex!important;align-items:center;justify-content:center;position:absolute;right:0;bottom:-62px;width:44px;height:44px;padding:5px;border:0;border-radius:0;background:transparent;color:#fff2ec;cursor:pointer;line-height:0}
 #vh-intro #vh-player-start svg{width:34px;height:34px}
 #vh-intro #vh-player-start:focus-visible{outline:1px solid #fff2ec;outline-offset:2px}
+
+/* Restricted-access gate, shown before loading to provide a user audio gesture. */
+#vh-intro .vh-intro-gate{width:min(330px,calc(100vw - 52px));display:flex;flex-direction:column;gap:0;color:#fff3ed;font-family:"Inconsolata",monospace}
+#vh-intro .vh-intro-gate[hidden]{display:none!important}
+#vh-intro .vh-gate-kicker{font-size:10px;letter-spacing:.16em;opacity:.8;margin-bottom:48px}
+#vh-intro .vh-gate-title{font-size:18px;letter-spacing:.09em;font-weight:600;margin-bottom:18px}
+#vh-intro .vh-gate-entry{display:flex;align-items:center;border-bottom:1px solid rgba(255,255,255,.8);height:50px}
+#vh-intro #vh-access-pin{flex:1;min-width:0;border:0!important;outline:0!important;background:transparent!important;color:#fff!important;font:400 28px/1 "Inconsolata",monospace!important;letter-spacing:.35em;box-shadow:none!important;border-radius:0!important}
+#vh-intro #vh-access-pin::placeholder{color:rgba(255,255,255,.55)}
+#vh-intro .vh-gate-entry button{border:0;background:transparent;color:#fff;cursor:pointer;padding:5px;line-height:0;display:grid;place-items:center}
+#vh-intro .vh-gate-entry button svg{width:34px;height:34px}
+#vh-intro .vh-gate-error{min-height:18px;margin:14px 0 0;font-size:11px;letter-spacing:.07em}
+#vh-intro .vh-gate-foot{margin-top:65px;font-size:10px;letter-spacing:.13em;opacity:.7}
