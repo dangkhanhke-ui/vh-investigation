@@ -121,7 +121,7 @@
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"]::before{
       content:"";display:block;grid-column:2;grid-row:1;
       width:42px;height:42px;border-radius:50%;background-color:#ddd;
-      background-image:url("./assets/investigator-avatar.png");
+      background-image:url("../assets/investigator-avatar.jpg");
       background-size:cover;background-repeat:no-repeat;background-position:center
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-thread-main{
@@ -166,7 +166,7 @@
       font-size:10px!important;max-width:88px!important;overflow:hidden!important
     }
     #messagesApp .msg-detail-person .msg-detail-avatar{
-      font-size:0!important;background-image:url("./assets/investigator-avatar.png")!important;
+      font-size:0!important;background-image:url("../assets/investigator-avatar.jpg")!important;
       background-size:cover!important;background-position:center!important;background-repeat:no-repeat!important
     }
   `;
