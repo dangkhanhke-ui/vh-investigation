@@ -139,3 +139,16 @@ body.vh-q1-workspace #vh-q1 .vq-success-panel{
 }
 body.vh-q1-workspace #vh-q1 .vq-foot{justify-content:stretch!important}
 body.vh-q1-workspace #vh-q1 .vq-check{width:100%!important;min-height:49px}
+
+/* Q1 only: remove legacy dossier header and the old pink submit arrow. */
+body.vh-q1-workspace .paper-top,
+body.vh-q1-workspace .paper-inside > .question,
+body.vh-q1-workspace .paper-inside > .answer-area,
+body.vh-q1-workspace .paper-inside > .submit-line,
+body.vh-q1-workspace .paper-inside > .submit-line .submit {
+  display:none!important;
+}
+body.vh-q1-workspace .paper-frame > .paper-inside {
+  padding-top:clamp(18px,3.5vw,34px)!important;
+}
+body.vh-q1-workspace #vh-q1{padding-top:0!important}
