@@ -77,8 +77,63 @@ feedbackForm.addEventListener('submit',async event=>{
  finally{submit.disabled=false}
 });
 
+
+/* Stage archive: the original red dossier asset, three selectable phases. */
+const archive=el('section','vh-stage-archive');archive.hidden=true;
+archive.setAttribute('role','dialog');archive.setAttribute('aria-modal','true');
+archive.setAttribute('aria-label','Chọn giai đoạn điều tra');
+archive.innerHTML=`<div class="vh-stage-head"><span>VÍNCULO HUMANO / INVESTIGATION ARCHIVE</span><button type="button" class="vh-stage-close" aria-label="Đóng">×</button></div>
+<h2>HỒ SƠ ĐIỀU TRA</h2><p class="vh-stage-intro">CHỌN GIAI ĐOẠN ĐỂ TIẾP TỤC</p>
+<div class="vh-stage-cards"></div>`;
+const stageCards=archive.querySelector('.vh-stage-cards');
+const lockIcon='<svg viewBox="0 0 40 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21v-7a9 9 0 0 1 18 0v7"/><rect x="6" y="21" width="28" height="22" rx="2"/><circle cx="20" cy="31" r="2"/><path d="M20 33v4"/></svg>';
+let archiveFirstVisit=false;
+function stageProgress(){
+ try{
+  const state=JSON.parse(read('vh_v3_save')||'{}');
+  const i=Number.isInteger(state.i)?state.i:0;
+  const reports=Array.isArray(state.reports)?state.reports:[];
+  const current=i>=6?2:i>=3?1:0;
+  return {current,finished:state.phase==='finished',reports};
+ }catch(_){return {current:0,finished:false,reports:[]}}
+}
+function renderArchive(){
+ const {current,finished,reports}=stageProgress();
+ stageCards.replaceChildren();
+ for(let stage=0;stage<3;stage++){
+  const unlocked=stage<=current;
+  const completed=reports.includes(stage)||finished&&stage===2;
+  const card=document.createElement('button');
+  card.type='button';card.className='vh-stage-card'+(unlocked?' is-open':' is-locked');
+  card.disabled=!unlocked;card.dataset.stage=String(stage+1);
+  if(unlocked)card.setAttribute('aria-label','Mở hồ sơ giai đoạn '+(stage+1));
+  else card.setAttribute('aria-label','Giai đoạn '+(stage+1)+' đang khóa, hoàn thành giai đoạn trước để mở');
+  const cover=document.createElement('div');cover.className='vh-stage-cover';
+  cover.innerHTML='<img class="vh-stage-cover-image" src="assets/red-folder.webp" alt="" loading="eager"><span class="vh-stage-serial">VH / 0'+(stage+1)+'</span>';
+  if(!unlocked){const locked=document.createElement('span');locked.className='vh-stage-lock';locked.innerHTML=lockIcon;cover.appendChild(locked)}
+  const label=document.createElement('span');label.className='vh-stage-card-name';label.textContent='GIAI ĐOẠN 0'+(stage+1);
+  const status=document.createElement('span');status.className='vh-stage-card-status';
+  status.textContent=!unlocked?'ĐANG KHÓA':completed?'HOÀN THÀNH':'ĐANG ĐIỀU TRA';
+  card.append(cover,label,status);
+  if(!unlocked){const desc=document.createElement('span');desc.className='vh-stage-card-caption';desc.textContent='Giải xong phần trước để mở khóa';card.appendChild(desc)}
+  if(unlocked)card.addEventListener('click',()=>{
+   hideArchive();
+   // Completed phases can still open their existing summary via the original dossier tabs.
+   if(stage<current||finished)document.querySelector('.folder-tabs .tab[data-stage="'+(stage+1)+'"]')?.click();
+   if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();
+   archiveFirstVisit=false;
+  });
+  stageCards.appendChild(card);
+ }
+}
+function showArchive(first=false){closeMenu();hideGuide();hideAbout();archiveFirstVisit=first;renderArchive();archive.hidden=false;document.body.classList.add('vh-stage-open');archive.querySelector('.vh-stage-close').focus({preventScroll:true})}
+function hideArchive(){archive.hidden=true;document.body.classList.remove('vh-stage-open')}
+archive.querySelector('.vh-stage-close').onclick=()=>{
+ hideArchive();if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();archiveFirstVisit=false;
+};
+
 const tip=el('div','vh-tour-tip');tip.hidden=true;tip.setAttribute('role','status');
-document.body.append(menu,panel,shade,dialog,about,tip);
+document.body.append(menu,panel,shade,dialog,about,archive,tip);
 const settings=panel.querySelector('.vh-menu-settings'),sound=panel.querySelector('#vhSoundSwitch');
 sound.checked=window.VHSound?.isEnabled()??true;
 sound.addEventListener('change',()=>window.VHSound?.setEnabled(sound.checked));
@@ -89,15 +144,15 @@ function hideGuide(){dialog.hidden=true;shade.hidden=true;document.body.classLis
 function showGuide(first=false){closeMenu();auto=first;guideIndex=0;renderGuide();dialog.hidden=false;shade.hidden=false;document.body.classList.add('vh-guide-open');dialog.querySelector('.vh-guide-close').focus({preventScroll:true})}
 function stopTour(){touring=false;phase=0;tip.hidden=true;document.body.classList.remove('vh-tour-open','vh-tour-phone');phoneWatch?.disconnect();phoneWatch=null;write(TOUR_DONE,'yes')}
 function startTour(){if(!nav){write(TOUR_DONE,'yes');return}touring=true;phase=1;document.body.classList.add('vh-tour-open');tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">Bỏ qua</button>';tip.hidden=false;tip.querySelector('button').onclick=stopTour;phoneWatch=new MutationObserver(()=>{if(touring&&phase===1&&document.body.classList.contains('vh-phone-active')){phase=2;document.body.classList.add('vh-tour-phone');tip.innerHTML='<b>Đây là điện thoại của bạn.</b><span>Khám phá Messages, Safari và Notes. Nhấn ‹ để quay lại hồ sơ đỏ.</span><button type="button">ĐÃ HIỂU</button>';tip.querySelector('button').onclick=stopTour}});phoneWatch.observe(document.body,{attributes:true,attributeFilter:['class']})}
-function finishGuide(){hideGuide();if(auto&&read(TOUR_DONE)!=='yes')startTour();auto=false}
+function finishGuide(){const first=auto;hideGuide();auto=false;if(first)showArchive(true)}
 dialog.querySelector('.vh-guide-primary').onclick=()=>{if(guideIndex<guideSteps.length-1){guideIndex++;renderGuide()}else finishGuide()};
 dialog.querySelector('.vh-guide-close').onclick=()=>{if(auto)finishGuide();else hideGuide()};
 shade.onclick=()=>{if(!auto)hideGuide()};
 menu.onclick=()=>{if(document.body.classList.contains('vh-phone-active'))return;const opening=panel.hidden;panel.hidden=!opening;menu.setAttribute('aria-expanded',String(opening))};
 function restart(){closeMenu();if(!confirm('Chơi lại từ đầu? Toàn bộ tiến trình điều tra và ghi chú đã lưu trên thiết bị này sẽ bị xóa.'))return;const keepSound=read('vh_sound_enabled');try{for(const k of Object.keys(localStorage))if(k.startsWith('vh')||k.startsWith('VH'))localStorage.removeItem(k);if(keepSound!==null)localStorage.setItem('vh_sound_enabled',keepSound)}catch(_){}location.reload()}
-panel.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;switch(b.dataset.act){case'close':closeMenu();break;case'investigate':closeMenu();hideGuide();if(document.body.classList.contains('vh-phone-active'))document.getElementById('vhPhoneBack')?.click();break;case'guide':showGuide(false);break;case'about':showAbout();break;case'settings':settings.hidden=!settings.hidden;b.setAttribute('aria-expanded',String(!settings.hidden));b.querySelector('span:last-child').textContent=settings.hidden?'+':'−';break;case'restart':restart();break}});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!about.hidden)hideAbout();else if(!dialog.hidden&&!auto)hideGuide();else closeMenu()}});
-function beginIfNeeded(){if(read(TOUR_DONE)==='yes')return;showGuide(true)}
+panel.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;switch(b.dataset.act){case'close':closeMenu();break;case'investigate':showArchive(false);break;case'guide':showGuide(false);break;case'about':showAbout();break;case'settings':settings.hidden=!settings.hidden;b.setAttribute('aria-expanded',String(!settings.hidden));b.querySelector('span:last-child').textContent=settings.hidden?'+':'−';break;case'restart':restart();break}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!archive.hidden)hideArchive();else if(!about.hidden)hideAbout();else if(!dialog.hidden&&!auto)hideGuide();else closeMenu()}});
+function beginIfNeeded(){if(read(TOUR_DONE)==='yes')showArchive(false);else showGuide(true)}
 document.addEventListener('vh:intro-finished',beginIfNeeded);
 const phoneMenuObserver=new MutationObserver(()=>{if(document.body.classList.contains('vh-phone-active')||document.body.classList.contains('vh-phone-transitioning'))closeMenu()});phoneMenuObserver.observe(document.body,{attributes:true,attributeFilter:['class']});
 if(read(INTRO_DONE)==='yes'&&!document.body.classList.contains('vh-onboarding'))beginIfNeeded();
