@@ -14,6 +14,11 @@
   // phone, never Cauã's phone; independent of the free-text case engine.
   const WELCOME_OPENED='vh.neymarinho.welcome.opened.v1';
   const WELCOME_ACK='vh.neymarinho.welcome.acked.v1';
+  const WELCOME_COUNT='vh.neymarinho.welcome.count.v2';
+  const WELCOME_LIKED='vh.neymarinho.welcome.liked.v1';
+  const readCount=()=>{try{return Math.max(0,Math.min(3,Number(localStorage.getItem(WELCOME_COUNT))||0))}catch(_){return 0}};
+  const writeCount=n=>{try{localStorage.setItem(WELCOME_COUNT,String(n))}catch(_){}};
+  let welcomeTimer=0,typingWelcome=false;
   const getFlag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
   const setFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
   let caseHistory=[],casePhase='solve';
@@ -26,7 +31,8 @@
   }
   function mergedHistory(){
     const opened=getFlag(WELCOME_OPENED),acked=getFlag(WELCOME_ACK);
-    return [...(opened?welcomeMessages.map(t=>message(t)):[]),
+    const count=acked?3:readCount();
+    return [...(opened?[message('Hey.'),...welcomeMessages.slice(0,count).map(t=>message(t))]:[]),
       ...(acked?[message('Ok anh','outgoing')]:[]),...sanitize(caseHistory)];
   }
 
@@ -47,6 +53,15 @@
     #messagesApp.vh-neymar-scripted #messagesComposer>:not(#vh-scripted-replies){display:none!important}
     #vh-scripted-replies{width:100%;display:flex;align-items:center;justify-content:flex-end}
     #vh-scripted-replies[hidden],#vh-investigator-actions[hidden]{display:none!important}
+    #vh-investigator-typing{display:flex;align-items:center;gap:4px;width:max-content;margin:7px 0 4px 5px;padding:12px 16px;border-radius:19px;background:#e6e6eb}
+    #vh-investigator-typing i{display:block;width:7px;height:7px;border-radius:50%;background:#92939b;animation:vh-neymar-dot 1.05s ease-in-out infinite}
+    #vh-investigator-typing i:nth-child(2){animation-delay:.15s}
+    #vh-investigator-typing i:nth-child(3){animation-delay:.3s}
+    @keyframes vh-neymar-dot{0%,55%,100%{opacity:.35;transform:translateY(0)}28%{opacity:1;transform:translateY(-3px)}}
+    #messagesApp .msg-line.vh-neymar-liked .msg-bubble{position:relative;overflow:visible!important}
+    #messagesApp .msg-line.vh-neymar-liked .msg-bubble::after{content:"👍";position:absolute;top:-14px;left:-15px;display:grid;place-items:center;width:25px;height:25px;border:2px solid #fff;border-radius:50%;background:#e4e4eb;font-size:13px;line-height:1;box-shadow:0 1px 4px #0002}
+    @media(prefers-reduced-motion:reduce){#vh-investigator-typing i{animation:none!important;opacity:.6}}
+
     #messagesApp.vh-neymar-scripted:not(.vh-welcome-ack) #messagesConversationView .msg-convo-scroll{bottom:44px!important}
     #vh-scripted-replies button{border:0;border-radius:16px;background:#007aff;color:#fff;min-height:32px;padding:6px 16px;font:500 13px -apple-system,BlinkMacSystemFont,sans-serif;touch-action:manipulation}
     #messagesApp.vh-neymar-scripted #messagesComposer:has(#vh-scripted-replies[hidden]){opacity:.65}
@@ -78,16 +93,26 @@
   scriptedReplies.innerHTML='<button type="button" id="vh-welcome-okay">Ok anh</button>';
   bridge.composer.appendChild(scriptedReplies);
   scriptedReplies.querySelector('button').addEventListener('click',()=>{
-    if(getFlag(WELCOME_ACK))return;
+    if(getFlag(WELCOME_ACK)||readCount()<welcomeMessages.length)return;
+    stopWelcome();
     setFlag(WELCOME_ACK);
     update(caseHistory,casePhase);
+    welcomeTimer=setTimeout(()=>{
+      welcomeTimer=0;
+      if(getFlag(WELCOME_LIKED))return;
+      setFlag(WELCOME_LIKED);
+      decorateReaction();
+      window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
+    },1050);
   });
   function syncScriptedUI(){
     const current=bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
     bridge.app.classList.toggle('vh-neymar-scripted',current);
     bridge.app.classList.toggle('vh-welcome-ack',getFlag(WELCOME_ACK));
-    scriptedReplies.hidden=!current||!getFlag(WELCOME_OPENED)||getFlag(WELCOME_ACK);
+    scriptedReplies.hidden=!current||!getFlag(WELCOME_OPENED)||getFlag(WELCOME_ACK)||readCount()<3;
     actions.hidden=current&&!getFlag(WELCOME_ACK);
+    if(current){decorateReaction();if(getFlag(WELCOME_OPENED))startWelcome()}
+    else stopWelcome();
   }
   // The native Messages engine changes views synchronously after a click.
   // One delegated listener is enough; no MutationObserver/render loop.
@@ -99,16 +124,48 @@
       syncScriptedUI();
     });
   });
+  function stopWelcome(){
+    if(welcomeTimer){clearTimeout(welcomeTimer);welcomeTimer=0}
+    typingWelcome=false;
+    document.getElementById('vh-investigator-typing')?.remove();
+  }
+  function decorateReaction(){
+    if(!getFlag(WELCOME_LIKED))return;
+    const lines=bridge.convoScroll.querySelectorAll('.msg-line.outgoing');
+    for(const el of lines){
+      if(el.querySelector('.msg-bubble')?.textContent?.trim()==='Ok anh')el.classList.add('vh-neymar-liked');
+    }
+  }
+  function startWelcome(){
+    if(typingWelcome||welcomeTimer||getFlag(WELCOME_ACK)||readCount()>=3)return;
+    if(bridge.state.view!=='conversation'||bridge.state.currentThread!=='neymarinho')return;
+    typingWelcome=true;
+    const indicator=document.createElement('div');
+    indicator.id='vh-investigator-typing';
+    indicator.setAttribute('aria-label','Neymarinho đang gõ');
+    indicator.innerHTML='<i></i><i></i><i></i>';
+    bridge.convoScroll.appendChild(indicator);
+    bridge.convoScroll.scrollTop=bridge.convoScroll.scrollHeight;
+    welcomeTimer=setTimeout(()=>{
+      welcomeTimer=0;
+      const visible=bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
+      if(!visible){stopWelcome();return}
+      typingWelcome=false;
+      indicator.remove();
+      writeCount(readCount()+1);
+      update(caseHistory,casePhase);
+      window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
+    },1200+readCount()*340);
+  }
 
 
   // Preserve the original iOS8 conversation layout, with a small continuation
   // option so the user can finish investigation stages entirely from Messages.
   const actions=document.createElement('div');
   actions.id='vh-investigator-actions';
-  actions.innerHTML='<button id="vh-message-hint" type="button">Gợi ý</button><button id="vh-message-continue" type="button">Tiếp tục →</button>';
+  actions.innerHTML='<button id="vh-message-continue" type="button">Tiếp tục →</button>';
   const convo=document.getElementById('messagesConversationView');
   convo?.querySelector('.msg-convo')?.appendChild(actions);
-  actions.querySelector('#vh-message-hint').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'hint'},ORIGIN));
   actions.querySelector('#vh-message-continue').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'continue'},ORIGIN));
 
   function sanitize(history){
@@ -133,7 +190,6 @@
     if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho')
       bridge.renderConversation(thread,false);
     else if(bridge.state.view==='list')bridge.renderList(false);
-    actions.querySelector('#vh-message-hint').hidden=phase!=='solve';
     actions.querySelector('#vh-message-continue').hidden=phase!=='await';
     syncScriptedUI();
   }
