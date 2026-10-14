@@ -9,6 +9,8 @@
   thread.number=investigatorNumber;
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
+  thread.localHidden=false;
+  bridge.threads.forEach(t=>{if(t.id!=='neymarinho')t.localHidden=true});
 
   // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
@@ -22,7 +24,7 @@
     #vh-investigator-notification .vh-body span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #vh-investigator-notification .vh-body small{flex-shrink:0;color:#777}
     #messagesConversationView .msg-convo-scroll{bottom:88px!important}
-    #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
+    #vh-investigator-actions{position:absolute;left:0;right:0;bottom:0;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
     #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
   `;
   document.head.appendChild(style);
