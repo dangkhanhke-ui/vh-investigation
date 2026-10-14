@@ -8,7 +8,28 @@ function unlockAudio(){window.VHSound?.prepare()}
 function screen(mode){gate.hidden=mode!=='gate';load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
 function finish(){cancelTypingWait();currentTyping=null;window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding');document.dispatchEvent(new Event('vh:intro-finished'))}
-async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(final?620:370)}await sleep(final?250:380);window.VHSound?.stop('loading');if(id!==seq)return;if(final)finish();else dialogue(id)}
+async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(final?620:370)}await sleep(final?250:380);window.VHSound?.stop('loading');if(id!==seq)return;
+if(final){
+  const line=document.createElement('div');line.textContent='Đang chuẩn bị âm thanh và hồ sơ...';stream.appendChild(line);
+  if(stream.children.length>6)stream.firstChild.remove();
+  const timeout=new Promise(resolve=>setTimeout(()=>resolve(false),12000));
+  let ready=false;
+  try{ready=await Promise.race([window.VHSound?.readyStage?.()||Promise.resolve(true),timeout])===true}
+  catch(error){console.warn('[VH loading] stage sound not ready',error)}
+  if(id!==seq)return;
+  if(!ready){
+    window.VHSound?.stop('loading');
+    const buttons=document.createElement('div');buttons.className='vh-stage-audio-loading-actions';
+    const retry=document.createElement('button');retry.type='button';retry.textContent='Thử tải âm thanh lại';
+    const skip=document.createElement('button');skip.type='button';skip.textContent='Tiếp tục không chờ âm thanh';
+    buttons.append(retry,skip);stream.appendChild(buttons);
+    retry.onclick=()=>{buttons.remove();code(seq,true)};
+    skip.onclick=()=>{buttons.remove();finish()};
+    return;
+  }
+  line.textContent='Âm thanh đã sẵn sàng.';
+  finish();
+}else dialogue(id)}
 const PAGES=[
 ['Đến rồi à?','Anh là Neymarinho, điều tra viên của vụ này','Anh đang có một vụ khá hóc chuẩn bị giao cho mày đây','Xem qua giúp anh nhé'],
 ['Nạn nhân tên Cauã Henrique Valença de Oliveira, 25 tuổi','Thi thể được phát hiện vào khoảng giữa trưa ngày 24/8/2015','Tại A Casa, khu Santa Teresa, Rio de Janeiro',{image:'assets/caua-opening.jpg'},'Cũng sáng sủa nhỉ :))','Không biết sau cái mặt làm bao em say đắm này là bí mật gì đây'],
