@@ -132,3 +132,9 @@
 }
 #vh-intro .vh-intro-navigation .vh-intro-prev{left:0!important;right:auto!important}
 #vh-intro .vh-intro-navigation .vh-intro-next{right:0!important;left:auto!important}
+
+/* Both intro arrows are permanent, immovable controls, even when disabled. */
+#vh-intro .vh-intro-navigation .vh-intro-prev:disabled{opacity:.48!important;pointer-events:none!important;cursor:default!important}
+#vh-intro .vh-intro-navigation .vh-intro-prev:not(:disabled){opacity:1!important}
+#vh-intro .vh-intro-navigation .vh-intro-prev,
+#vh-intro .vh-intro-navigation .vh-intro-next{transition:none!important;animation:none!important}
