@@ -19,20 +19,20 @@ body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:no
 .vh-menu-settings input{accent-color:#080808;width:15px;height:15px}
 .vh-menu-settings button{display:block;margin-top:20px;padding:0;font-size:10px}
 .vh-guide-shade{position:fixed;inset:0;background:#080808f5;z-index:11000}
-.vh-guide-dialog{position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);width:min(590px,calc(100vw - 34px));min-height:min(365px,calc(100dvh - 34px));max-height:calc(100dvh - 34px);overflow:auto;box-sizing:border-box;background:#f01414;color:#090909;border:0;border-radius:0;box-shadow:none;padding:clamp(24px,5vw,45px);display:flex;flex-direction:column;justify-content:space-between;font:400 11px/1.55 'Inconsolata',Consolas,monospace}
-.vh-guide-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;letter-spacing:.05em}
+.vh-guide-dialog{position:fixed;z-index:11001;top:50%;left:50%;transform:translate(-50%,-50%);width:min(590px,calc(100vw - 34px));min-height:min(365px,calc(100dvh - 34px));max-height:calc(100dvh - 34px);overflow:auto;box-sizing:border-box;background:#f01414;color:#090909;border:0;border-radius:0;box-shadow:none;padding:clamp(24px,5vw,45px);display:flex;flex-direction:column;justify-content:space-between;font:400 13px/1.55 'Inconsolata',Consolas,monospace}
+.vh-guide-head{display:flex;align-items:center;justify-content:space-between;font-size:14px;letter-spacing:.05em}
 .vh-guide-close{border:0;background:none;color:#090909;font:400 23px 'Inconsolata',monospace;cursor:pointer}
 .vh-guide-copy{padding:35px 0 44px}
-.vh-guide-copy h2{font:500 clamp(22px,5vw,32px)/1.08 'Inconsolata',Consolas,monospace;letter-spacing:-.075em;margin:0 0 17px;text-transform:uppercase}
-.vh-guide-description{max-width:390px;margin:0;font-size:11px;line-height:1.65}
+.vh-guide-copy h2{font:500 clamp(24px,5vw,34px)/1.08 'Inconsolata',Consolas,monospace;letter-spacing:-.075em;margin:0 0 17px;text-transform:uppercase}
+.vh-guide-description{max-width:440px;margin:0;font-size:13px;line-height:1.65;white-space:pre-line}
 .vh-guide-bottom{border-top:1px solid #330000;padding-top:14px;display:flex;justify-content:space-between;align-items:center;gap:15px}
-.vh-guide-count{font-size:11px}
-.vh-guide-primary{border:0;border-radius:30px;background:#050505;color:white;min-height:29px;min-width:155px;padding:7px 17px;font:500 10px/1 'Inconsolata',monospace;cursor:pointer}
+.vh-guide-count{font-size:13px}
+.vh-guide-primary{border:0;border-radius:30px;background:#050505;color:white;min-height:29px;min-width:155px;padding:7px 17px;font:500 12px/1 'Inconsolata',monospace;cursor:pointer}
 .vh-guide-primary:active{transform:scale(.985)}
 .vh-tour-open #vhOpenPhone{z-index:12002!important;outline:1px solid #fff!important;outline-offset:5px!important}
 .vh-tour-tip{position:fixed;top:76px;right:18px;z-index:12003;background:#f01414;color:#0b0000;border:0;border-radius:0;padding:16px;width:min(275px,calc(100vw - 36px));font:400 11px/1.6 'Inconsolata',monospace}
 .vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:9px}.vh-tour-tip button{border:0;border-radius:20px;background:#050505;color:white;font:500 10px 'Inconsolata',monospace;padding:7px 15px;cursor:pointer}
-@media(max-width:480px){.vh-guide-dialog{padding:25px;min-height:min(340px,calc(100dvh - 34px))}.vh-guide-copy h2{font-size:24px}.vh-guide-primary{min-width:130px;font-size:9px;padding:7px 10px}}
+@media(max-width:480px){.vh-guide-dialog{padding:25px;min-height:min(340px,calc(100dvh - 34px))}.vh-guide-copy h2{font-size:26px}.vh-guide-primary{min-width:130px;font-size:11px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){.vh-menu-panel{animation:none}}
 
 /* Align icon-only menu precisely with dossier-to-phone control. */
