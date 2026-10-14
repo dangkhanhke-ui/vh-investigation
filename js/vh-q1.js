@@ -68,24 +68,21 @@ check.onclick=()=>{
  if(verifying||q.dataset.completed)return;
  verifying=true;check.disabled=true;check.textContent='ĐANG ĐỐI CHIẾU...';
  q.querySelector('.vq-feedback').textContent='';
- // Start the cue slightly before showing its text. Both cues have been
- // decoded during onboarding, and leading silence is trimmed by sound.js.
+ // Decide immediately, so the cue starts within the actual click gesture.
+ const incomplete=slots.some(x=>!x)||seq.length!==3;
+ const pair=!incomplete&&validPairs.some(p=>p.every(id=>slots.includes(id)));
+ const order=!incomplete&&correct.every((id,i)=>seq[i]===id);
+ const success=!incomplete&&pair&&order;
+ window.VHSound?.play(success?'correct':'wrong');
  setTimeout(()=>{
-  const incomplete=slots.some(x=>!x)||seq.length!==3;
-  const pair=!incomplete&&validPairs.some(p=>p.every(id=>slots.includes(id)));
-  const order=!incomplete&&correct.every((id,i)=>seq[i]===id);
-  const success=!incomplete&&pair&&order;
-  window.VHSound?.play(success?'correct':'wrong');
-  setTimeout(()=>{
-   if(!success){
-    rejected(incomplete?'Hãy ghim đủ 2 bằng chứng và chọn đủ 3 sự kiện.':!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.');
-    return;
-   }
-   try{localStorage.setItem(KEY,'yes')}catch(_){}
-   verified();
-   window.dispatchEvent(new CustomEvent('vh:q1-solved'));
-  },90);
- },510);
+  if(!success){
+   rejected(incomplete?'Hãy ghim đủ 2 bằng chứng và chọn đủ 3 sự kiện.':!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.');
+   return;
+  }
+  try{localStorage.setItem(KEY,'yes')}catch(_){}
+  verified();
+  window.dispatchEvent(new CustomEvent('vh:q1-solved'));
+ },600);
 };
 if(window.VHNeymarinhoStory?.q1Phase?.()>0){
  verified(true);
