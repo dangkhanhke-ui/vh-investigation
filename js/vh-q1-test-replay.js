@@ -1,8 +1,6 @@
-/* Developer-only Q1 replay. Enabled by ?test=1 and only after access/intro. */
+/* Q1 replay control on the main game, available after access/intro. */
 (()=>{
  'use strict';
- const params=new URLSearchParams(location.search);
- if(params.get('test')!=='1'&&params.get('vh_test')!=='1')return;
  const phone=document.getElementById('vhOpenPhone');
  if(!phone)return;
  const button=document.createElement('button');
