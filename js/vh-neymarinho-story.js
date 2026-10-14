@@ -14,11 +14,14 @@
   function acknowledge(){
     try{localStorage.setItem(KEY,'yes')}catch(_){}
   }
+  const READ_KEY='vh.neymarinho.thread-read.v1';
+  function isRead(){try{return localStorage.getItem(READ_KEY)==='yes'}catch(_){return false}}
+  function markRead(){try{localStorage.setItem(READ_KEY,'yes')}catch(_){}}
   function snapshot(){
     const at=Date.now();
     const history=lines.map((text,i)=>({who:'partner',text,at:at-(lines.length-i)*90000}));
     if(acknowledged())history.push({who:'me',text:'Ok anh',at});
-    return {history,phase:acknowledged()?'done':'await'};
+    return {history,phase:acknowledged()?'done':'await',unread:!isRead()};
   }
-  window.VHNeymarinhoStory=Object.freeze({snapshot,acknowledged,acknowledge,notification:lines[lines.length-1]});
+  window.VHNeymarinhoStory=Object.freeze({snapshot,acknowledged,acknowledge,isRead,markRead,notification:lines[lines.length-1]});
 })();
