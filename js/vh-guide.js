@@ -139,7 +139,7 @@ function renderArchive(){
   else card.setAttribute('aria-label','Giai đoạn '+(stage+1)+' đang khóa, hoàn thành giai đoạn trước để mở');
   const cover=document.createElement('div');cover.className='vh-stage-cover';
   cover.innerHTML='<img class="vh-stage-cover-image" src="assets/red-folder.webp" alt="" loading="eager">';
-  if(stage===0){const photo=document.createElement('img');photo.className='vh-stage-caua-photo';photo.src='assets/caua-cover.webp';photo.alt='Ảnh Cauã';photo.loading='eager';cover.appendChild(photo)}
+  if(stage===0){const photo=document.createElement('img');photo.className='vh-stage-caua-photo';photo.src='assets/caua-cover.webp?v=hires-original-20261014';photo.alt='Ảnh Cauã';photo.loading='eager';cover.appendChild(photo)}
   if(!unlocked){const locked=document.createElement('span');locked.className='vh-stage-lock';locked.innerHTML=lockIcon;cover.appendChild(locked)}
   const label=document.createElement('span');label.className='vh-stage-card-name';label.textContent='GIAI ĐOẠN 0'+(stage+1);
   const status=document.createElement('span');status.className='vh-stage-card-status';
