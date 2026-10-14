@@ -35,3 +35,10 @@
 #vh-intro .vh-intro-choice:hover{background:transparent!important;border-bottom-color:#fff2ec!important}
 #vh-intro .vh-intro-choice:active,#vh-intro .vh-intro-choice.vh-choice-pressed{font-weight:600!important;transform:translateY(1px);opacity:.72}
 #vh-intro .vh-intro-choice:focus-visible{outline:1px solid #fff2ec;outline-offset:5px}
+
+/* Unified vivid red and Inconsolata across all dossier intro states. */
+#vh-intro{background:#f01414!important;font-family:"Inconsolata",Consolas,monospace!important}
+#vh-intro .vh-intro-loading,#vh-intro .vh-name-label,#vh-intro #vh-player-name,#vh-intro .vh-intro-access,#vh-intro .vh-intro-bubble,#vh-intro .vh-intro-choice{font-family:"Inconsolata",Consolas,monospace!important}
+#vh-intro .vh-intro-bubble{background:#f01414!important}
+#vh-intro .vh-intro-choice{border-color:#f01414}
+#vh-intro .vh-intro-choice:hover{background:transparent!important}
