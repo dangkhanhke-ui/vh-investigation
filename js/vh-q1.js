@@ -30,7 +30,7 @@ q.innerHTML=`<div class="vq-eyebrow">GIAI ĐOẠN 01 / CÂU HỎI 01</div>
 <div class="vq-step"><strong>PHẦN 2 — GHÉP CHUỖI SUY LUẬN</strong><small>Chọn 3 trong 6 sự kiện rồi đặt chúng theo thứ tự đã diễn ra.</small>
 <div class="vq-sequence"></div><div class="vq-events"></div></div>
 <div class="vq-foot"><button class="vq-check" type="button">KIỂM TRA SUY LUẬN →</button></div>
-<p class="vq-feedback" role="status" aria-live="polite"></p>
+<p class="vq-feedback" role="status" aria-live="polite"></p><section class="vq-verification" hidden role="status" aria-live="polite"><small>VH / INFERENCE SYSTEM</small><strong>SUY LUẬN ĐÃ ĐƯỢC XÁC NHẬN</strong><span>KẾT LUẬN 01 / ĐÃ GHI NHẬN</span></section>
 <div class="vq-modal" hidden><div class="vq-modal-panel"><header>THƯ VIỆN CHỨNG CỨ <button type="button" class="vq-modal-close" aria-label="Đóng">×</button></header>
 <p>Chọn một nguồn để ghim. Danh mục R6 hiện là prototype; tài liệu gốc sẽ được liên kết sau.</p><div class="vq-library"></div></div></div>
 `;
@@ -51,23 +51,41 @@ q.querySelector('.vq-modal-close').onclick=()=>modal.hidden=true;
 modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});
 q.querySelector('.vq-events').addEventListener('click',e=>{const b=e.target.closest('[data-event]');if(!b||seq.length>=3||seq.includes(b.dataset.event))return;seq.push(b.dataset.event);render()});
 q.querySelector('.vq-sequence').addEventListener('click',e=>{const b=e.target.closest('[data-remove]');if(!b)return;seq.splice(Number(b.dataset.remove),1);render()});
-q.querySelector('.vq-check').onclick=()=>{
- const f=q.querySelector('.vq-feedback');
- if(slots.some(x=>!x)||seq.length!==3){f.textContent='Hãy ghim đủ 2 bằng chứng và chọn đủ 3 sự kiện.';return}
- const pair=validPairs.some(p=>p.every(id=>slots.includes(id)));
- const order=correct.every((id,i)=>seq[i]===id);
- if(!pair||!order){f.textContent=!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.';return}
- try{localStorage.setItem(KEY,'yes')}catch(_){}
- q.dataset.completed='yes';
- q.querySelector('.vq-check').disabled=true;
- f.textContent='✓ SUY LUẬN CHÍNH XÁC — ĐÃ HOÀN THÀNH CÂU 01';
- f.classList.add('vq-correct');
- window.dispatchEvent(new CustomEvent('vh:q1-solved'));
+let verifying=false;
+const check=q.querySelector('.vq-check'),verification=q.querySelector('.vq-verification');
+function verified(replay=false){
+ q.dataset.completed='yes';check.disabled=true;check.textContent='ĐÃ XÁC NHẬN';
+ q.querySelector('.vq-feedback').textContent='';
+ verification.hidden=false;
+ if(!replay){verification.classList.remove('is-visible');requestAnimationFrame(()=>verification.classList.add('is-visible'))}
+ else verification.classList.add('is-visible');
+}
+function rejected(message){
+ window.VHSound?.play('wrong');
+ const f=q.querySelector('.vq-feedback');f.textContent=message;f.classList.remove('vq-correct');
+ check.textContent='KIỂM TRA SUY LUẬN →';check.disabled=false;verifying=false;
+}
+check.onclick=()=>{
+ if(verifying||q.dataset.completed)return;
+ verifying=true;check.disabled=true;check.textContent='ĐANG ĐỐI CHIẾU...';
+ q.querySelector('.vq-feedback').textContent='';
+ setTimeout(()=>{
+  if(slots.some(x=>!x)||seq.length!==3){
+   rejected('Hãy ghim đủ 2 bằng chứng và chọn đủ 3 sự kiện.');return;
+  }
+  const pair=validPairs.some(p=>p.every(id=>slots.includes(id)));
+  const order=correct.every((id,i)=>seq[i]===id);
+  if(!pair||!order){
+   rejected(!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.');return;
+  }
+  try{localStorage.setItem(KEY,'yes')}catch(_){}
+  window.VHSound?.play('correct');
+  verified();
+  window.dispatchEvent(new CustomEvent('vh:q1-solved'));
+ },600);
 };
 if(window.VHNeymarinhoStory?.q1Phase?.()>0){
- q.dataset.completed='yes';
- q.querySelector('.vq-check').disabled=true;
- q.querySelector('.vq-feedback').textContent='✓ SUY LUẬN CHÍNH XÁC — ĐÃ HOÀN THÀNH CÂU 01';
+ verified(true);
 }
 function activate(){if(document.body.classList.contains('vh-onboarding'))return;document.body.classList.add('vh-q1-workspace');q.hidden=false;document.getElementById('question').hidden=true;document.getElementById('answers').hidden=true;document.querySelector('.submit-line').hidden=true;render()}
 function maybeActivate(){if(document.body.classList.contains('vh-onboarding'))return;const stage=document.querySelector('.folder-tabs .tab.is-current, .folder-tabs .tab[aria-current="step"]');if(stage&&stage.dataset.stage!=='1')return;activate()}
