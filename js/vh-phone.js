@@ -19,7 +19,7 @@
   }
   document.addEventListener('vh:preload-phone',warmPhone);
   // On returning visits, the intro can start before this deferred script runs.
-  if(localStorage.getItem('vh.access.authorized.v1')==='yes')warmPhone();
+  try{if(localStorage.getItem('vh.access.authorized.v1')==='yes')warmPhone()}catch(_){}
 
   function duration(){
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:245;
