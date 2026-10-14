@@ -12,11 +12,14 @@
   let transitioning=false;
   let fallback=0;
 
+  // Begin loading the phone while the access/loading screens are visible.
+  // Reuse the same iframe on every navigation, without a cache-busting timestamp.
   function warmPhone(){
-    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/?fresh='+Date.now());
+    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/');
   }
-  // CRASH GUARD: never preload the heavyweight phone during dossier startup.
-  // Only create the iframe after the player explicitly opens the phone.
+  document.addEventListener('vh:preload-phone',warmPhone);
+  // On returning visits, the intro can start before this deferred script runs.
+  if(localStorage.getItem('vh.access.authorized.v1')==='yes')warmPhone();
 
   function duration(){
     return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:245;
