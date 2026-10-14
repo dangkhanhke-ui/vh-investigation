@@ -61,7 +61,7 @@
  // On a returning completed tutorial, show any pending first greeting once
  // the archive is visible. Do not fire it during the guide or inside phone.
  document.addEventListener('vh:stage-archive-shown',()=>{
-   try{if(localStorage.getItem('vh.guide.tour.completed.v1')==='yes')greetWhenGameBegins()}catch(_){}
+   try{if(localStorage.getItem('vh.guide.phone.v1')==='yes')greetWhenGameBegins()}catch(_){}
  });
 
  window.addEventListener('message',e=>{
