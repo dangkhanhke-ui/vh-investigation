@@ -61,3 +61,12 @@
 #vh-intro .vh-gate-entry button svg{width:34px;height:34px}
 #vh-intro .vh-gate-error{min-height:18px;margin:14px 0 0;font-size:11px;letter-spacing:.07em}
 #vh-intro .vh-gate-foot{margin-top:65px;font-size:10px;letter-spacing:.13em;opacity:.7}
+
+/* Critical: enforce mutually exclusive intro screens after all legacy display rules. */
+#vh-intro[hidden],#vh-intro .vh-intro-inner > [hidden],#vh-intro .vh-intro-gate[hidden],#vh-intro .vh-intro-loading-view[hidden],#vh-intro .vh-intro-name[hidden],#vh-intro .vh-intro-access[hidden],#vh-intro .vh-intro-scene[hidden],#vh-intro [hidden]{display:none!important}
+#vh-intro .vh-intro-inner{width:100%;min-width:0;max-width:100%;display:flex;align-items:center;justify-content:center}
+#vh-intro .vh-intro-gate{box-sizing:border-box;width:min(330px,calc(100vw - 44px));max-width:100%;margin:0 auto;flex:0 1 330px}
+#vh-intro .vh-gate-entry{width:100%;min-width:0}
+#vh-intro #vh-access-pin{display:block!important;width:100%!important;min-width:0!important;height:48px!important;flex:1 1 auto!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;border:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;box-shadow:none!important}
+#vh-intro .vh-gate-entry button{display:grid!important;flex:0 0 44px!important;width:44px!important;height:44px!important;min-width:44px!important;padding:5px!important;margin:0!important;appearance:none!important;-webkit-appearance:none!important;border:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;box-shadow:none!important}
+#vh-intro .vh-gate-entry button svg{display:block;width:34px!important;height:34px!important}
