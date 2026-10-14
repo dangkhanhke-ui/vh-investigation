@@ -70,13 +70,13 @@ q.querySelector('.vq-check').onclick=()=>{
  try{localStorage.setItem(KEY,'yes')}catch(_){}
  q.querySelector('.vq-success').hidden=false;
 };
-q.querySelector('.vq-continue').onclick=()=>{q.querySelector('.vq-success').hidden=true;q.hidden=true;window.dispatchEvent(new CustomEvent('vh:q1-complete'));const next=document.querySelector('.folder-tabs .tab[data-stage="1"]');document.getElementById('feedback').textContent='ĐÃ HOÀN THÀNH CÂU 01 — CHUẨN BỊ CÂU 02';};
-function activate(){if(document.body.classList.contains('vh-onboarding'))return;q.hidden=false;document.getElementById('question').hidden=true;document.getElementById('answers').hidden=true;document.querySelector('.submit-line').hidden=true;render()}
+q.querySelector('.vq-continue').onclick=()=>{q.dataset.completed='yes';document.body.classList.remove('vh-q1-workspace');q.querySelector('.vq-success').hidden=true;q.hidden=true;window.dispatchEvent(new CustomEvent('vh:q1-complete'));const next=document.querySelector('.folder-tabs .tab[data-stage="1"]');document.getElementById('feedback').textContent='ĐÃ HOÀN THÀNH CÂU 01 — CHUẨN BỊ CÂU 02';};
+function activate(){if(document.body.classList.contains('vh-onboarding')||q.dataset.completed)return;document.body.classList.add('vh-q1-workspace');q.hidden=false;document.getElementById('question').hidden=true;document.getElementById('answers').hidden=true;document.querySelector('.submit-line').hidden=true;render()}
 function maybeActivate(){if(document.body.classList.contains('vh-onboarding'))return;const stage=document.querySelector('.folder-tabs .tab.is-current, .folder-tabs .tab[aria-current="step"]');if(stage&&stage.dataset.stage!=='1')return;if(!q.dataset.completed)activate()}
 document.addEventListener('vh:intro-finished',()=>setTimeout(maybeActivate,200));
 document.addEventListener('vh:stage-archive-shown',()=>{});
-document.querySelector('.folder-tabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-stage]');if(b){q.hidden=b.dataset.stage!=='1';if(b.dataset.stage==='1')maybeActivate();else {document.getElementById('question').hidden=false;document.getElementById('answers').hidden=false;document.querySelector('.submit-line').hidden=false}}});
-const observer=new MutationObserver(()=>{if(!q.hidden)return;if(document.body.classList.contains('vh-stage-open')||document.body.classList.contains('vh-onboarding'))return;maybeActivate()});
+document.querySelector('.folder-tabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-stage]');if(b){document.body.classList.toggle('vh-q1-workspace',b.dataset.stage==='1'&&!q.dataset.completed);q.hidden=b.dataset.stage!=='1';if(b.dataset.stage==='1')maybeActivate();else {document.getElementById('question').hidden=false;document.getElementById('answers').hidden=false;document.querySelector('.submit-line').hidden=false}}});
+const observer=new MutationObserver(()=>{if(!q.hidden)return;if(document.body.classList.contains('vh-stage-open')||document.body.classList.contains('vh-onboarding')||q.dataset.completed)return;maybeActivate()});
 observer.observe(document.body,{attributes:true,attributeFilter:['class']});
 render();
 })();
