@@ -36,7 +36,7 @@ async function firstMessageAlert(id){
 const banner=document.createElement('button');banner.type='button';
 banner.className='vh-intro-notification';
 banner.setAttribute('role','status');
-const header=document.createElement('div');header.className='vh-intro-notification-head';header.textContent='BẠN CÓ TIN NHẮN';
+const header=document.createElement('div');header.className='vh-intro-notification-head';header.innerHTML='<span>BẠN CÓ TIN NHẮN</span><span>BÂY GIỜ</span>';
 const body=document.createElement('div');body.className='vh-intro-notification-body';
 const sender=document.createElement('strong');sender.textContent='Neymarinho';
 const preview=document.createElement('span');preview.textContent='CHẠM ĐỂ XEM TIN NHẮN';
