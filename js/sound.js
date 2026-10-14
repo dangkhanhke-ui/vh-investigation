@@ -18,9 +18,14 @@ function start(name){if(!enabled||!['keyboard','loading'].includes(name))return;
 function stop(name){if(!['keyboard','loading'].includes(name))return;wantedLoops.delete(name);if(loops[name]){try{loops[name].stop()}catch(_){}delete loops[name]}if(activeFallbackLoops[name]){const a=activeFallbackLoops[name];a.pause();try{a.currentTime=0}catch(_){}delete activeFallbackLoops[name]}}
 // Prioritize the two intro sounds; defer nonessential decoding to actual use.
 function readyIntro(){if(!enabled)return Promise.resolve(true);if(!C)return Promise.resolve(true);return Promise.all(['notification','keyboard'].map(load)).then(results=>results.every(Boolean))}
-function prepare(){resume();readyIntro()}
+function readyStage(){
+ if(!enabled)return Promise.resolve(true);
+ if(!C){const audio=fallback('pageTurn');audio.load();return new Promise(resolve=>{if(audio.readyState>=3)return resolve(true);audio.addEventListener('canplay',()=>resolve(true),{once:true});audio.addEventListener('error',()=>resolve(false),{once:true})})}
+ return Promise.all(['pageTurn','click'].map(load)).then(a=>a.every(Boolean));
+}
+function prepare(){resume();readyIntro();load('pageTurn')}
 function setEnabled(v){enabled=!!v;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){gestureReady=false;stop('keyboard');stop('loading');Object.values(fallbacks).forEach(a=>a.pause())}else prepare();document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
-window.VHSound={play,start,stop,prepare,readyIntro,isEnabled:()=>enabled,setEnabled};
+window.VHSound={play,start,stop,prepare,readyIntro,readyStage,isEnabled:()=>enabled,setEnabled};
 window.VHKeyboardAudio={prepare,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
 function gesture(e){if(!enabled)return;gestureReady=true;resume().then(()=>{for(const name of wantedLoops){if(!loops[name]&&!activeFallbackLoops[name]){const node=webPlay(name,true);if(node)loops[name]=node;else activeFallbackLoops[name]=htmlPlay(name,true)}}});if(e.type==='pointerdown'||e.type==='keydown'){const t=e.target;const button=t?.closest?.('button:not(:disabled),[role="button"],a[href]');if(button&&!t?.closest?.('.vh-stage-card')&&!(e.type==='keydown'&&!['Enter',' '].includes(e.key)))play('click')}for(const name of ['keyboard','loading']){const a=activeFallbackLoops[name];if(a&&a.paused){a.play().catch(()=>{})}}}
 document.addEventListener('pointerdown',gesture,true);
