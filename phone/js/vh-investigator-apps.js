@@ -18,7 +18,7 @@
   const WELCOME_LIKED='vh.neymarinho.welcome.liked.v1';
   const readCount=()=>{try{return Math.max(0,Math.min(3,Number(localStorage.getItem(WELCOME_COUNT))||0))}catch(_){return 0}};
   const writeCount=n=>{try{localStorage.setItem(WELCOME_COUNT,String(n))}catch(_){}};
-  let welcomeTimer=0,typingWelcome=false;
+  let welcomeTimer=0,reactionTimer=0,typingWelcome=false;
   const getFlag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
   const setFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
   let caseHistory=[],casePhase='solve';
@@ -64,7 +64,9 @@
 
     #messagesApp.vh-neymar-scripted:not(.vh-welcome-ack) #messagesConversationView .msg-convo-scroll{bottom:44px!important}
     #vh-scripted-replies button{border:0;border-radius:16px;background:#007aff;color:#fff;min-height:32px;padding:6px 16px;font:500 13px -apple-system,BlinkMacSystemFont,sans-serif;touch-action:manipulation}
-    #messagesApp.vh-neymar-scripted #messagesComposer:has(#vh-scripted-replies[hidden]){opacity:.65}
+    #messagesApp.vh-neymar-scripted.vh-welcome-ack #messagesComposer{display:none!important}
+    #messagesApp.vh-neymar-scripted.vh-welcome-ack #messagesConversationView .msg-convo-scroll{bottom:0!important}
+    #messagesApp.vh-neymar-scripted.vh-welcome-ack.vh-has-continue #messagesConversationView .msg-convo-scroll{bottom:44px!important}
 
     #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
     #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
@@ -97,8 +99,8 @@
     stopWelcome();
     setFlag(WELCOME_ACK);
     update(caseHistory,casePhase);
-    welcomeTimer=setTimeout(()=>{
-      welcomeTimer=0;
+    reactionTimer=setTimeout(()=>{
+      reactionTimer=0;
       if(getFlag(WELCOME_LIKED))return;
       setFlag(WELCOME_LIKED);
       decorateReaction();
@@ -110,7 +112,8 @@
     bridge.app.classList.toggle('vh-neymar-scripted',current);
     bridge.app.classList.toggle('vh-welcome-ack',getFlag(WELCOME_ACK));
     scriptedReplies.hidden=!current||!getFlag(WELCOME_OPENED)||getFlag(WELCOME_ACK)||readCount()<3;
-    actions.hidden=current&&!getFlag(WELCOME_ACK);
+    actions.hidden=!current||!getFlag(WELCOME_ACK)||casePhase!=='await';
+    bridge.app.classList.toggle('vh-has-continue',current&&getFlag(WELCOME_ACK)&&casePhase==='await');
     if(current){decorateReaction();if(getFlag(WELCOME_OPENED))startWelcome()}
     else stopWelcome();
   }
