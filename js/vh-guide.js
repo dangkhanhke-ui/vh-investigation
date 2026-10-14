@@ -13,14 +13,16 @@ panel.innerHTML='<div class="vh-menu-title"><span>MENU</span><button type="butto
 const shade=el('div','vh-guide-shade');shade.hidden=true;
 const dialog=el('section','vh-guide-dialog');dialog.hidden=true;dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
 const guideSteps=[
-['MỞ BỘ HỒ SƠ.','Đây là một trò chơi điều tra do một cá nhân thực hiện. Nếu gặp sai sót hoặc muốn góp ý, bạn có thể gửi qua MENU → THÔNG TIN & GÓP Ý. Hãy đọc các tài liệu và bằng chứng được cung cấp.'],
-['MỞ ĐIỆN THOẠI.','Nhấn mũi tên › ở góc trên bên phải để chuyển sang điện thoại điều tra.'],
-['TÌM KIẾM THÔNG TIN.','Nhắn tin với Neymarinho, dùng Safari để truy cập các địa chỉ trong tài liệu và Notes để ghi chú.'],
-['ĐƯA RA KẾT LUẬN.','Quay lại hồ sơ đỏ, điền câu trả lời và xác nhận để tiếp tục cuộc điều tra.']
+['TÌM HIỂU VỤ ÁN','Đọc hồ sơ, xem ảnh hiện trường, lời khai và các tài liệu được cung cấp. Không nhất thiết phải đọc theo một thứ tự cố định.\n\nVínculo Humano là dự án được phát triển bởi một cá nhân. Nếu phát hiện lỗi hoặc có đề xuất, bạn có thể gửi góp ý qua mục Thông tin & Góp ý trong menu.'],
+['SỬ DỤNG ĐIỆN THOẠI','Nhấn mũi tên ở góc trên bên phải để chuyển sang điện thoại phục vụ điều tra. Đây là điện thoại của người chơi, không phải điện thoại của nạn nhân.'],
+['LIÊN LẠC VỚI ĐIỀU TRA VIÊN','Neymarinho sẽ liên lạc và cung cấp thêm thông tin trong quá trình điều tra. Hãy theo dõi tin nhắn và lựa chọn phản hồi khi cần để tiếp tục câu chuyện.'],
+['ĐỐI CHIẾU BẰNG CHỨNG','Hãy so sánh lời khai, kiểm tra các mốc thời gian và tìm những chi tiết mâu thuẫn giữa các tài liệu. Đừng vội đưa ra kết luận khi chưa có đủ bằng chứng.'],
+['MỞ KHÓA TIẾN TRÌNH','Trò chơi có 3 giai đoạn. Một số tài liệu và thông tin chưa thể truy cập ngay từ đầu và sẽ được mở thêm khi cuộc điều tra tiến triển.'],
+['ĐƯA RA KẾT LUẬN','Khi đã có câu trả lời, hãy quay về hồ sơ đỏ để hoàn thành các câu hỏi điều tra.\n\nNếu gặp khó khăn, hãy đọc lại tài liệu và đối chiếu những bằng chứng đã thu thập được. Trong trường hợp thực sự bế tắc, bạn có thể sử dụng tính năng Gợi ý (Hint) để nhận thêm chỉ dẫn.\n\nTuy nhiên, hãy cố gắng tự mình tìm ra lời giải trước khi sử dụng gợi ý để có trải nghiệm điều tra trọn vẹn nhất.']
 ];
 let guideIndex=0;
 dialog.innerHTML='<div class="vh-guide-head"><span>HƯỚNG DẪN</span><button class="vh-guide-close" type="button" aria-label="Đóng">×</button></div><div class="vh-guide-copy"><h2></h2><p class="vh-guide-description"></p></div><div class="vh-guide-bottom"><span class="vh-guide-count"></span><button type="button" class="vh-guide-primary">TIẾP THEO →</button></div>';
-function renderGuide(){const [heading,body]=guideSteps[guideIndex];dialog.querySelector('h2').textContent=heading;dialog.querySelector('.vh-guide-description').textContent=body;dialog.querySelector('.vh-guide-count').textContent=String(guideIndex+1).padStart(2,'0')+'/04';dialog.querySelector('.vh-guide-primary').textContent=guideIndex===3?'BẮT ĐẦU ĐIỀU TRA →':'TIẾP THEO →'}
+function renderGuide(){const [heading,body]=guideSteps[guideIndex];dialog.querySelector('h2').textContent=heading;dialog.querySelector('.vh-guide-description').textContent=body;dialog.querySelector('.vh-guide-count').textContent=String(guideIndex+1).padStart(2,'0')+'/'+String(guideSteps.length).padStart(2,'0');dialog.querySelector('.vh-guide-primary').textContent=guideIndex===guideSteps.length-1?'BẮT ĐẦU ĐIỀU TRA →':'TIẾP THEO →'}
 
 // Information, disclaimer and feedback form. No recipient is configured yet.
 const about=el('section','vh-about-dialog');
@@ -88,7 +90,7 @@ function showGuide(first=false){closeMenu();auto=first;guideIndex=0;renderGuide(
 function stopTour(){touring=false;phase=0;tip.hidden=true;document.body.classList.remove('vh-tour-open','vh-tour-phone');phoneWatch?.disconnect();phoneWatch=null;write(TOUR_DONE,'yes')}
 function startTour(){if(!nav){write(TOUR_DONE,'yes');return}touring=true;phase=1;document.body.classList.add('vh-tour-open');tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">Bỏ qua</button>';tip.hidden=false;tip.querySelector('button').onclick=stopTour;phoneWatch=new MutationObserver(()=>{if(touring&&phase===1&&document.body.classList.contains('vh-phone-active')){phase=2;document.body.classList.add('vh-tour-phone');tip.innerHTML='<b>Đây là điện thoại của bạn.</b><span>Khám phá Messages, Safari và Notes. Nhấn ‹ để quay lại hồ sơ đỏ.</span><button type="button">ĐÃ HIỂU</button>';tip.querySelector('button').onclick=stopTour}});phoneWatch.observe(document.body,{attributes:true,attributeFilter:['class']})}
 function finishGuide(){hideGuide();if(auto&&read(TOUR_DONE)!=='yes')startTour();auto=false}
-dialog.querySelector('.vh-guide-primary').onclick=()=>{if(guideIndex<3){guideIndex++;renderGuide()}else finishGuide()};
+dialog.querySelector('.vh-guide-primary').onclick=()=>{if(guideIndex<guideSteps.length-1){guideIndex++;renderGuide()}else finishGuide()};
 dialog.querySelector('.vh-guide-close').onclick=()=>{if(auto)finishGuide();else hideGuide()};
 shade.onclick=()=>{if(!auto)hideGuide()};
 menu.onclick=()=>{if(document.body.classList.contains('vh-phone-active'))return;const opening=panel.hidden;panel.hidden=!opening;menu.setAttribute('aria-expanded',String(opening))};
