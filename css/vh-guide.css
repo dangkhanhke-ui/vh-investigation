@@ -33,3 +33,9 @@ body.vh-onboarding .vh-menu-trigger,body.vh-onboarding .vh-menu-panel{display:no
 .vh-tour-tip b,.vh-tour-tip span{display:block;margin-bottom:9px}.vh-tour-tip button{border:0;border-radius:20px;background:#050505;color:white;font:500 10px 'Roboto Mono',monospace;padding:7px 15px;cursor:pointer}
 @media(max-width:480px){.vh-guide-dialog{padding:25px;min-height:min(340px,calc(100dvh - 34px))}.vh-guide-copy h2{font-size:24px}.vh-guide-primary{min-width:130px;font-size:9px;padding:7px 10px}}
 @media(prefers-reduced-motion:reduce){.vh-menu-panel{animation:none}}
+
+/* Align icon-only menu precisely with dossier-to-phone control. */
+.vh-menu-trigger{top:calc(14px + env(safe-area-inset-top,0px))!important;left:calc(14px + env(safe-area-inset-left,0px))!important;width:40px!important;height:34px!important;padding:0!important;gap:5px!important;justify-content:center!important}
+.vh-menu-trigger span{width:25px!important;height:1.3px!important;flex:0 0 1.3px!important}
+body.vh-phone-active .vh-menu-trigger,body.vh-phone-transitioning .vh-menu-trigger,body.vh-phone-active .vh-menu-panel,body.vh-phone-transitioning .vh-menu-panel{display:none!important}
+@media(max-width:600px){.vh-menu-trigger{top:calc(12px + env(safe-area-inset-top,0px))!important;left:calc(12px + env(safe-area-inset-left,0px))!important}}
