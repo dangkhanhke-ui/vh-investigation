@@ -21,9 +21,9 @@ const PAGES=[
 ['Mày đọc kỹ hồ sơ rồi thử dựng lại diễn biến đêm đó xem sao','Soi kỹ mốc thời gian và lời khai từng đứa nhé','Thấy chỗ nào chọi nhau thì ghi chú lại ngay','Trong lúc điều tra nếu bí quá thì nhắn anh','Anh sẽ gợi ý cho một chút, nhưng đừng có vội xin đáp án đấy nhé :))'],
 ['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Mấy cái phốt của hội Vínculo Humano với hai vụ mất tích kia tính sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
 ];
-let activePage=0,renderToken=0,renderComplete=false;
+let activePage=0,visibleCount=0,renderToken=0,renderComplete=false;
 const previous=document.createElement('button');
-previous.type='button';previous.className='vh-intro-prev';previous.setAttribute('aria-label','Đọc lại đoạn trước');
+previous.type='button';previous.className='vh-intro-prev';previous.setAttribute('aria-label','Đọc lại tin nhắn trước');
 previous.innerHTML='<svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M28 16H4m9-9-9 9 9 9"/></svg>';
 const nav=document.createElement('div');nav.className='vh-intro-navigation';next.parentNode.insertBefore(nav,next);nav.append(previous,next);
 function addRow(){
@@ -40,42 +40,62 @@ function addPhoto(){
  image.addEventListener('error',()=>{image.hidden=true});
  bubble.append(image,placeholder);
 }
-function updateNav(){
- previous.hidden=activePage===0;
- next.hidden=!renderComplete;
- next.setAttribute('aria-label',activePage===PAGES.length-1?'Bắt đầu điều tra':'Đoạn tiếp theo');
+function appendInstant(item){
+ if(typeof item==='object'){addPhoto();return}
+ addRow().textContent=item;
 }
-async function renderPage(id,instant=false){
- const token=++renderToken;renderComplete=false;messages.replaceChildren();messages.scrollTop=0;updateNav();
- for(const item of PAGES[activePage]){
-  if(id!==seq||token!==renderToken)return;
-  if(typeof item==='object'){addPhoto();continue}
-  const bubble=addRow();
-  if(instant){bubble.textContent=item;continue}
-  bubble.classList.add('vh-typing');bubble.textContent='•••';
-  await sleep(Math.min(430,170+item.length*3));
-  if(id!==seq||token!==renderToken)return;
-  bubble.classList.remove('vh-typing');bubble.textContent='';
-  window.VHKeyboardAudio?.start();
-  for(let i=0;i<item.length;i++){
-   if(id!==seq||token!==renderToken){window.VHKeyboardAudio?.stop();return}
-   bubble.textContent+=item[i];
-   if(i%6===0)messages.scrollTop=messages.scrollHeight;
-   await sleep(item[i]===','?34:12);
-  }
-  window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
-  await sleep(145);
+function updateNav(){
+ previous.hidden=!renderComplete||activePage===0&&visibleCount<=1;
+ next.hidden=!renderComplete;
+ next.setAttribute('aria-label',activePage===PAGES.length-1&&visibleCount===PAGES[activePage].length?'Bắt đầu điều tra':'Tin nhắn tiếp theo');
+}
+async function showNextMessage(id){
+ const token=++renderToken;renderComplete=false;updateNav();
+ const item=PAGES[activePage][visibleCount];if(!item)return;
+ if(typeof item==='object'){
+  addPhoto();visibleCount++;messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();return;
  }
+ const bubble=addRow();bubble.classList.add('vh-typing');bubble.textContent='•••';
+ await sleep(Math.min(1850,750+item.length*12));
  if(id!==seq||token!==renderToken)return;
- renderComplete=true;updateNav();
+ bubble.classList.remove('vh-typing');bubble.textContent='';
+ window.VHKeyboardAudio?.start();
+ for(let i=0;i<item.length;i++){
+  if(id!==seq||token!==renderToken){window.VHKeyboardAudio?.stop();return}
+  const ch=item[i];bubble.textContent+=ch;
+  if(i%4===0)messages.scrollTop=messages.scrollHeight;
+  let delay=25+Math.random()*23;
+  if(ch===','||ch===';')delay+=180;
+  if(ch==='.'||ch==='?'||ch==='!')delay+=280;
+  if(ch===' ')delay+=12;
+  await sleep(delay);
+ }
+ window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
+ await sleep(650+Math.min(500,item.length*3));
+ if(id!==seq||token!==renderToken)return;
+ visibleCount++;renderComplete=true;updateNav();
+}
+function showHistory(page,count){
+ renderToken++;window.VHKeyboardAudio?.stop();activePage=page;visibleCount=count;
+ messages.replaceChildren();for(let i=0;i<count;i++)appendInstant(PAGES[page][i]);
+ messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();
 }
 async function dialogue(id){
  screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;previous.hidden=true;
  await firstMessageAlert(id);if(id!==seq)return;
- activePage=0;await renderPage(id);
+ activePage=0;visibleCount=0;await showNextMessage(id);
 }
-previous.onclick=()=>{if(activePage===0)return;unlockAudio();activePage--;renderPage(seq,true)};
-next.onclick=()=>{if(!renderComplete)return;unlockAudio();if(activePage<PAGES.length-1){activePage++;renderPage(seq)}else{renderToken++;next.hidden=true;previous.hidden=true;put(DONE,'yes');code(seq,true)}};
+previous.onclick=()=>{
+ if(!renderComplete)return;unlockAudio();
+ if(visibleCount>1)showHistory(activePage,visibleCount-1);
+ else if(activePage>0)showHistory(activePage-1,PAGES[activePage-1].length);
+};
+next.onclick=()=>{
+ if(!renderComplete)return;unlockAudio();
+ if(visibleCount<PAGES[activePage].length){showNextMessage(seq);return}
+ if(activePage<PAGES.length-1){activePage++;visibleCount=0;messages.replaceChildren();showNextMessage(seq);return}
+ renderToken++;next.hidden=true;previous.hidden=true;put(DONE,'yes');code(seq,true);
+};
 function option(t){const b=document.createElement('button');b.type='button';b.className='vh-intro-choice';b.textContent=t;b.addEventListener('click',()=>{b.classList.add('vh-choice-pressed');setTimeout(()=>b.classList.remove('vh-choice-pressed'),230)},true);actions.appendChild(b);return b}
 async function firstMessageAlert(id){
 const banner=document.createElement('button');banner.type='button';
