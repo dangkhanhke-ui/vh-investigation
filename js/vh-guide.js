@@ -85,7 +85,36 @@ archive.setAttribute('aria-label','Chọn giai đoạn điều tra');
 archive.innerHTML=`<div class="vh-stage-head"><span>VÍNCULO HUMANO / INVESTIGATION ARCHIVE</span><button type="button" class="vh-stage-close" aria-label="Đóng">×</button></div>
 <h2>HỒ SƠ ĐIỀU TRA</h2><p class="vh-stage-intro">CHỌN GIAI ĐOẠN ĐỂ TIẾP TỤC</p>
 <div class="vh-stage-cards"></div>`;
+// Reuse the existing dossier atmosphere rather than approximating it.
+const dossierBackdrop=document.querySelector('.backdrop-art');
+const dossierAtmosphere=document.querySelector('.cinema-atmosphere');
+if(dossierBackdrop){const bg=dossierBackdrop.cloneNode(true);bg.classList.add('vh-stage-backdrop');archive.prepend(bg)}
+const beam=el('div','vh-stage-beam');beam.setAttribute('aria-hidden','true');archive.prepend(beam);
+if(dossierAtmosphere){const atmosphere=dossierAtmosphere.cloneNode(true);atmosphere.classList.add('vh-stage-atmosphere');archive.prepend(atmosphere)}
 const stageCards=archive.querySelector('.vh-stage-cards');
+// Upload an actual page-turn sound to assets/page-turn.mp3 later; browser click is fallback.
+const PAGE_TURN_FILE='assets/page-turn.mp3';
+let pageTurnAudio=null,pageTurnUnavailable=false,stageOpening=false;
+function playStagePageTurn(){
+ if(window.VHSound?.isEnabled()===false)return;
+ if(pageTurnUnavailable){window.VHSound?.play('click');return}
+ if(!pageTurnAudio){
+  pageTurnAudio=new Audio(PAGE_TURN_FILE);
+  pageTurnAudio.preload='auto';
+  pageTurnAudio.volume=.85;
+ }
+ try{
+  pageTurnAudio.pause();pageTurnAudio.currentTime=0;
+  const result=pageTurnAudio.play();
+  result?.catch?.(()=>{pageTurnUnavailable=true;window.VHSound?.play('click')});
+ }catch(_){pageTurnUnavailable=true;window.VHSound?.play('click')}
+}
+function shakeStage(card){
+ card.classList.remove('vh-stage-wobble');
+ void card.offsetWidth;
+ card.classList.add('vh-stage-wobble');
+ card.addEventListener('animationend',()=>card.classList.remove('vh-stage-wobble'),{once:true});
+}
 const lockIcon='<svg viewBox="0 0 40 48" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 21v-7a9 9 0 0 1 18 0v7"/><rect x="6" y="21" width="28" height="22" rx="2"/><circle cx="20" cy="31" r="2"/><path d="M20 33v4"/></svg>';
 let archiveFirstVisit=false;
 function stageProgress(){
@@ -105,7 +134,7 @@ function renderArchive(){
   const completed=reports.includes(stage)||finished&&stage===2;
   const card=document.createElement('button');
   card.type='button';card.className='vh-stage-card'+(unlocked?' is-open':' is-locked');
-  card.disabled=!unlocked;card.dataset.stage=String(stage+1);
+  card.dataset.stage=String(stage+1);card.setAttribute('aria-disabled',String(!unlocked));
   if(unlocked)card.setAttribute('aria-label','Mở hồ sơ giai đoạn '+(stage+1));
   else card.setAttribute('aria-label','Giai đoạn '+(stage+1)+' đang khóa, hoàn thành giai đoạn trước để mở');
   const cover=document.createElement('div');cover.className='vh-stage-cover';
@@ -116,12 +145,20 @@ function renderArchive(){
   status.textContent=!unlocked?'ĐANG KHÓA':completed?'HOÀN THÀNH':'ĐANG ĐIỀU TRA';
   card.append(cover,label,status);
   if(!unlocked){const desc=document.createElement('span');desc.className='vh-stage-card-caption';desc.textContent='Giải xong phần trước để mở khóa';card.appendChild(desc)}
-  if(unlocked)card.addEventListener('click',()=>{
-   hideArchive();
-   // Completed phases can still open their existing summary via the original dossier tabs.
-   if(stage<current||finished)document.querySelector('.folder-tabs .tab[data-stage="'+(stage+1)+'"]')?.click();
-   if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();
-   archiveFirstVisit=false;
+  card.addEventListener('click',()=>{
+   if(stageOpening)return;
+   playStagePageTurn();
+   shakeStage(card);
+   if(!unlocked)return; // Locked dossiers react but never open or change progress.
+   stageOpening=true;
+   setTimeout(()=>{
+    hideArchive();
+    // Completed phases retain their original summaries via the dossier tabs.
+    if(stage<current||finished)document.querySelector('.folder-tabs .tab[data-stage="'+(stage+1)+'"]')?.click();
+    if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();
+    archiveFirstVisit=false;
+    stageOpening=false;
+   },260);
   });
   stageCards.appendChild(card);
  }
