@@ -151,7 +151,41 @@ await sleep(80);if(id!==seq){banner.remove();return}
 banner.classList.add('show');window.VHSound?.play('notification');
 await new Promise(resolve=>{banner.addEventListener('click',resolve,{once:true})});banner.classList.remove('show');await sleep(350);banner.remove();
 }
-async function begin(){if(!gateAuthorized)return;const id=++seq;show();screen('load');document.dispatchEvent(new Event('vh:preload-phone'));window.VHSound?.start('loading');await sleep(get(DONE)?2100:5000);if(id!==seq)return;window.VHSound?.stop('loading');if(get(DONE))finish();else if(get(KEY))code(id);else{screen('name');input.focus({preventScroll:true})}}
+// Load the next screen's actual images during the loading transition, rather
+// than keeping an arbitrary five-second timer. Decode is cached by the browser.
+const CRITICAL_IMAGES=[
+ 'assets/xray-background.png','assets/red-folder.webp','assets/torn-paper.webp',
+ 'assets/investigator-avatar.png','assets/caua-opening.jpg'
+];
+let preloadPromise=null;
+function preloadCritical(){
+ if(preloadPromise)return preloadPromise;
+ preloadPromise=Promise.allSettled(CRITICAL_IMAGES.map(src=>new Promise(resolve=>{
+   const image=new Image();
+   image.decoding='async';image.src=src;
+   if(image.complete){resolve();return}
+   image.onload=image.onerror=resolve;
+ })));
+ return preloadPromise;
+}
+async function begin(){
+ if(!gateAuthorized)return;
+ const id=++seq;
+ show();screen('load');
+ window.VHSound?.start('loading');
+ const started=performance.now();
+ // Start warming the iframe only after the critical page assets have been queued.
+ // The phone still loads in the background during the intro.
+ document.dispatchEvent(new Event('vh:preload-phone'));
+ await Promise.race([preloadCritical(),sleep(1800)]);
+ const remaining=Math.max(0,550-(performance.now()-started));
+ if(remaining)await sleep(remaining);
+ if(id!==seq)return;
+ window.VHSound?.stop('loading');
+ if(get(DONE))finish();
+ else if(get(KEY))code(id);
+ else{screen('name');input.focus({preventScroll:true})}
+}
 form.addEventListener('submit',e=>{e.preventDefault();unlockAudio();const n=input.value.replace(/\s+/g,' ').trim().slice(0,36);if(!n)return;put(KEY,n);code(++seq)});
 window.addEventListener('vh:show-intro',()=>{window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;show();screen('name');input.value=get(KEY);input.focus({preventScroll:true})});
 gate.addEventListener('submit',e=>{e.preventDefault();if(pin.value!=='1111'){gateError.textContent='MÃ TRUY CẬP KHÔNG HỢP LỆ';pin.value='';pin.focus();return}gateError.textContent='';gateAuthorized=true;put(AUTH,'yes');window.VHSound?.prepare();begin()});
