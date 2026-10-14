@@ -223,3 +223,17 @@ body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;backgr
  .vh-stage-archive .cinema-dust--side,
  .vh-stage-archive .cinema-dust--down{animation:none!important;opacity:.09!important}
 }
+
+
+/* Archive header: real hamburger menu, aligned with the close control. */
+.vh-stage-head .vh-stage-menu{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;
+ gap:5px;width:44px;height:44px;min-width:44px;min-height:44px;
+ padding:8px!important;appearance:none;border:0;background:transparent!important;color:#fff;cursor:pointer;
+ touch-action:manipulation
+}
+.vh-stage-head .vh-stage-menu span{
+ display:block;width:25px;height:1.5px;flex:0 0 1.5px;background:currentColor;pointer-events:none
+}
+.vh-stage-head .vh-stage-menu:focus-visible{outline:1px solid #fff;outline-offset:3px}
+body.vh-stage-open .vh-menu-panel:not([hidden]){z-index:11065!important}
