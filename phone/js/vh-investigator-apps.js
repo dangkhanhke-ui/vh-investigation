@@ -108,7 +108,7 @@
     },1050);
   });
   function syncScriptedUI(){
-    const current=bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
+    const current=bridge.app.classList.contains('open')&&bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
     bridge.app.classList.toggle('vh-neymar-scripted',current);
     bridge.app.classList.toggle('vh-welcome-ack',getFlag(WELCOME_ACK));
     scriptedReplies.hidden=!current||!getFlag(WELCOME_OPENED)||getFlag(WELCOME_ACK)||readCount()<3;
