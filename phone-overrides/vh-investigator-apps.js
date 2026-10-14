@@ -46,11 +46,10 @@
   // option so the user can finish investigation stages entirely from Messages.
   const actions=document.createElement('div');
   actions.id='vh-investigator-actions';
-  actions.innerHTML='<button id="vh-message-hint" type="button">Gợi ý</button><button id="vh-message-continue" type="button">Tiếp tục →</button>';
+  actions.innerHTML='<button id="vh-message-ack" type="button">Ok anh</button>';
   const convo=document.getElementById('messagesConversationView');
   convo?.querySelector('.msg-convo')?.appendChild(actions);
-  actions.querySelector('#vh-message-hint').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'hint'},ORIGIN));
-  actions.querySelector('#vh-message-continue').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'continue'},ORIGIN));
+  actions.querySelector('#vh-message-ack').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'ack'},ORIGIN));
 
   function sanitize(history){
     return Array.isArray(history)?history.slice(-350).filter(m=>m&&typeof m.text==='string'&&(m.who==='partner'||m.who==='me')).map(m=>{
@@ -72,8 +71,7 @@
     if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho')
       bridge.renderConversation(thread,false);
     else if(bridge.state.view==='list')bridge.renderList(false);
-    actions.querySelector('#vh-message-hint').hidden=phase!=='solve';
-    actions.querySelector('#vh-message-continue').hidden=phase!=='await';
+    actions.querySelector('#vh-message-ack').hidden=phase!=='await';
   }
   window.addEventListener('message',e=>{
     if(e.origin!==ORIGIN||e.source!==window.parent||!e.data||typeof e.data!=='object')return;
@@ -101,7 +99,6 @@
     const text=box?.value.trim();
     if(!text)return;
     box.value='';box.dispatchEvent(new Event('input',{bubbles:true}));
-    window.parent.postMessage({type:'vh:reply',text},ORIGIN);
   },true);
 
 
