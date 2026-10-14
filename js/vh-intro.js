@@ -13,13 +13,13 @@ const PAGES=[
 ['Đến rồi à?','Anh là Neymarinho, điều tra viên của vụ này','Anh đang có một vụ khá hóc chuẩn bị giao cho mày đây','Xem qua giúp anh nhé'],
 ['Nạn nhân tên Cauã Henrique Valença de Oliveira, 25 tuổi','Thi thể được phát hiện vào khoảng giữa trưa ngày 24/8/2015','Tại A Casa, khu Santa Teresa, Rio de Janeiro',{image:'assets/caua-opening.jpg'},'Cũng sáng sủa nhỉ :))','Không biết sau cái mặt làm bao em say đắm này là bí mật gì đây'],
 ['Ban đầu anh cứ nghĩ đây chỉ là một vụ án mạng thông thường','Nhưng càng moi sâu thì anh thấy càng không ổn','Cauã là người đứng đầu một hội kín tên là Vínculo Humano','Mày nghe đến cái hội này bao giờ chưa?'],
-['Nó được thành lập từ năm 2009 bởi một nhóm thanh niên ở Rio','Lúc đầu tưởng chỉ là cái nhóm giao lưu, tụ tập hoạt động xã hội vớ vẩn thôi...','Nhưng xung quanh cái hội này có nhiều chuyện dị lắm','Anh cũng chưa nắm hết được','Anh với bên cảnh sát đang nghi cái hội này dính tới hai vụ mất tích dạo trước','Nhưng cũng chưa có nhiều thông tin lắm','Thế nên cái chết của Cauã lúc này làm anh khá lấn cấn'],
-['Quay lại vụ án nhé','Đêm 23/8, cái hội Vínculo Humano này có tổ chức một sự kiện ngay tại căn nhà đó','Tầm 38 thành viên tham dự','Nghe bảo đây là buổi tụ tập định kỳ hai tuần một lần','Buổi hôm đó tàn vào khoảng 11 giờ đêm','Phần lớn mọi người đi về, nhưng vẫn có vài đứa ở lại ngủ qua đêm'],
-['Đến khoảng 12 giờ 15 trưa hôm sau, thi thể Cauã được phát hiện trong một căn phòng','Vấn đề là đến giờ bọn anh vẫn chưa dựng lại được chính xác chuyện gì đã xảy ra trong đêm','Và ai là kẻ đã ra tay?'],
+['Nó được thành lập từ năm 2009 bởi một nhóm thanh niên ở Rio','Lúc đầu anh tưởng cũng chỉ là cái nhóm giao lưu, tụ tập hoạt động xã hội vớ vẩn thôi...','Anh có điều tra được vài điều lạ lắm','Anh cũng chưa nắm hết được','Anh với bên cảnh sát đang nghi cái hội này dính tới hai vụ mất tích dạo trước','Nhưng cũng chưa có nhiều thông tin lắm','Thế nên cái chết của Cauã lúc này làm anh khá lấn cấn'],
+['Quay lại vụ án nhé','Đêm 23/8, Vínculo Humano có tổ chức một sự kiện ngay tại căn nhà đó','Tầm 38 thành viên tham dự','Nghe bảo đây là buổi tụ tập định kỳ hai tuần một lần','Buổi hôm đó tàn vào khoảng 11 giờ đêm','Phần lớn mọi người đi về, còn 6 đứa khác ở lại ngủ qua đêm'],
+['Đến khoảng 12 giờ 15 trưa hôm sau, thi thể Cauã được phát hiện ở phòng ngủ tầng hai','Vấn đề là đến giờ bọn anh vẫn chưa dựng lại được chính xác chuyện gì đã xảy ra trong đêm','Và ai là kẻ đã ra tay?'],
 ['Anh đã chuẩn bị sẵn cho mày một tập hồ sơ rồi đấy','Trong đó có ảnh hiện trường, lời khai với một số thông tin liên quan','À, anh có gửi mày cả bản copy dữ liệu từ điện thoại của Cauã nữa','Anh xem qua rồi, thấy cũng chưa có gì đáng giá lắm','Nhưng ít nhất thì cũng nhờ nó mà hiểu thêm về Cauã với cái hội này','Mày cứ xem thử, biết đâu lại tìm được thứ gì anh bỏ sót :))'],
 ['Có điều là hiện tại vẫn còn nhiều tài liệu quan trọng bị khóa','Trong quá trình điều tra, khi nào mở khóa được thêm phần nào thì anh sẽ gửi cho mày','Nên trước mắt cứ xem những gì đang có đã nhé'],
 ['Mày đọc kỹ hồ sơ rồi thử dựng lại diễn biến đêm đó xem sao','Soi kỹ mốc thời gian và lời khai từng đứa nhé','Thấy chỗ nào chọi nhau thì ghi chú lại ngay','Trong lúc điều tra nếu bí quá thì nhắn anh','Anh sẽ gợi ý cho một chút, nhưng đừng có vội xin đáp án đấy nhé :))'],
-['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Mấy cái phốt của hội Vínculo Humano với hai vụ mất tích kia tính sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
+['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Những vụ đó mình sẽ dần giải mã sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
 ];
 let activePage=0,visibleCount=0,renderToken=0,renderComplete=false;
 const previous=document.createElement('button');
@@ -100,7 +100,7 @@ async function firstMessageAlert(id){
 const banner=document.createElement('button');banner.type='button';
 banner.className='vh-intro-notification';
 banner.setAttribute('role','status');
-const header=document.createElement('div');header.className='vh-intro-notification-head';header.innerHTML='<span>BẠN CÓ TIN NHẮN</span><span>BÂY GIỜ</span>';
+const header=document.createElement('div');header.className='vh-intro-notification-head';header.innerHTML='<span>BẠN CÓ TIN NHẮN MỚI</span><span>BÂY GIỜ</span>';
 const body=document.createElement('div');body.className='vh-intro-notification-body';
 const sender=document.createElement('strong');sender.textContent='Neymarinho';
 const preview=document.createElement('span');preview.textContent='CHẠM ĐỂ XEM TIN NHẮN';
