@@ -1,7 +1,7 @@
 /* VH unified sound engine: decoded buffers for reliable short effects, HTMLAudio fallback. */
 (()=>{'use strict';
 const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3',pageTurn:'assets/page-turn.mp3',correct:'assets/vh-correct.mp3',wrong:'assets/vh-wrong.mp3'};
-const volumes={keyboard:.8,notification:.9,loading:1,click:.55,pageTurn:.85,correct:.55,wrong:.45};
+const volumes={keyboard:.8,notification:.9,loading:1,click:.55,pageTurn:.85,correct:1.65,wrong:1.35};
 const MASTER_BOOST=2; // all unified effects: double amplitude; audio element fallback is capped at 1.
 let enabled=true;try{enabled=localStorage.getItem('vh_sound_enabled')!=='false'}catch(_){}
 const C=window.AudioContext||window.webkitAudioContext;
