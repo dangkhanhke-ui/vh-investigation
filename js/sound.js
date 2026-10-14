@@ -17,7 +17,7 @@ function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name=
 function start(name){if(!enabled||!['keyboard','loading'].includes(name))return;wantedLoops.add(name);if(loops[name]||activeFallbackLoops[name])return;resume();const node=webPlay(name,true);if(node){loops[name]=node}else if(gestureReady){activeFallbackLoops[name]=htmlPlay(name,true)}load(name).then(()=>{if(wantedLoops.has(name)&&!loops[name]&&!activeFallbackLoops[name]&&ctx()?.state==='running'){loops[name]=webPlay(name,true)}})}
 function stop(name){if(!['keyboard','loading'].includes(name))return;wantedLoops.delete(name);if(loops[name]){try{loops[name].stop()}catch(_){}delete loops[name]}if(activeFallbackLoops[name]){const a=activeFallbackLoops[name];a.pause();try{a.currentTime=0}catch(_){}delete activeFallbackLoops[name]}}
 // Prioritize the two intro sounds; defer nonessential decoding to actual use.
-function readyIntro(){return Promise.allSettled(['notification','keyboard'].map(load))}
+function readyIntro(){if(!enabled)return Promise.resolve(true);if(!C)return Promise.resolve(true);return Promise.all(['notification','keyboard'].map(load)).then(results=>results.every(Boolean))}
 function prepare(){resume();readyIntro()}
 function setEnabled(v){enabled=!!v;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){gestureReady=false;stop('keyboard');stop('loading');Object.values(fallbacks).forEach(a=>a.pause())}else prepare();document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
 window.VHSound={play,start,stop,prepare,readyIntro,isEnabled:()=>enabled,setEnabled};
