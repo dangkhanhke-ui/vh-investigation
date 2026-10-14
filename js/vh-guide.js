@@ -9,7 +9,7 @@ const el=(tag,cls,html)=>{const x=document.createElement(tag);if(cls)x.className
 const nav=document.getElementById('vhOpenPhone');
 const menu=el('button','vh-menu-trigger','<span></span><span></span><span></span>');menu.type='button';menu.setAttribute('aria-label','Mở menu điều tra');menu.setAttribute('aria-expanded','false');menu.setAttribute('aria-controls','vh-menu-panel');
 const panel=el('aside','vh-menu-panel');panel.setAttribute('aria-label','Menu điều tra');panel.hidden=true;panel.id='vh-menu-panel';
-panel.innerHTML='<div class="vh-menu-title"><span>MENU</span><button type="button" data-act="close" aria-label="Đóng menu">×</button></div><button type="button" data-act="investigate"><span>01 / ĐIỀU TRA</span><span>↗</span></button><button type="button" data-act="guide"><span>02 / HƯỚNG DẪN CHƠI</span><span>↗</span></button><button type="button" data-act="settings" aria-expanded="false"><span>03 / CÀI ĐẶT</span><span>+</span></button><div class="vh-menu-settings" hidden><label>HIỆU ỨNG ÂM THANH <input id="vhSoundSwitch" type="checkbox"></label><button type="button" data-act="restart">CHƠI LẠI TỪ ĐẦU ↺</button></div><button type="button" data-act="about"><span>04 / THÔNG TIN & GÓP Ý</span><span>↗</span></button>';
+panel.innerHTML='<div class="vh-menu-title"><span>MENU</span><button type="button" data-act="close" aria-label="Đóng menu">×</button></div><button type="button" data-act="investigate"><span>01 / HỒ SƠ ĐIỀU TRA</span><span>↗</span></button><button type="button" data-act="guide"><span>02 / HƯỚNG DẪN CHƠI</span><span>↗</span></button><button type="button" data-act="settings" aria-expanded="false"><span>03 / CÀI ĐẶT</span><span>+</span></button><div class="vh-menu-settings" hidden><label>HIỆU ỨNG ÂM THANH <input id="vhSoundSwitch" type="checkbox"></label><button type="button" data-act="restart">CHƠI LẠI TỪ ĐẦU ↺</button></div><button type="button" data-act="about"><span>04 / THÔNG TIN & GÓP Ý</span><span>↗</span></button>';
 const shade=el('div','vh-guide-shade');shade.hidden=true;
 const dialog=el('section','vh-guide-dialog');dialog.hidden=true;dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
 const guideSteps=[
@@ -138,7 +138,7 @@ function renderArchive(){
   if(unlocked)card.setAttribute('aria-label','Mở hồ sơ giai đoạn '+(stage+1));
   else card.setAttribute('aria-label','Giai đoạn '+(stage+1)+' đang khóa, hoàn thành giai đoạn trước để mở');
   const cover=document.createElement('div');cover.className='vh-stage-cover';
-  cover.innerHTML='<img class="vh-stage-cover-image" src="assets/red-folder.webp" alt="" loading="eager"><span class="vh-stage-serial">VH / 0'+(stage+1)+'</span>';
+  cover.innerHTML='<img class="vh-stage-cover-image" src="assets/red-folder.webp" alt="" loading="eager">';
   if(stage===0){const photo=document.createElement('img');photo.className='vh-stage-caua-photo';photo.src='assets/caua-cover.webp';photo.alt='Ảnh Cauã';photo.loading='eager';cover.appendChild(photo)}
   if(!unlocked){const locked=document.createElement('span');locked.className='vh-stage-lock';locked.innerHTML=lockIcon;cover.appendChild(locked)}
   const label=document.createElement('span');label.className='vh-stage-card-name';label.textContent='GIAI ĐOẠN 0'+(stage+1);
