@@ -4,17 +4,15 @@
  const iframe=document.getElementById('vhPhoneIframe');
  if(!iframe)return;
  const ORIGIN=location.origin;
- const KEY='vh.neymarinho.intro-replied.v1';
- const SCRIPT=['Hey.','Anh mới có số mày','Từ giờ anh sẽ liên lạc với mày qua đây nhé','Có thêm thông tin gì thì anh sẽ gửi'];
+ const story=window.VHNeymarinhoStory;
+ if(!story)return;
  let queuedOpen=false,ready=false,notified=false;
- const done=()=>{try{return localStorage.getItem(KEY)==='yes'}catch(_){return false}};
- const history=()=>[...SCRIPT.map((text,i)=>({who:'partner',text,at:Date.now()-(SCRIPT.length-i)*90000})),...(done()?[{who:'me',text:'Ok anh',at:Date.now()}]:[])];
  const send=(type,extra={})=>{
-  try{iframe.contentWindow?.postMessage({type,history:history(),phase:done()?'done':'await',...extra},ORIGIN)}catch(_){}
+  try{iframe.contentWindow?.postMessage({type,...story.snapshot(),...extra},ORIGIN)}catch(_){}
  };
  function notify(){
-  if(notified||done()||!ready)return;
-  notified=true;send('vh:new',{text:SCRIPT[SCRIPT.length-1]});
+  if(notified||story.acknowledged()||!ready)return;
+  notified=true;send('vh:new',{text:story.notification});
  }
  function openPhoneMessages(){
   queuedOpen=true;
@@ -27,7 +25,7 @@
   if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
   if(e.data.type==='vh:ready'){ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()}
   if(e.data.type==='vh:action'&&e.data.action==='ack'){
-   try{localStorage.setItem(KEY,'yes')}catch(_){}
+   story.acknowledge()
    send('vh:sync');
   }
  });
