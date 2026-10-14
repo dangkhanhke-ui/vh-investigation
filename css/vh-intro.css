@@ -42,3 +42,9 @@
 #vh-intro .vh-intro-bubble{background:#f01414!important}
 #vh-intro .vh-intro-choice{border-color:#f01414}
 #vh-intro .vh-intro-choice:hover{background:transparent!important}
+
+/* Player name continuation uses the exact same fine arrow as Neymarinho chat. */
+#vh-intro .vh-intro-name{position:relative}
+#vh-intro #vh-player-start{display:flex!important;align-items:center;justify-content:center;position:absolute;right:0;bottom:-62px;width:44px;height:44px;padding:5px;border:0;border-radius:0;background:transparent;color:#fff2ec;cursor:pointer;line-height:0}
+#vh-intro #vh-player-start svg{width:34px;height:34px}
+#vh-intro #vh-player-start:focus-visible{outline:1px solid #fff2ec;outline-offset:2px}
