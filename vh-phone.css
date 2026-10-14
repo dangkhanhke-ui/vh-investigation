@@ -86,9 +86,6 @@ body.vh-phone-transitioning .vh-nav-next{
   transition:transform var(--vh-nav-duration) var(--vh-nav-ease);
 }
 body.vh-phone-active{overflow:hidden}
-body.vh-phone-active .cinema-atmosphere{visibility:hidden}
-body.vh-phone-active .cinema-dust,
-body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 @media(max-width:600px){
   .vh-nav-control{width:32px;height:32px}
   .vh-nav-next{
@@ -141,3 +138,7 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 body.vh-phone-active .vh-nav-prev{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
 body.vh-phone-active .vh-nav-prev svg{overflow:visible}
 body.vh-phone-active .vh-nav-prev svg circle{fill:rgba(45,45,48,.32)!important;stroke:#fff!important}
+
+/* Keep dossier light, vignette, dust and grain continuously rendered behind the phone. */
+body.vh-phone-active .cinema-atmosphere,body.vh-phone-transitioning .cinema-atmosphere{visibility:visible!important;opacity:1!important}
+body.vh-phone-active .cinema-dust,body.vh-phone-active .cinema-grain,body.vh-phone-transitioning .cinema-dust,body.vh-phone-transitioning .cinema-grain{animation-play-state:running!important}
