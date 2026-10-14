@@ -114,3 +114,7 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 .vh-nav-control span{font-family:'Roboto Mono',Consolas,monospace!important;font-size:27px!important;font-weight:400!important;line-height:1!important}
 .vh-nav-control:hover{background:#a9382d!important}
 .vh-nav-control:focus-visible{outline:1px solid #fff;outline-offset:3px}
+
+/* Wide, custom drawn chevron; remove inherited glyph styles. */
+.vh-nav-control svg{display:block;width:31px;height:25px;overflow:visible;pointer-events:none}
+.vh-nav-control{display:grid!important;place-items:center!important}
