@@ -46,7 +46,8 @@ function appendInstant(item){
 }
 function updateNav(){
  previous.hidden=!renderComplete||activePage===0&&visibleCount<=1;
- next.hidden=!renderComplete;
+ next.hidden=false;
+ next.disabled=!renderComplete;
  next.setAttribute('aria-label',activePage===PAGES.length-1&&visibleCount===PAGES[activePage].length?'Bắt đầu điều tra':'Tin nhắn tiếp theo');
 }
 async function showNextMessage(id){
@@ -71,7 +72,6 @@ async function showNextMessage(id){
   await sleep(delay);
  }
  window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
- await sleep(650+Math.min(500,item.length*3));
  if(id!==seq||token!==renderToken)return;
  visibleCount++;renderComplete=true;updateNav();
 }
@@ -83,7 +83,7 @@ function showHistory(page,count){
 async function dialogue(id){
  screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;previous.hidden=true;
  await firstMessageAlert(id);if(id!==seq)return;
- activePage=0;visibleCount=0;await showNextMessage(id);
+ activePage=0;visibleCount=0;renderComplete=false;updateNav();await showNextMessage(id);
 }
 previous.onclick=()=>{
  if(!renderComplete)return;unlockAudio();
