@@ -47,7 +47,7 @@ function addRow(){
 }
 const avatarPreload=new Image();
 avatarPreload.decoding='async';
-avatarPreload.src='assets/investigator-avatar.jpg';
+avatarPreload.src='assets/investigator-avatar.png?v=restore-original-20261014';
 const cauaPreload=new Image();
 cauaPreload.decoding='async';
 cauaPreload.src='assets/caua-opening.jpg';
@@ -160,13 +160,13 @@ await new Promise(resolve=>{banner.addEventListener('click',resolve,{once:true})
 // Explicitly prioritize opening avatar and sound rather than competing with
 // the large phone iframe and every dossier image at the same time.
 const IMAGE_ASSETS=[
- 'assets/investigator-avatar.jpg','assets/caua-opening.jpg',
+ 'assets/investigator-avatar.png?v=restore-original-20261014','assets/caua-opening.jpg',
  'assets/xray-background.png','assets/red-folder.webp','assets/torn-paper.webp'
 ];
 const imagePreloads=new Map();
 function preloadImage(src){
  if(imagePreloads.has(src))return imagePreloads.get(src);
- const img=src==='assets/investigator-avatar.jpg'?avatarPreload:
+ const img=src==='assets/investigator-avatar.png?v=restore-original-20261014'?avatarPreload:
    src==='assets/caua-opening.jpg'?cauaPreload:new Image();
  img.decoding='async';
  const result=new Promise(done=>{
