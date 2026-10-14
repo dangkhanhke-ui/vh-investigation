@@ -213,7 +213,7 @@ async function begin(){
    const retry=document.createElement('button');
    retry.type='button';retry.className='vh-intro-retry-assets';
    retry.textContent='Không tải được ảnh hoặc âm thanh — chạm để thử lại';
-   retry.addEventListener('click',()=>{retry.remove();begin()},{once:true});
+   retry.addEventListener('click',()=>location.reload(),{once:true});
    load.appendChild(retry);
    return;
  }
