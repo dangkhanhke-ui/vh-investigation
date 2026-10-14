@@ -1,7 +1,7 @@
 /* VH unified sound engine: decoded buffers for reliable short effects, HTMLAudio fallback. */
 (()=>{'use strict';
 const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3'};
-const volumes={keyboard:.8,notification:.9,loading:.55,click:.55};
+const volumes={keyboard:.8,notification:.9,loading:1,click:.55};
 let enabled=true;try{enabled=localStorage.getItem('vh_sound_enabled')!=='false'}catch(_){}
 const C=window.AudioContext||window.webkitAudioContext;
 let context=null;const buffers={},fetches={},loops={},fallbacks={},activeFallbackLoops={};
