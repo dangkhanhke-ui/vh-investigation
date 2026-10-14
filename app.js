@@ -54,17 +54,4 @@ $('answers').onclick=e=>{let c=e.target.closest('[data-choice]'),l=e.target.clos
 document.addEventListener('input',e=>{if(e.target.id==='textAnswer'){state.answer=e.target.value;$('submit').disabled=!e.target.value.trim();save()}});
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>{let stage=+btn.dataset.stage-1;const limit=currStage();if(stage===limit){if(state.phase==='report')openReport(stage,true);else if(state.phase==='finished')openReport(stage,false);return}if(state.reports.includes(stage)){openReport(stage,false);return}notify(stage>limit?'Chưa mở':'Chưa có báo cáo')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if($('chatSheet').classList.contains('open'))closeChat();else closeReport()}if(e.key==='Enter'&&e.target.id==='textAnswer'){e.preventDefault();check()}});
-/* Return control: never erase game progress. */
-(function setupReturn(){
- const button=document.createElement('button');
- button.type='button';button.id='replayGame';button.className='replay-game';
- button.textContent='←';button.title='Quay lại màn hình bắt đầu';
- button.setAttribute('aria-label','Quay lại màn hình bắt đầu');
- button.addEventListener('click',()=>{
-  if(window.confirm('Quay lại màn hình bắt đầu? Tiến trình điều tra sẽ được giữ nguyên.')){
-    window.dispatchEvent(new Event('vh:show-intro'));
-  }
- });
- document.body.appendChild(button);
-})();
 render();
