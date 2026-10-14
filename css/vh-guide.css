@@ -160,3 +160,34 @@ body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;backgr
  .vh-stage-card-caption{font-size:12px}
  .vh-stage-serial{font-size:12px}
 }
+
+
+/* Use the exact dossier background, animated lamp, dust and film grain in archive. */
+.vh-stage-archive{background:#000;isolation:isolate}
+.vh-stage-archive .vh-stage-backdrop{position:fixed;inset:0;z-index:0;pointer-events:none}
+.vh-stage-archive .vh-stage-beam{
+ position:fixed;inset:0;z-index:1;pointer-events:none;
+ background:url("../assets/noir-lighting.svg?v=soft-beam-3") center center / cover no-repeat;
+ animation:vh-lamp-drift 32s ease-in-out infinite alternate;will-change:transform,opacity;
+}
+.vh-stage-archive .vh-stage-atmosphere{
+ position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden;
+}
+.vh-stage-archive>.vh-stage-head,.vh-stage-archive>h2,
+.vh-stage-archive>.vh-stage-intro,.vh-stage-archive>.vh-stage-cards{position:relative;z-index:3}
+.vh-stage-card.is-locked{cursor:pointer}
+.vh-stage-card.vh-stage-wobble .vh-stage-cover{
+ animation:vh-folder-tap .26s ease-out both;
+}
+@keyframes vh-folder-tap{
+ 0%,100%{transform:translate3d(0,0,0) rotate(0)}
+ 30%{transform:translate3d(-3px,0,0) rotate(-1deg)}
+ 60%{transform:translate3d(3px,-1px,0) rotate(.9deg)}
+ 85%{transform:translate3d(-1px,0,0) rotate(-.25deg)}
+}
+@media(max-width:600px){
+ .vh-stage-archive .vh-stage-beam{background-position:47% center;opacity:.88}
+}
+@media(prefers-reduced-motion:reduce){
+ .vh-stage-archive .vh-stage-beam,.vh-stage-card.vh-stage-wobble .vh-stage-cover{animation:none!important}
+}
