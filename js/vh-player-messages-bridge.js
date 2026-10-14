@@ -6,6 +6,12 @@
  const ORIGIN=location.origin;
  if(!iframe||!layer)return;
  let queuedOpen=false,timer=0;
+ const GREET_SHOWN='vh.neymarinho.welcome.announced.v1';
+ const GREET_ACK='vh.neymarinho.welcome.acked.v1';
+ let welcomeBanner=false;
+ const flag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
+ const saveFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
+
  const history=()=>{
    try{const s=JSON.parse(localStorage.getItem('vh_v3_save')||'{}');
      return {history:Array.isArray(s.chat)?s.chat:[],phase:s.phase||'solve'};
@@ -41,13 +47,29 @@
  `;
  document.head.appendChild(style);document.body.appendChild(toast);
  function soundAlert(){window.VHSound?.play('notification')}
- toast.addEventListener('click',()=>{toast.classList.remove('show');openPhoneMessages()});
+ toast.addEventListener('click',()=>{
+   toast.classList.remove('show');welcomeBanner=false;clearTimeout(timer);
+   openPhoneMessages();
+ });
+ // Neymarinho's first contact arrives after the initial investigation intro.
+ // Only alert once; the player can also read it later inside Messages.
+ function greetWhenGameBegins(){
+   if(flag(GREET_SHOWN)||flag(GREET_ACK))return;
+   saveFlag(GREET_SHOWN);
+   toast.querySelector('.vh-body span').textContent='Hey.';
+   welcomeBanner=true;
+   toast.classList.add('show');
+   soundAlert();
+ }
+ document.addEventListener('vh:intro-finished',greetWhenGameBegins);
+
  function onNewPartner(){
    const h=history().history;const m=[...h].reverse().find(x=>x.who==='partner');
    if(!m)return;
    const onPhone=document.body.classList.contains('vh-phone-active');
    send('vh:new',{text:m.text,notifyOnPhone:onPhone});
    if(!onPhone){
+     welcomeBanner=false;
      toast.querySelector('.vh-body span').textContent=m.text;
      toast.classList.add('show');soundAlert();clearTimeout(timer);
      timer=setTimeout(()=>toast.classList.remove('show'),2300);
