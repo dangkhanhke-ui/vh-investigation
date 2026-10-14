@@ -94,3 +94,19 @@
 #vh-intro .vh-intro-notification-body strong{display:none!important}
 #vh-intro .vh-intro-notification-body span{font:400 10px "Inconsolata",monospace!important;letter-spacing:.09em!important;color:#a9a9a9!important}
 #vh-intro .vh-intro-notification:after{display:none!important}
+
+/* Chapter 1: grouped chat pagination with reversible arrow navigation. */
+#vh-intro .vh-intro-scene{min-height:0}
+#vh-intro .vh-intro-messages{flex:1 1 auto;min-height:0;max-height:none!important;justify-content:flex-start;gap:9px!important;padding:12px 2px 18px!important;overscroll-behavior:contain}
+#vh-intro .vh-intro-message-row{flex:0 0 auto;max-width:min(94%,610px)}
+#vh-intro .vh-intro-bubble{padding:9px 14px!important;line-height:1.42!important}
+#vh-intro .vh-intro-navigation{display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;min-height:48px;padding:0 5px}
+#vh-intro .vh-intro-navigation button{display:grid;place-items:center;width:44px;height:44px;margin:0!important;padding:5px!important;border:0!important;background:transparent!important;color:#fff2ec!important;cursor:pointer;line-height:0;appearance:none;-webkit-appearance:none}
+#vh-intro .vh-intro-navigation button[hidden]{display:none!important}
+#vh-intro .vh-intro-navigation svg{width:34px;height:34px;display:block}
+#vh-intro .vh-intro-navigation button:focus-visible{outline:1px solid #fff;outline-offset:1px}
+#vh-intro .vh-intro-photo{padding:6px!important;min-width:190px;max-width:230px;width:min(59vw,230px)}
+#vh-intro .vh-intro-photo img{display:block;width:100%;height:auto;max-height:230px;object-fit:cover;border-radius:10px}
+#vh-intro .vh-intro-photo img[hidden],#vh-intro .vh-intro-photo-placeholder[hidden]{display:none!important}
+#vh-intro .vh-intro-photo-placeholder{display:grid;place-items:center;min-height:165px;box-sizing:border-box;padding:20px;border:1px dashed rgba(255,255,255,.65);border-radius:10px;font:500 11px/1.5 "Inconsolata",monospace;letter-spacing:.08em;text-align:center}
+@media(max-width:500px){#vh-intro .vh-intro-scene{padding:calc(22px + env(safe-area-inset-top,0px)) 0 calc(15px + env(safe-area-inset-bottom,0px))}#vh-intro .vh-intro-messages{gap:8px!important}#vh-intro .vh-intro-bubble{font-size:13px!important;padding:8px 12px!important}}
