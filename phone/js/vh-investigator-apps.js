@@ -69,6 +69,7 @@
       document.getElementById('unlockHint')?.click();
     }
     window.CauaMessagesOpenThread?.('neymarinho');
+    queueMicrotask(syncScriptedUI);
   }
   toast.addEventListener('click',openInvestigator);
   const scriptedReplies=document.createElement('div');
