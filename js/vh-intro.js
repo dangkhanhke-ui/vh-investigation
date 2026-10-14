@@ -7,7 +7,7 @@ let seq=0;let gateAuthorized=false;
 function unlockAudio(){window.VHSound?.prepare()}
 function screen(mode){gate.hidden=mode!=='gate';load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
-function finish(){window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding');document.dispatchEvent(new Event('vh:intro-finished'))}
+function finish(){cancelTypingWait();currentTyping=null;window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding');document.dispatchEvent(new Event('vh:intro-finished'))}
 async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(final?900:540)}await sleep(final?400:650);window.VHSound?.stop('loading');if(id!==seq)return;if(final)finish();else dialogue(id)}
 const PAGES=[
 ['Đến rồi à?','Anh là Neymarinho, điều tra viên của vụ này','Anh đang có một vụ khá hóc chuẩn bị giao cho mày đây','Xem qua giúp anh nhé'],
@@ -22,6 +22,19 @@ const PAGES=[
 ['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Những bí ẩn còn lại, mình sẽ dần giải mã sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
 ];
 let activePage=0,visibleCount=0,renderToken=0,renderComplete=false,currentTyping=null;
+let typingWait=null;
+function cancelTypingWait(){if(typingWait){clearTimeout(typingWait.timer);const done=typingWait.done;typingWait=null;done()}}
+function typingDelay(ms){return new Promise(done=>{typingWait={timer:setTimeout(()=>{typingWait=null;done()},ms),done}})}
+function finishCurrentBubble(){
+ const t=currentTyping;
+ if(!t||t.token!==renderToken||renderComplete)return false;
+ t.bubble.textContent=t.text;
+ currentTyping=null;renderToken++;cancelTypingWait();
+ window.VHKeyboardAudio?.stop();
+ messages.scrollTop=messages.scrollHeight;
+ visibleCount++;renderComplete=true;updateNav();
+ return true;
+}
 const previous=document.createElement('button');
 previous.type='button';previous.className='vh-intro-prev';previous.setAttribute('aria-label','Đọc lại tin nhắn trước');
 previous.innerHTML='<svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M28 16H4m9-9-9 9 9 9"/></svg>';
@@ -59,6 +72,7 @@ function updateNav(){
  next.setAttribute('aria-label',activePage===PAGES.length-1&&visibleCount===PAGES[activePage].length?'Bắt đầu điều tra':'Tin nhắn tiếp theo');
 }
 async function showNextMessage(id){
+ cancelTypingWait();
  const token=++renderToken;currentTyping=null;renderComplete=false;updateNav();
  const item=PAGES[activePage][visibleCount];if(!item)return;
  if(typeof item==='object'){
@@ -69,21 +83,21 @@ async function showNextMessage(id){
  currentTyping={token,bubble,text:item};
  window.VHKeyboardAudio?.start();
  for(let i=0;i<item.length;i++){
-  if(id!==seq||token!==renderToken){window.VHKeyboardAudio?.stop();return}
+  if(id!==seq||token!==renderToken)return;
   const ch=item[i];bubble.textContent+=ch;
   if(i%4===0)messages.scrollTop=messages.scrollHeight;
   let delay=25+Math.random()*23;
   if(ch===','||ch===';')delay+=180;
   if(ch==='.'||ch==='?'||ch==='!')delay+=280;
   if(ch===' ')delay+=12;
-  await sleep(delay);
+  await typingDelay(delay);
  }
  window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
  if(id!==seq||token!==renderToken)return;
  currentTyping=null;visibleCount++;renderComplete=true;updateNav();
 }
 function showHistory(page,count){
- renderToken++;currentTyping=null;window.VHKeyboardAudio?.stop();activePage=page;visibleCount=count;
+ renderToken++;currentTyping=null;cancelTypingWait();window.VHKeyboardAudio?.stop();activePage=page;visibleCount=count;
  messages.replaceChildren();for(let i=0;i<count;i++)appendInstant(PAGES[page][i]);
  messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();
 }
@@ -93,19 +107,24 @@ async function dialogue(id){
  PAGES[0][0]=get(KEY)+', đến rồi à?';
  activePage=0;visibleCount=0;renderComplete=false;updateNav();await showNextMessage(id);
 }
-// A tap anywhere in the chat area completes only the currently typing bubble.
-scene.addEventListener('click',event=>{
- if(event.target.closest('button,.vh-intro-navigation'))return;
- const typing=currentTyping;
- if(!typing||typing.token!==renderToken||renderComplete)return;
- typing.bubble.textContent=typing.text;
- currentTyping=null;
- renderToken++;
- window.VHKeyboardAudio?.stop();
- messages.scrollTop=messages.scrollHeight;
- visibleCount++;
- renderComplete=true;
- updateNav();
+// Safari: intentional tap completes only this bubble, without swallowing scrolling.
+let tapStart=null,suppressClickUntil=0;
+scene.addEventListener('pointerdown',e=>{
+ if(e.pointerType!=='touch'&&e.pointerType!=='pen')return;
+ tapStart={id:e.pointerId,x:e.clientX,y:e.clientY};
+},{passive:true});
+scene.addEventListener('pointercancel',()=>{tapStart=null},{passive:true});
+scene.addEventListener('pointerup',e=>{
+ const start=tapStart;tapStart=null;
+ if(!start||start.id!==e.pointerId||!currentTyping)return;
+ if(Math.hypot(e.clientX-start.x,e.clientY-start.y)>12)return;
+ if(e.target.closest('button,.vh-intro-navigation,input,textarea,a'))return;
+ if(finishCurrentBubble())suppressClickUntil=performance.now()+500;
+},{passive:true});
+scene.addEventListener('click',e=>{
+ if(performance.now()<suppressClickUntil)return;
+ if(e.target.closest('button,.vh-intro-navigation,input,textarea,a'))return;
+ finishCurrentBubble();
 });
 previous.onclick=()=>{
  if(!renderComplete)return;unlockAudio();
@@ -116,7 +135,7 @@ next.onclick=()=>{
  if(!renderComplete)return;unlockAudio();
  if(visibleCount<PAGES[activePage].length){showNextMessage(seq);return}
  if(activePage<PAGES.length-1){activePage++;visibleCount=0;messages.replaceChildren();showNextMessage(seq);return}
- renderToken++;next.hidden=true;previous.hidden=true;put(DONE,'yes');code(seq,true);
+ renderToken++;cancelTypingWait();next.hidden=true;previous.hidden=true;put(DONE,'yes');code(seq,true);
 };
 function option(t){const b=document.createElement('button');b.type='button';b.className='vh-intro-choice';b.textContent=t;b.addEventListener('click',()=>{b.classList.add('vh-choice-pressed');setTimeout(()=>b.classList.remove('vh-choice-pressed'),230)},true);actions.appendChild(b);return b}
 async function firstMessageAlert(id){
