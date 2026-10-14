@@ -374,3 +374,10 @@
 .clip-asset{display:none!important}
 .tab{font-size:clamp(10px,2.75vw,13px)!important;font-weight:500!important}
 .tab.is-current{font-size:clamp(11px,calc(2.75vw + 1px),14px)!important;font-weight:600!important}
+
+/* Game viewport: disallow page pinch/double-tap zoom at the touch-action level.
+   Preserve one-finger scrolling, native buttons, and form interactions. */
+@media(hover:none) and (pointer:coarse){
+ html,body{touch-action:pan-x pan-y;-webkit-text-size-adjust:100%}
+ button,a,[role="button"]{touch-action:manipulation}
+}
