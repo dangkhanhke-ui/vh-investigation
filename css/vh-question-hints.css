@@ -46,8 +46,8 @@ body.vh-tour-open #vh-hint-trigger{display:none!important}
  color:#0b0808;
 }
 .vh-hint-top{
- display:flex;justify-content:space-between;align-items:flex-end;
- gap:15px;margin-bottom:26px;
+ display:flex;justify-content:flex-start;align-items:center;
+ gap:22px;margin-bottom:24px;
 }
 .vh-hint-brand{
  display:block;margin:0;
@@ -59,20 +59,29 @@ body.vh-tour-open #vh-hint-trigger{display:none!important}
  display:flex;align-items:center;justify-content:center;
  flex:0 0 auto;min-width:92px;
  padding:7px 10px 5px;
- border-radius:5px;
+ border-radius:999px;
  background:#0b0808;color:#f01414;
  font:700 18px/1 'Roboto Mono','Inconsolata',monospace;
  letter-spacing:-.07em;font-variant-numeric:tabular-nums;
 }
 .vh-hint-content{
- margin:0 0 22px;padding:0;
- min-height:54px;
- border:0;background:transparent;
- color:#110b0b;
+ margin:0 0 22px;padding:17px 18px;
+ min-height:75px;
+ border:0;border-radius:0;background:#eee9df;
+ color:#1d1817;
  font:500 16px/1.55 'Inconsolata',Consolas,monospace;
  overflow-wrap:anywhere;white-space:normal;
 }
-.vh-hint-bottom{display:flex;gap:10px;align-items:stretch;justify-content:space-between}
+.vh-hint-bottom{display:flex;gap:9px;align-items:stretch;justify-content:space-between}
+.vh-hint-back{
+ flex:0 0 44px;width:44px;min-height:44px;
+ border:1.5px solid #0b0808;border-radius:0;
+ background:transparent;color:#0b0808;
+ font:600 23px/1 'Inconsolata',Consolas,monospace;
+ display:grid;place-items:center;padding:0;cursor:pointer;touch-action:manipulation;
+}
+.vh-hint-back:disabled{opacity:.3;cursor:default}
+.vh-hint-back:not(:disabled):active{background:rgba(0,0,0,.12)}
 .vh-hint-more{
  flex:1;min-width:0;min-height:44px;padding:10px 14px;
  display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -105,8 +114,9 @@ body.vh-guide-open #vh-hint-popover,body.vh-tour-open #vh-hint-popover{display:n
   clip-path:polygon(0 0,calc(100% - 31px) 0,100% 31px,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%);
  }
  .vh-hint-shell{padding:20px 18px 18px}
- .vh-hint-top{margin-bottom:20px}
+ .vh-hint-top{margin-bottom:20px;gap:14px}
  .vh-hint-brand{font-size:39px}
- .vh-hint-step{font-size:15px;min-width:76px}
- .vh-hint-content{font-size:15px}
+ .vh-hint-step{font-size:15px;min-width:76px;border-radius:999px}
+ .vh-hint-content{font-size:15px;padding:15px 14px}
+ .vh-hint-bottom{gap:7px}
 }
