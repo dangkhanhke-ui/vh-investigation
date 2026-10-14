@@ -116,8 +116,11 @@ body.vh-q1-workspace .paper-frame>.paper-asset{content:none!important;display:no
 body.vh-q1-workspace .paper-frame>.paper-inside{padding-bottom:clamp(42px,7vw,76px)!important}
 /* Keep the user's original background artwork visible. Only mute animated overlays. */
 body.vh-q1-workspace .backdrop-art{display:block!important}
-body.vh-q1-workspace .cinema-atmosphere,
+body.vh-q1-workspace .cinema-atmosphere{display:block!important}
 body.vh-q1-workspace .vh-stage-beam{display:none!important}
+/* Remove only the light rays; retain animated dust and film grain. */
+body.vh-q1-workspace .shell::after,
+body.vh-q1-workspace .cinema-atmosphere::before{content:none!important;display:none!important;background:none!important}
 body.vh-q1-workspace{background:#101010!important}
 body.vh-q1-workspace .folder-scene{filter:none!important}
 body.vh-q1-workspace #vh-q1,
