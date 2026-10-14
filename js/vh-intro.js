@@ -1,7 +1,7 @@
 (()=>{'use strict';
 const root=document.querySelector('#vh-intro'),load=root.querySelector('.vh-intro-loading-view'),form=root.querySelector('.vh-intro-name'),input=root.querySelector('#vh-player-name'),access=root.querySelector('.vh-intro-access'),scene=root.querySelector('.vh-intro-scene'),stream=root.querySelector('.vh-access-stream'),messages=root.querySelector('.vh-intro-messages'),actions=root.querySelector('.vh-intro-actions'),next=root.querySelector('.vh-intro-next');
 const gate=root.querySelector('.vh-intro-gate'),pin=root.querySelector('#vh-access-pin'),gateError=root.querySelector('.vh-gate-error');
-const KEY='vh.player.name.v1',DONE='vh.intro.finished.v1',get=k=>{try{return localStorage.getItem(k)||''}catch{return''}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}},sleep=t=>new Promise(r=>setTimeout(r,t));
+const KEY='vh.player.name.v1',DONE='vh.intro.finished.v1',AUTH='vh.access.authorized.v1',get=k=>{try{return localStorage.getItem(k)||''}catch{return''}},put=(k,v)=>{try{localStorage.setItem(k,v)}catch{}},sleep=t=>new Promise(r=>setTimeout(r,t));
 window.VHPlayer={get name(){return get(KEY)},getName(){return get(KEY)}};
 let seq=0;let gateAuthorized=false;
 function unlockAudio(){window.VHSound?.prepare()}
@@ -132,9 +132,9 @@ await sleep(80);if(id!==seq){banner.remove();return}
 banner.classList.add('show');window.VHSound?.play('notification');
 await new Promise(resolve=>{banner.addEventListener('click',resolve,{once:true})});banner.classList.remove('show');await sleep(350);banner.remove();
 }
-async function begin(){if(!gateAuthorized)return;const id=++seq;show();screen('load');window.VHSound?.start('loading');await sleep(get(DONE)?2100:5000);if(id!==seq)return;window.VHSound?.stop('loading');if(get(DONE))finish();else if(get(KEY))code(id);else{screen('name');input.focus({preventScroll:true})}}
+async function begin(){if(!gateAuthorized)return;const id=++seq;show();screen('load');document.dispatchEvent(new Event('vh:preload-phone'));window.VHSound?.start('loading');await sleep(get(DONE)?2100:5000);if(id!==seq)return;window.VHSound?.stop('loading');if(get(DONE))finish();else if(get(KEY))code(id);else{screen('name');input.focus({preventScroll:true})}}
 form.addEventListener('submit',e=>{e.preventDefault();unlockAudio();const n=input.value.replace(/\s+/g,' ').trim().slice(0,36);if(!n)return;put(KEY,n);code(++seq)});
 window.addEventListener('vh:show-intro',()=>{window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;show();screen('name');input.value=get(KEY);input.focus({preventScroll:true})});
-gate.addEventListener('submit',e=>{e.preventDefault();if(pin.value!=='1111'){gateError.textContent='MÃ TRUY CẬP KHÔNG HỢP LỆ';pin.value='';pin.focus();return}gateError.textContent='';gateAuthorized=true;window.VHSound?.prepare();begin()});
-screen('gate');show();
+gate.addEventListener('submit',e=>{e.preventDefault();if(pin.value!=='1111'){gateError.textContent='MÃ TRUY CẬP KHÔNG HỢP LỆ';pin.value='';pin.focus();return}gateError.textContent='';gateAuthorized=true;put(AUTH,'yes');window.VHSound?.prepare();begin()});
+if(get(AUTH)==='yes'){gateAuthorized=true;begin()}else{screen('gate');show()}
 })();
