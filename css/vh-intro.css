@@ -110,3 +110,7 @@
 #vh-intro .vh-intro-photo img[hidden],#vh-intro .vh-intro-photo-placeholder[hidden]{display:none!important}
 #vh-intro .vh-intro-photo-placeholder{display:grid;place-items:center;min-height:165px;box-sizing:border-box;padding:20px;border:1px dashed rgba(255,255,255,.65);border-radius:10px;font:500 11px/1.5 "Inconsolata",monospace;letter-spacing:.08em;text-align:center}
 @media(max-width:500px){#vh-intro .vh-intro-scene{padding:calc(22px + env(safe-area-inset-top,0px)) 0 calc(15px + env(safe-area-inset-bottom,0px))}#vh-intro .vh-intro-messages{gap:8px!important}#vh-intro .vh-intro-bubble{font-size:13px!important;padding:8px 12px!important}}
+
+/* Keep the next arrow mounted at all times; prevent clicks while a bubble types. */
+#vh-intro .vh-intro-navigation .vh-intro-next:disabled{opacity:.52!important;cursor:default!important;pointer-events:none!important}
+#vh-intro .vh-intro-navigation .vh-intro-next:not(:disabled){opacity:1!important;cursor:pointer!important}
