@@ -114,3 +114,21 @@
 /* Keep the next arrow mounted at all times; prevent clicks while a bubble types. */
 #vh-intro .vh-intro-navigation .vh-intro-next:disabled{opacity:.52!important;cursor:default!important;pointer-events:none!important}
 #vh-intro .vh-intro-navigation .vh-intro-next:not(:disabled){opacity:1!important;cursor:pointer!important}
+
+/* Navigation fix: arrows have independent, immovable left/right anchors. */
+#vh-intro .vh-intro-navigation{
+ position:relative!important;display:block!important;
+ flex:0 0 48px!important;width:100%!important;
+ height:48px!important;min-height:48px!important;
+ padding:0!important;margin:0!important;
+}
+#vh-intro .vh-intro-navigation .vh-intro-prev,
+#vh-intro .vh-intro-navigation .vh-intro-next{
+ position:absolute!important;top:2px!important;bottom:auto!important;
+ width:44px!important;height:44px!important;
+ display:grid;place-items:center;transform:none!important;
+ margin:0!important;float:none!important;
+ align-self:auto!important;
+}
+#vh-intro .vh-intro-navigation .vh-intro-prev{left:0!important;right:auto!important}
+#vh-intro .vh-intro-navigation .vh-intro-next{right:0!important;left:auto!important}
