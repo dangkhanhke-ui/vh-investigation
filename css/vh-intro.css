@@ -138,3 +138,7 @@
 #vh-intro .vh-intro-navigation .vh-intro-prev:not(:disabled){opacity:1!important}
 #vh-intro .vh-intro-navigation .vh-intro-prev,
 #vh-intro .vh-intro-navigation .vh-intro-next{transition:none!important;animation:none!important}
+
+/* A returning Safari visitor unlocks audio with one tap; the PIN remains saved. */
+#vh-intro .vh-resume-audio{display:block;margin:35px auto 0;padding:12px 16px;border:1px solid rgba(255,255,255,.8);background:transparent;color:#fff;font:500 12px/1.4 "Inconsolata",Consolas,monospace;letter-spacing:.075em;cursor:pointer;min-height:44px}
+#vh-intro .vh-resume-audio:focus-visible{outline:2px solid #fff;outline-offset:4px}
