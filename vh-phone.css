@@ -136,5 +136,8 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 /* Raise the phone switch icon to align visually with the hamburger. */
 .vh-nav-next{transform:translateY(-7px)!important}
 
-/* Phone side only: subtle translucent charcoal backing for contrast on white apps. */
-body.vh-phone-active .vh-nav-prev{background:rgba(45,45,48,.32)!important;border-radius:50%!important;backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px)}
+
+/* Phone return: fill ONLY the inside of the SVG ring, not its 44px tap target. */
+body.vh-phone-active .vh-nav-prev{background:transparent!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+body.vh-phone-active .vh-nav-prev svg{overflow:visible}
+body.vh-phone-active .vh-nav-prev svg circle{fill:rgba(45,45,48,.32)!important;stroke:#fff!important}
