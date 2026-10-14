@@ -2,7 +2,6 @@
 html,body{height:100%;max-height:100%;overflow:hidden!important;overscroll-behavior:none}
 .stage{height:100%;height:100dvh;min-height:0;max-height:100dvh;overscroll-behavior:none}
 body.caua-immersive .phone-wrap{flex-shrink:0}
-body.caua-immersive #screen{touch-action:pan-y}
 body.caua-immersive .safari-page,
 body.caua-immersive .safari-tabs,
 body.caua-immersive .safari-overlay,
