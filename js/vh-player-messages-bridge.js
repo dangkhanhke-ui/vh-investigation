@@ -36,6 +36,8 @@
  }
  window.addEventListener('vh:q1-solved',()=>{story.q1Solved();send('vh:sync');queueQ1Banner()});
  if(story.q1Phase()===1)queueQ1Banner();
+ // Resume an interrupted two-message delivery if the page was refreshed mid-chat.
+ if(story.q1Phase()===2)setTimeout(()=>{if(story.q1Phase()===2){story.q1Finished();send('vh:sync')}},2300);
  const send=(type,extra={})=>{
   try{iframe.contentWindow?.postMessage({type,...story.snapshot(),...extra},ORIGIN)}catch(_){}
  };
