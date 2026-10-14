@@ -12,11 +12,7 @@
  const flag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
  const saveFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
 
- const history=()=>{
-   try{const s=JSON.parse(localStorage.getItem('vh_v3_save')||'{}');
-     return {history:Array.isArray(s.chat)?s.chat:[],phase:s.phase||'solve'};
-   }catch{return {history:[],phase:'solve'}}
- };
+ const history=()=>({history:[],phase:'solve'});
  const send=(type,more={})=>{
    try{iframe.contentWindow?.postMessage({type,...history(),...more},ORIGIN)}catch(_){}
  };
@@ -61,41 +57,19 @@
    toast.classList.add('show');
    soundAlert();
  }
- document.addEventListener('vh:stage-archive-shown',greetWhenGameBegins);
+ document.addEventListener('vh:phone-tutorial-complete',greetWhenGameBegins);
+ // On a returning completed tutorial, show any pending first greeting once
+ // the archive is visible. Do not fire it during the guide or inside phone.
+ document.addEventListener('vh:stage-archive-shown',()=>{
+   try{if(localStorage.getItem('vh.guide.tour.completed.v1')==='yes')greetWhenGameBegins()}catch(_){}
+ });
 
- function onNewPartner(){
-   const h=history().history;const m=[...h].reverse().find(x=>x.who==='partner');
-   if(!m)return;
-   const onPhone=document.body.classList.contains('vh-phone-active');
-   send('vh:new',{text:m.text,notifyOnPhone:onPhone});
-   if(!onPhone){
-     welcomeBanner=false;
-     toast.querySelector('.vh-body span').textContent=m.text;
-     toast.classList.add('show');soundAlert();clearTimeout(timer);
-     timer=setTimeout(()=>toast.classList.remove('show'),2300);
-   }
- }
- document.addEventListener('vh:partner-message',onNewPartner);
  window.addEventListener('message',e=>{
    if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
    if(e.data.type==='vh:notification-sound'){soundAlert();return;}
    if(e.data.type==='vh:ready')send('vh:sync');
-   if(e.data.type==='vh:reply'){
-     const text=String(e.data.text||'').trim();if(!text)return;
-     const field=document.getElementById('chatInput');
-     const form=document.getElementById('chatForm');
-     if(field&&form){field.value=text;form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));send('vh:sync')}
-   }else if(e.data.type==='vh:action'){
-     if(e.data.action==='continue'){
-       document.getElementById('continue')?.click();
-       // Reports/questions live on the dossier page, so return from the
-       // phone when continuing a case phase.
-       if(document.body.classList.contains('vh-phone-active'))
-         document.getElementById('vhPhoneBack')?.click();
-     }
-     if(e.data.action==='hint')document.getElementById('hint')?.click();
-     send('vh:sync');
-   }
+   // Leandro prototype chat, hints and free-form replies are disabled.
+
  });
  // Clicking the banner before the iframe has finished loading still navigates.
  const observer=new MutationObserver(()=>{
