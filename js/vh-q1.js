@@ -33,10 +33,7 @@ q.innerHTML=`<div class="vq-eyebrow">GIAI ĐOẠN 01 / CÂU HỎI 01</div>
 <p class="vq-feedback" role="status" aria-live="polite"></p>
 <div class="vq-modal" hidden><div class="vq-modal-panel"><header>THƯ VIỆN CHỨNG CỨ <button type="button" class="vq-modal-close" aria-label="Đóng">×</button></header>
 <p>Chọn một nguồn để ghim. Danh mục R6 hiện là prototype; tài liệu gốc sẽ được liên kết sau.</p><div class="vq-library"></div></div></div>
-<div class="vq-success" hidden><div class="vq-success-panel"><span class="vq-label">NEYMARINHO</span>
-<p>“Vậy chốt được một chuyện. Cauã không chết ở nơi lượng máu đầu tiên xuất hiện. Hắn còn sống, tự di chuyển về phía cửa rồi mới gục xuống.”</p>
-<p>“Điều đó làm vị trí thi thể bớt quan trọng hơn tao tưởng. Bây giờ tao muốn biết thứ gì thực sự giết hắn.”</p>
-<button class="vq-continue" type="button">TIẾP TỤC →</button></div></div>`;
+`;
 container.appendChild(q);
 let slots=[null,null],seq=[],editing=0;
 const slotButtons=[...q.querySelectorAll('.vq-slot')],modal=q.querySelector('.vq-modal');
@@ -61,15 +58,23 @@ q.querySelector('.vq-check').onclick=()=>{
  const order=correct.every((id,i)=>seq[i]===id);
  if(!pair||!order){f.textContent=!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.';return}
  try{localStorage.setItem(KEY,'yes')}catch(_){}
- q.querySelector('.vq-success').hidden=false;
+ q.dataset.completed='yes';
+ q.querySelector('.vq-check').disabled=true;
+ f.textContent='✓ SUY LUẬN CHÍNH XÁC — ĐÃ HOÀN THÀNH CÂU 01';
+ f.classList.add('vq-correct');
+ window.dispatchEvent(new CustomEvent('vh:q1-solved'));
 };
-q.querySelector('.vq-continue').onclick=()=>{q.dataset.completed='yes';document.body.classList.remove('vh-q1-workspace');q.querySelector('.vq-success').hidden=true;q.hidden=true;window.dispatchEvent(new CustomEvent('vh:q1-complete'));const next=document.querySelector('.folder-tabs .tab[data-stage="1"]');document.getElementById('feedback').textContent='ĐÃ HOÀN THÀNH CÂU 01 — CHUẨN BỊ CÂU 02';};
-function activate(){if(document.body.classList.contains('vh-onboarding')||q.dataset.completed)return;document.body.classList.add('vh-q1-workspace');q.hidden=false;document.getElementById('question').hidden=true;document.getElementById('answers').hidden=true;document.querySelector('.submit-line').hidden=true;render()}
-function maybeActivate(){if(document.body.classList.contains('vh-onboarding'))return;const stage=document.querySelector('.folder-tabs .tab.is-current, .folder-tabs .tab[aria-current="step"]');if(stage&&stage.dataset.stage!=='1')return;if(!q.dataset.completed)activate()}
+if(window.VHNeymarinhoStory?.q1Phase?.()>0){
+ q.dataset.completed='yes';
+ q.querySelector('.vq-check').disabled=true;
+ q.querySelector('.vq-feedback').textContent='✓ SUY LUẬN CHÍNH XÁC — ĐÃ HOÀN THÀNH CÂU 01';
+}
+function activate(){if(document.body.classList.contains('vh-onboarding'))return;document.body.classList.add('vh-q1-workspace');q.hidden=false;document.getElementById('question').hidden=true;document.getElementById('answers').hidden=true;document.querySelector('.submit-line').hidden=true;render()}
+function maybeActivate(){if(document.body.classList.contains('vh-onboarding'))return;const stage=document.querySelector('.folder-tabs .tab.is-current, .folder-tabs .tab[aria-current="step"]');if(stage&&stage.dataset.stage!=='1')return;activate()}
 document.addEventListener('vh:intro-finished',()=>setTimeout(maybeActivate,200));
 document.addEventListener('vh:stage-archive-shown',()=>{});
-document.querySelector('.folder-tabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-stage]');if(b){document.body.classList.toggle('vh-q1-workspace',b.dataset.stage==='1'&&!q.dataset.completed);q.hidden=b.dataset.stage!=='1';if(b.dataset.stage==='1')maybeActivate();else {document.getElementById('question').hidden=false;document.getElementById('answers').hidden=false;document.querySelector('.submit-line').hidden=false}}});
-const observer=new MutationObserver(()=>{if(!q.hidden)return;if(document.body.classList.contains('vh-stage-open')||document.body.classList.contains('vh-onboarding')||q.dataset.completed)return;maybeActivate()});
+document.querySelector('.folder-tabs')?.addEventListener('click',e=>{const b=e.target.closest('[data-stage]');if(b){document.body.classList.toggle('vh-q1-workspace',b.dataset.stage==='1');q.hidden=b.dataset.stage!=='1';if(b.dataset.stage==='1')maybeActivate();else {document.getElementById('question').hidden=false;document.getElementById('answers').hidden=false;document.querySelector('.submit-line').hidden=false}}});
+const observer=new MutationObserver(()=>{if(!q.hidden)return;if(document.body.classList.contains('vh-stage-open')||document.body.classList.contains('vh-onboarding') )return;maybeActivate()});
 observer.observe(document.body,{attributes:true,attributeFilter:['class']});
 render();
 })();
