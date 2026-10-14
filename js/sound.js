@@ -12,8 +12,38 @@ function load(name){if(fetches[name])return fetches[name];const c=ctx();if(!c)re
 function resume(){const c=ctx();if(c&&c.state==='suspended')return c.resume().catch(e=>console.warn('[VH audio] resume blocked',e));return Promise.resolve()}
 function fallback(name,loop=false){let a=fallbacks[name];if(!a){a=new Audio(SOURCES[name]);a.preload='auto';a.volume=Math.min(1,volumes[name]*MASTER_BOOST);fallbacks[name]=a}a.loop=loop;return a}
 function htmlPlay(name,loop=false){const a=fallback(name,loop);if(!loop){try{a.pause();a.currentTime=0}catch(_){}}const p=a.play();p?.catch?.(e=>console.warn('[VH audio] HTML playback blocked',name,e));return a}
-function webPlay(name,loop=false){const c=ctx(),b=buffers[name];if(!c||!b||c.state!=='running')return null;try{const source=c.createBufferSource(),gain=c.createGain();source.buffer=b;source.loop=loop;gain.gain.value=(name==='loading'?2.2:volumes[name])*MASTER_BOOST;source.connect(gain);gain.connect(c.destination);let offset=0;if(name==='click'){const data=b.getChannelData(0),limit=Math.min(data.length,Math.floor(b.sampleRate*.25));let i=0;while(i<limit&&Math.abs(data[i])<.012)i++;offset=Math.max(0,i/b.sampleRate-.003)}source.start(0,offset);return source}catch(e){console.warn('[VH audio] WebAudio failed',name,e);return null}}
-function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name==='keyboard'||name==='loading'){start(name);return}if(name==='click'){const t=performance.now();if(t-lastClick<55)return;lastClick=t}resume();if(!webPlay(name))htmlPlay(name);load(name)}
+const cueOnsets={};
+function cueOffset(name,b){
+ if(!['click','correct','wrong'].includes(name))return 0;
+ if(cueOnsets[name]!==undefined)return cueOnsets[name];
+ const limit=Math.min(b.length,Math.floor(b.sampleRate*(name==='click'?.35:1.5)));
+ let peak=0;
+ for(let ch=0;ch<b.numberOfChannels;ch++){
+  const data=b.getChannelData(ch);
+  for(let i=0;i<limit;i++)peak=Math.max(peak,Math.abs(data[i]));
+ }
+ const threshold=Math.max(.005,Math.min(.025,peak*.065));
+ let first=-1;
+ outer:for(let i=0;i<limit;i++){
+  for(let ch=0;ch<b.numberOfChannels;ch++)if(Math.abs(b.getChannelData(ch)[i])>=threshold){first=i;break outer}
+ }
+ return cueOnsets[name]=first<0?0:Math.max(0,first/b.sampleRate-.008);
+}
+function webPlay(name,loop=false){const c=ctx(),b=buffers[name];if(!c||!b||c.state!=='running')return null;try{const source=c.createBufferSource(),gain=c.createGain();source.buffer=b;source.loop=loop;gain.gain.value=(name==='loading'?2.2:volumes[name])*MASTER_BOOST;source.connect(gain);gain.connect(c.destination);const offset=cueOffset(name,b);source.start(0,offset);return source}catch(e){console.warn('[VH audio] WebAudio failed',name,e);return null}}
+function play(name){
+ if(!enabled||document.hidden||!SOURCES[name])return;
+ if(name==='keyboard'||name==='loading'){start(name);return}
+ if(name==='click'){const t=performance.now();if(t-lastClick<55)return;lastClick=t}
+ const c=ctx();
+ if(buffers[name]&&c){
+  if(c.state==='running'){if(!webPlay(name))htmlPlay(name);return}
+  // Safari can suspend the context between gestures; resume before scheduling the cue.
+  resume().then(()=>{if(enabled&&!document.hidden&&!webPlay(name))htmlPlay(name)});
+  return;
+ }
+ // Fallback only when a buffer really is unavailable: do not run two copies.
+ htmlPlay(name);load(name);
+}
 function start(name){if(!enabled||!['keyboard','loading'].includes(name))return;wantedLoops.add(name);if(loops[name]||activeFallbackLoops[name])return;resume();const node=webPlay(name,true);if(node){loops[name]=node}else if(gestureReady){activeFallbackLoops[name]=htmlPlay(name,true)}load(name).then(()=>{if(wantedLoops.has(name)&&!loops[name]&&!activeFallbackLoops[name]&&ctx()?.state==='running'){loops[name]=webPlay(name,true)}})}
 function stop(name){if(!['keyboard','loading'].includes(name))return;wantedLoops.delete(name);if(loops[name]){try{loops[name].stop()}catch(_){}delete loops[name]}if(activeFallbackLoops[name]){const a=activeFallbackLoops[name];a.pause();try{a.currentTime=0}catch(_){}delete activeFallbackLoops[name]}}
 // Prioritize the two intro sounds; defer nonessential decoding to actual use.
@@ -23,7 +53,7 @@ function readyStage(){
  if(!C){const audio=fallback('pageTurn');audio.load();return new Promise(resolve=>{if(audio.readyState>=3)return resolve(true);audio.addEventListener('canplay',()=>resolve(true),{once:true});audio.addEventListener('error',()=>resolve(false),{once:true})})}
  return Promise.all(['pageTurn','click'].map(load)).then(a=>a.every(Boolean));
 }
-function prepare(){resume();readyIntro();load('pageTurn')}
+function prepare(){resume();readyIntro();load('pageTurn');load('correct');load('wrong')}
 function setEnabled(v){enabled=!!v;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){gestureReady=false;stop('keyboard');stop('loading');Object.values(fallbacks).forEach(a=>a.pause())}else prepare();document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
 window.VHSound={play,start,stop,prepare,readyIntro,readyStage,isEnabled:()=>enabled,setEnabled};
 window.VHKeyboardAudio={prepare,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
