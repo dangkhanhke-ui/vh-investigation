@@ -19,6 +19,7 @@
   </div>
   <p id="vh-hint-content" class="vh-hint-content">Bạn muốn xem gợi ý cho câu hỏi này?</p>
   <div class="vh-hint-bottom">
+    <button type="button" id="vh-hint-back" class="vh-hint-back" aria-label="Xem gợi ý trước" disabled>←</button>
     <button type="button" id="vh-hint-more" class="vh-hint-more"><span>Xem gợi ý 1</span><span aria-hidden="true">↗</span></button>
     <button type="button" class="vh-hint-close" aria-label="Đóng gợi ý">×</button>
   </div>
@@ -27,25 +28,28 @@
  const progress=pop.querySelector('#vh-hint-progress');
  const content=pop.querySelector('#vh-hint-content');
  const more=pop.querySelector('#vh-hint-more');
+ const back=pop.querySelector('#vh-hint-back');
  const key=()=>{
    const stage=document.querySelector('.folder-tabs .tab.is-current, .folder-tabs .tab[aria-current="step"]')?.dataset.stage||'1';
    const objective=document.getElementById('objectiveNumber')?.textContent?.trim()||'01';
    return 'vh.question.hint.demo.v1.'+stage+'.'+objective;
  };
- let activeKey='',level=0;
+ let activeKey='',level=0,unlocked=0;
  function read(k){try{return Math.max(0,Math.min(3,Number(localStorage.getItem(k))||0))}catch{return 0}}
- function save(){try{localStorage.setItem(activeKey,String(level))}catch(_){}}
+ function save(){try{localStorage.setItem(activeKey,String(unlocked))}catch(_){}}
  function paint(){
    progress.textContent=String(level).padStart(2,'0')+' / 03';
    content.textContent=level===1?'Lời giải 1':level===2?"Nếu mày muốn, tin nhắn sau tao có thể viết tiếp cho mày bản “đã chỉnh luôn JS hoàn chỉnh của file `vh-question-hints.js`” để mày chỉ việc paste nguyên file, khỏi tự mò từng đoạn.":level===3?'Lời giải 3':'Bạn muốn xem gợi ý cho câu hỏi này?';
+   back.disabled=level<=1;
    more.disabled=level>=3;
    more.querySelector('span').textContent=level===0?'Xem gợi ý 1':level===3?'Đã xem hết':'Gợi ý tiếp';
  }
  function close(){pop.hidden=true;trigger.setAttribute('aria-expanded','false')}
- function open(){activeKey=key();level=read(activeKey);paint();pop.hidden=false;trigger.setAttribute('aria-expanded','true')}
+ function open(){activeKey=key();unlocked=read(activeKey);level=unlocked;paint();pop.hidden=false;trigger.setAttribute('aria-expanded','true')}
  trigger.addEventListener('click',()=>pop.hidden?open():close());
  pop.querySelector('.vh-hint-close').addEventListener('click',close);
- more.addEventListener('click',()=>{if(level>=3)return;level++;save();paint()});
+ back.addEventListener('click',()=>{if(level<=1)return;level--;paint()});
+ more.addEventListener('click',()=>{if(level>=3)return;level++;if(level>unlocked){unlocked=level;save()}paint()});
  document.addEventListener('pointerdown',e=>{if(!pop.hidden&&!pop.contains(e.target)&&e.target!==trigger)close()},{passive:true});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pop.hidden){close();trigger.focus({preventScroll:true})}});
  document.querySelectorAll('.folder-tabs .tab').forEach(b=>b.addEventListener('click',close));
