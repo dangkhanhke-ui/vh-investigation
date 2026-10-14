@@ -114,7 +114,8 @@ body.vh-q1-workspace .paper-frame:before,
 body.vh-q1-workspace .paper-frame:after,
 body.vh-q1-workspace .paper-frame>.paper-asset{content:none!important;display:none!important;background:none!important}
 body.vh-q1-workspace .paper-frame>.paper-inside{padding-bottom:clamp(42px,7vw,76px)!important}
-body.vh-q1-workspace .backdrop-art,
+/* Keep the user's original background artwork visible. Only mute animated overlays. */
+body.vh-q1-workspace .backdrop-art{display:block!important}
 body.vh-q1-workspace .cinema-atmosphere,
 body.vh-q1-workspace .vh-stage-beam{display:none!important}
 body.vh-q1-workspace{background:#101010!important}
