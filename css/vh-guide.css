@@ -90,3 +90,46 @@ body.vh-about-open:before{content:"";position:fixed;inset:0;background:#080808f5
 .vh-feedback-status{min-height:18px;margin:7px 0!important;font-weight:600}
 .vh-about-dialog .vh-feedback-note{font-size:11px;line-height:1.5;opacity:.78;margin-top:0}
 @media(max-width:480px){.vh-about-dialog{padding:25px}.vh-about-dialog h2{margin:30px 0}.vh-about-dialog h3{margin-top:24px}}
+
+
+/* Three red investigation folders — stage selection (uses the dossier asset). */
+.vh-stage-archive[hidden]{display:none!important}
+body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;background:rgba(5,5,5,.97)}
+.vh-stage-archive{position:fixed;inset:0;z-index:11020;box-sizing:border-box;overflow:auto;
+ padding:clamp(20px,4vw,48px) max(20px,calc((100vw - 1050px)/2));
+ color:#f1e8e6;background:#0d0b0c;font:400 13px/1.5 'Inconsolata',Consolas,monospace}
+.vh-stage-head{display:flex;align-items:center;justify-content:space-between;gap:14px;color:#aaa;letter-spacing:.055em;font-size:12px}
+.vh-stage-head button{border:0;background:none;color:#eee;font:400 27px 'Inconsolata',monospace;cursor:pointer;min-width:40px;min-height:40px}
+.vh-stage-archive h2{font:600 clamp(28px,5vw,46px)/1.1 'Inconsolata',monospace;letter-spacing:-.065em;text-align:center;margin:35px 0 9px}
+.vh-stage-intro{text-align:center;color:#aaa;font-size:12px;letter-spacing:.07em;margin:0 0 35px}
+.vh-stage-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(10px,2.8vw,32px);align-items:start;margin:0 auto;max-width:980px}
+.vh-stage-card{min-width:0;display:flex;flex-direction:column;align-items:stretch;gap:9px;
+ background:transparent;border:0;padding:0;color:inherit;text-align:center;font:inherit;cursor:pointer}
+.vh-stage-card:disabled{cursor:not-allowed}
+.vh-stage-cover{position:relative;aspect-ratio:0.615;width:100%;overflow:hidden;isolation:isolate;
+ filter:drop-shadow(0 16px 18px rgba(0,0,0,.32));transition:transform .18s ease}
+.vh-stage-cover-image{display:block;width:100%;height:100%;object-fit:fill}
+.vh-stage-card.is-locked .vh-stage-cover-image{filter:grayscale(1) brightness(.29) contrast(.92)}
+.vh-stage-card.is-locked .vh-stage-cover:after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.2);pointer-events:none}
+.vh-stage-serial{position:absolute;z-index:2;top:12%;left:15%;font:600 clamp(9px,1.5vw,14px) 'Inconsolata',monospace;color:#fff;letter-spacing:.03em;text-shadow:0 1px 4px #000b}
+.vh-stage-lock{position:absolute;z-index:3;inset:0;display:grid;place-items:center;color:#f3eeee}
+.vh-stage-lock svg{width:clamp(28px,5vw,54px);height:auto;filter:drop-shadow(0 2px 8px #0009)}
+.vh-stage-card-name{font:700 clamp(12px,1.65vw,17px)/1.3 'Inconsolata',monospace;letter-spacing:.02em}
+.vh-stage-card-status{font:500 clamp(10px,1.3vw,13px) 'Inconsolata',monospace;color:#e7b2b2}
+.vh-stage-card.is-locked .vh-stage-card-status{color:#c5baba}
+.vh-stage-card-caption{font:400 clamp(10px,1.2vw,12px)/1.4 'Inconsolata',monospace;color:#988f8f;max-width:190px;align-self:center}
+.vh-stage-card.is-open:hover .vh-stage-cover,.vh-stage-card.is-open:focus-visible .vh-stage-cover{transform:translateY(-6px)}
+.vh-stage-card:focus-visible{outline:1px solid #fff;outline-offset:6px}
+@media(max-width:520px){
+ .vh-stage-archive{padding:19px 13px 34px}
+ .vh-stage-head{font-size:9px}
+ .vh-stage-archive h2{font-size:28px;margin-top:35px}
+ .vh-stage-intro{font-size:10px;margin-bottom:27px}
+ .vh-stage-cards{gap:9px}
+ .vh-stage-cover{filter:drop-shadow(0 8px 8px #0007)}
+ .vh-stage-serial{top:10%;left:14%;font-size:9px}
+ .vh-stage-card-name{font-size:11px}
+ .vh-stage-card-status{font-size:10px}
+ .vh-stage-card-caption{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){.vh-stage-cover{transition:none}}
