@@ -136,5 +136,19 @@ async function begin(){if(!gateAuthorized)return;const id=++seq;show();screen('l
 form.addEventListener('submit',e=>{e.preventDefault();unlockAudio();const n=input.value.replace(/\s+/g,' ').trim().slice(0,36);if(!n)return;put(KEY,n);code(++seq)});
 window.addEventListener('vh:show-intro',()=>{window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;show();screen('name');input.value=get(KEY);input.focus({preventScroll:true})});
 gate.addEventListener('submit',e=>{e.preventDefault();if(pin.value!=='1111'){gateError.textContent='MÃ TRUY CẬP KHÔNG HỢP LỆ';pin.value='';pin.focus();return}gateError.textContent='';gateAuthorized=true;put(AUTH,'yes');window.VHSound?.prepare();begin()});
-if(get(AUTH)==='yes'||get(DONE)==='yes'||get(KEY)){gateAuthorized=true;put(AUTH,'yes');begin()}else{screen('gate');show()}
+if(get(AUTH)==='yes'||get(DONE)==='yes'||get(KEY)){
+ gateAuthorized=true;put(AUTH,'yes');
+ // Mobile Safari requires a fresh tap in this browsing session to unlock audio.
+ // A returning player does NOT need to enter the access code again.
+ screen('load');show();
+ const resumeButton=document.createElement('button');
+ resumeButton.type='button';resumeButton.className='vh-resume-audio';
+ resumeButton.textContent='CHẠM ĐỂ TIẾP TỤC';
+ load.appendChild(resumeButton);
+ resumeButton.addEventListener('click',()=>{
+   resumeButton.remove();
+   unlockAudio();
+   begin();
+ },{once:true});
+}else{screen('gate');show()}
 })();
