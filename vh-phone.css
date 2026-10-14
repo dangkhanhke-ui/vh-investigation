@@ -118,3 +118,9 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 /* Wide, custom drawn chevron; remove inherited glyph styles. */
 .vh-nav-control svg{display:block;width:31px;height:25px;overflow:visible;pointer-events:none}
 .vh-nav-control{display:grid!important;place-items:center!important}
+
+/* Reference-matched circular arrow: thin white ring, generous hand-drawn arrow. */
+.vh-nav-control{width:54px!important;height:54px!important;padding:0!important;background:transparent!important;border:0!important;border-radius:50%!important;box-shadow:none!important;color:#fff!important;display:grid!important;place-items:center!important}
+.vh-nav-control:hover{background:transparent!important}
+.vh-nav-control svg{width:100%!important;height:100%!important;display:block!important;overflow:visible;pointer-events:none}
+.vh-nav-control:focus-visible{outline:1px solid #fff;outline-offset:3px}
