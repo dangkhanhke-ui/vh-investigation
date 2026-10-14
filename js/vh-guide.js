@@ -180,8 +180,45 @@ let auto=false,touring=false,phase=0,phoneWatch=null;
 function closeMenu(){panel.hidden=true;menu.setAttribute('aria-expanded','false')}
 function hideGuide(){dialog.hidden=true;shade.hidden=true;document.body.classList.remove('vh-guide-open')}
 function showGuide(first=false){closeMenu();auto=first;guideIndex=0;renderGuide();dialog.hidden=false;shade.hidden=false;document.body.classList.add('vh-guide-open');dialog.querySelector('.vh-guide-close').focus({preventScroll:true})}
-function stopTour(){touring=false;phase=0;tip.hidden=true;document.body.classList.remove('vh-tour-open','vh-tour-phone');phoneWatch?.disconnect();phoneWatch=null;write(TOUR_DONE,'yes')}
-function startTour(){if(!nav){write(TOUR_DONE,'yes');return}touring=true;phase=1;document.body.classList.add('vh-tour-open');tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">Bỏ qua</button>';tip.hidden=false;tip.querySelector('button').onclick=stopTour;phoneWatch=new MutationObserver(()=>{if(touring&&phase===1&&document.body.classList.contains('vh-phone-active')){phase=2;document.body.classList.add('vh-tour-phone');tip.innerHTML='<b>Đây là điện thoại của bạn.</b><span>Khám phá Messages, Safari và Notes. Nhấn ‹ để quay lại hồ sơ đỏ.</span><button type="button">ĐÃ HIỂU</button>';tip.querySelector('button').onclick=stopTour}});phoneWatch.observe(document.body,{attributes:true,attributeFilter:['class']})}
+function completePhoneTutorial(){
+ if(read(TOUR_DONE)==='yes')return;
+ write(TOUR_DONE,'yes');
+ document.dispatchEvent(new Event('vh:phone-tutorial-complete'));
+}
+function stopTour(){
+ const wasInPhone=phase===2;
+ touring=false;phase=0;tip.hidden=true;
+ document.body.classList.remove('vh-tour-open','vh-tour-phone');
+ phoneWatch?.disconnect();phoneWatch=null;
+ if(wasInPhone){
+   if(!document.body.classList.contains('vh-phone-active'))completePhoneTutorial();
+   else{
+     const waitReturn=new MutationObserver(()=>{
+       if(!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-phone-transitioning')){
+         waitReturn.disconnect();completePhoneTutorial();
+       }
+     });
+     waitReturn.observe(document.body,{attributes:true,attributeFilter:['class']});
+   }
+ }
+}
+function startTour(){
+ if(!nav)return;
+ touring=true;phase=1;document.body.classList.add('vh-tour-open');
+ tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">Bỏ qua</button>';
+ tip.hidden=false;tip.querySelector('button').onclick=stopTour;
+ phoneWatch=new MutationObserver(()=>{
+   if(!touring)return;
+   if(phase===1&&document.body.classList.contains('vh-phone-active')){
+     phase=2;document.body.classList.add('vh-tour-phone');
+     tip.innerHTML='<b>Đây là điện thoại của bạn.</b><span>Khám phá Messages, Safari và Notes. Nhấn ‹ để quay lại hồ sơ đỏ.</span><button type="button">ĐÃ HIỂU</button>';
+     tip.querySelector('button').onclick=stopTour;
+   }else if(phase===2&&!document.body.classList.contains('vh-phone-active')&&!document.body.classList.contains('vh-phone-transitioning')){
+     stopTour();
+   }
+ });
+ phoneWatch.observe(document.body,{attributes:true,attributeFilter:['class']});
+}
 function finishGuide(){const first=auto;hideGuide();auto=false;if(first)showArchive(true)}
 dialog.querySelector('.vh-guide-primary').onclick=()=>{if(guideIndex<guideSteps.length-1){guideIndex++;renderGuide()}else finishGuide()};
 dialog.querySelector('.vh-guide-close').onclick=()=>{if(auto)finishGuide();else hideGuide()};
