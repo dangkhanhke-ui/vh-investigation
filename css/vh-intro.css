@@ -78,3 +78,11 @@
 #vh-intro .vh-intro-notification-body{padding:5px 14px 14px;display:flex;flex-direction:column;gap:3px;font-size:14px}
 #vh-intro .vh-intro-notification-body strong{font-weight:650}
 #vh-intro .vh-intro-notification-body span{color:#555}
+
+#vh-intro .vh-intro-notification{appearance:none!important;-webkit-appearance:none!important;text-align:left!important;border:1px solid #ffffff44!important;border-radius:6px!important;background:#171719!important;color:#f7f1ee!important;padding:0!important;box-shadow:0 16px 42px #0008!important;cursor:pointer!important}
+#vh-intro .vh-intro-notification.show{pointer-events:auto!important}
+#vh-intro .vh-intro-notification-head{border-bottom:1px solid #ffffff25;padding:15px 18px!important;color:#aaa!important;font:500 11px Inconsolata,monospace!important;letter-spacing:.16em}
+#vh-intro .vh-intro-notification-body{padding:20px 18px!important;font-family:Inconsolata,monospace!important}
+#vh-intro .vh-intro-notification-body strong{font-size:20px!important;font-weight:600!important;color:#fff}
+#vh-intro .vh-intro-notification-body span{font-size:13px!important;color:#d2cbca!important}
+#vh-intro .vh-intro-notification:after{content:'CHẠM ĐỂ XEM TIN NHẮN  ↗';display:block;padding:0 18px 16px;color:#ff6860;font:500 11px Inconsolata,monospace;letter-spacing:.1em}
