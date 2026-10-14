@@ -61,7 +61,7 @@
    toast.classList.add('show');
    soundAlert();
  }
- document.addEventListener('vh:intro-finished',greetWhenGameBegins);
+ document.addEventListener('vh:stage-archive-shown',greetWhenGameBegins);
 
  function onNewPartner(){
    const h=history().history;const m=[...h].reverse().find(x=>x.who==='partner');
