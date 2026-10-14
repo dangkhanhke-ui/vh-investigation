@@ -8,7 +8,7 @@ function unlockAudio(){window.VHSound?.prepare()}
 function screen(mode){gate.hidden=mode!=='gate';load.hidden=mode!=='load';form.hidden=mode!=='name';access.hidden=mode!=='access';scene.hidden=mode!=='scene';root.classList.toggle('vh-is-black',mode==='scene')}
 function show(){root.hidden=false;root.removeAttribute('aria-hidden');document.body.classList.add('vh-onboarding')}
 function finish(){cancelTypingWait();currentTyping=null;window.VHSound?.stop('loading');window.VHKeyboardAudio?.stop();seq++;root.hidden=true;root.setAttribute('aria-hidden','true');document.body.classList.remove('vh-onboarding');document.dispatchEvent(new Event('vh:intro-finished'))}
-async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(final?900:540)}await sleep(final?400:650);window.VHSound?.stop('loading');if(id!==seq)return;if(final)finish();else dialogue(id)}
+async function code(id,final=false){screen('access');window.VHSound?.start('loading');stream.replaceChildren();for(const t of final?['ĐANG TRUY CẬP HỒ SƠ','Đang mở tài liệu...','Đang đối chiếu dữ liệu...','Hoàn tất.']:['ĐANG TRUY CẬP HỒ SƠ','Đang xác thực...','Đang giải mã...','Đang kiểm tra quyền truy cập...','Đang kết nối...','Đang truy xuất hồ sơ...','Đang đồng bộ tài liệu...','Đang kiểm tra tính toàn vẹn...','Truy cập thành công.']){if(id!==seq)return;const d=document.createElement('div');d.textContent=t;stream.appendChild(d);if(stream.children.length>6)stream.firstChild.remove();await sleep(final?620:370)}await sleep(final?250:380);window.VHSound?.stop('loading');if(id!==seq)return;if(final)finish();else dialogue(id)}
 const PAGES=[
 ['Đến rồi à?','Anh là Neymarinho, điều tra viên của vụ này','Anh đang có một vụ khá hóc chuẩn bị giao cho mày đây','Xem qua giúp anh nhé'],
 ['Nạn nhân tên Cauã Henrique Valença de Oliveira, 25 tuổi','Thi thể được phát hiện vào khoảng giữa trưa ngày 24/8/2015','Tại A Casa, khu Santa Teresa, Rio de Janeiro',{image:'assets/caua-opening.jpg'},'Cũng sáng sủa nhỉ :))','Không biết sau cái mặt làm bao em say đắm này là bí mật gì đây'],
@@ -41,11 +41,15 @@ previous.innerHTML='<svg viewBox="0 0 32 32" width="34" height="34" fill="none" 
 const nav=document.createElement('div');nav.className='vh-intro-navigation';next.parentNode.insertBefore(nav,next);nav.append(previous,next);
 function addRow(){
  const row=document.createElement('div');row.className='vh-intro-message-row';
- const avatar=document.createElement('img');avatar.className='vh-intro-avatar';avatar.src='assets/investigator-avatar.png';avatar.alt='';
+ const avatar=document.createElement('img');avatar.className='vh-intro-avatar';avatar.src=avatarPreload.src;avatar.loading='eager';avatar.decoding='async';avatar.alt='';
  const bubble=document.createElement('div');bubble.className='vh-intro-bubble';
  row.append(avatar,bubble);messages.appendChild(row);return bubble;
 }
+const avatarPreload=new Image();
+avatarPreload.decoding='async';
+avatarPreload.src='assets/investigator-avatar.png';
 const cauaPreload=new Image();
+cauaPreload.decoding='async';
 cauaPreload.src='assets/caua-opening.jpg';
 function addPhoto(){
  const bubble=addRow();bubble.classList.add('vh-intro-photo');
@@ -104,6 +108,8 @@ function showHistory(page,count){
 async function dialogue(id){
  screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;previous.hidden=true;previous.disabled=true;next.disabled=true;
  await firstMessageAlert(id);if(id!==seq)return;
+ // Warm the phone after the user has entered the opening conversation.
+ setTimeout(()=>document.dispatchEvent(new Event('vh:preload-phone')),1200);
  PAGES[0][0]=get(KEY)+', đến rồi à?';
  activePage=0;visibleCount=0;renderComplete=false;updateNav();await showNextMessage(id);
 }
@@ -151,34 +157,49 @@ await sleep(80);if(id!==seq){banner.remove();return}
 banner.classList.add('show');window.VHSound?.play('notification');
 await new Promise(resolve=>{banner.addEventListener('click',resolve,{once:true})});banner.classList.remove('show');await sleep(350);banner.remove();
 }
-// Load the next screen's actual images during the loading transition, rather
-// than keeping an arbitrary five-second timer. Decode is cached by the browser.
-const CRITICAL_IMAGES=[
- 'assets/xray-background.png','assets/red-folder.webp','assets/torn-paper.webp',
- 'assets/investigator-avatar.png','assets/caua-opening.jpg'
+// Explicitly prioritize opening avatar and sound rather than competing with
+// the large phone iframe and every dossier image at the same time.
+const IMAGE_ASSETS=[
+ 'assets/investigator-avatar.png','assets/caua-opening.jpg',
+ 'assets/xray-background.png','assets/red-folder.webp','assets/torn-paper.webp'
 ];
-let preloadPromise=null;
-function preloadCritical(){
- if(preloadPromise)return preloadPromise;
- preloadPromise=Promise.allSettled(CRITICAL_IMAGES.map(src=>new Promise(resolve=>{
-   const image=new Image();
-   image.decoding='async';image.src=src;
-   if(image.complete){resolve();return}
-   image.onload=image.onerror=resolve;
- })));
- return preloadPromise;
+const imagePreloads=new Map();
+function preloadImage(src){
+ if(imagePreloads.has(src))return imagePreloads.get(src);
+ const img=src==='assets/investigator-avatar.png'?avatarPreload:
+   src==='assets/caua-opening.jpg'?cauaPreload:new Image();
+ img.decoding='async';
+ const result=new Promise(done=>{
+   if(img.complete&&img.naturalWidth){done(true);return}
+   if(img.complete&&!img.naturalWidth){done(false);return}
+   img.addEventListener('load',()=>done(true),{once:true});
+   img.addEventListener('error',()=>done(false),{once:true});
+ });
+ if(!img.src)img.src=src;
+ imagePreloads.set(src,result);
+ return result;
+}
+let secondaryStarted=false;
+function preloadSecondary(){
+ if(secondaryStarted)return;
+ secondaryStarted=true;
+ IMAGE_ASSETS.slice(2).forEach(preloadImage);
 }
 async function begin(){
  if(!gateAuthorized)return;
- const id=++seq;
- show();screen('load');
+ const id=++seq;show();screen('load');
+ const start=performance.now();
+ // Prioritize chat avatar and opening sounds before loading phone assets.
+ const essential=Promise.allSettled([
+   preloadImage(IMAGE_ASSETS[0]),
+   window.VHSound?.readyIntro?.()||Promise.resolve()
+ ]);
  window.VHSound?.start('loading');
- const started=performance.now();
- // Start warming the iframe only after the critical page assets have been queued.
- // The phone still loads in the background during the intro.
- document.dispatchEvent(new Event('vh:preload-phone'));
- await Promise.race([preloadCritical(),sleep(1800)]);
- const remaining=Math.max(0,550-(performance.now()-started));
+ await Promise.race([essential,sleep(2800)]);
+ if(id!==seq)return;
+ preloadSecondary();
+ // Small visible transition; not an artificial multi-second wait.
+ const remaining=Math.max(0,450-(performance.now()-start));
  if(remaining)await sleep(remaining);
  if(id!==seq)return;
  window.VHSound?.stop('loading');
