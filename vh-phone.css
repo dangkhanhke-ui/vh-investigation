@@ -128,3 +128,7 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 /* Compact, perfectly horizontal arrows aligned with the 40px menu control. */
 .vh-nav-control{width:40px!important;height:40px!important}
 .vh-nav-control svg{width:40px!important;height:40px!important}
+
+/* Optical match: 29px visible icon against 25px hamburger strokes; 44px touch target. */
+.vh-nav-control{width:44px!important;height:44px!important;background:transparent!important}
+.vh-nav-control svg{width:29px!important;height:29px!important;max-width:29px!important;max-height:29px!important}
