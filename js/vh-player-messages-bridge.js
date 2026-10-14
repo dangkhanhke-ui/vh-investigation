@@ -24,8 +24,12 @@
  window.addEventListener('message',e=>{
   if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
   if(e.data.type==='vh:ready'){ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()}
+  if(e.data.type==='vh:action'&&e.data.action==='read'){
+   if(!story.isRead()){story.markRead();send('vh:sync')}
+  }
   if(e.data.type==='vh:action'&&e.data.action==='ack'){
-   story.acknowledge()
+   story.acknowledge();
+   story.markRead();
    send('vh:sync');
   }
  });
