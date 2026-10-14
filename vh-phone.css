@@ -132,3 +132,6 @@ body.vh-phone-active .cinema-grain{animation-play-state:paused!important}
 /* Optical match: 29px visible icon against 25px hamburger strokes; 44px touch target. */
 .vh-nav-control{width:44px!important;height:44px!important;background:transparent!important}
 .vh-nav-control svg{width:29px!important;height:29px!important;max-width:29px!important;max-height:29px!important}
+
+/* Raise the phone switch icon to align visually with the hamburger. */
+.vh-nav-next{transform:translateY(-7px)!important}
