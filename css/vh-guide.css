@@ -55,3 +55,38 @@ body.vh-phone-active .vh-menu-trigger,body.vh-phone-transitioning .vh-menu-trigg
 /* Final menu hierarchy: MENU 2px larger than 15px navigation, settings equal size. */
 .vh-menu-panel .vh-menu-title{font-size:17px!important;font-weight:700!important;line-height:1.3!important}
 .vh-menu-panel .vh-menu-settings,.vh-menu-panel .vh-menu-settings label,.vh-menu-panel .vh-menu-settings button{font-size:13px!important;font-weight:400!important;line-height:1.45!important;font-family:'Inconsolata',Consolas,monospace!important}
+
+/* About / feedback: independent scrollable editorial panel */
+.vh-about-dialog[hidden]{display:none!important}
+.vh-about-dialog{
+ position:fixed;z-index:11010;top:50%;left:50%;
+ transform:translate(-50%,-50%);width:min(610px,calc(100vw - 34px));
+ max-height:calc(100dvh - 34px);overflow-y:auto;overscroll-behavior:contain;
+ box-sizing:border-box;padding:clamp(25px,5vw,43px);
+ background:#f01414;color:#090909;border:0;border-radius:0;
+ font:400 13px/1.65 'Inconsolata',Consolas,monospace;
+}
+body.vh-about-open:before{content:"";position:fixed;inset:0;background:#080808f5;z-index:11009}
+.vh-about-head{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.06em}
+.vh-about-close{border:0;background:none;color:inherit;font:400 26px 'Inconsolata',monospace;cursor:pointer;line-height:1;padding:0 3px}
+.vh-about-dialog h2{font:600 clamp(25px,5vw,34px)/1.08 'Inconsolata',monospace;letter-spacing:-.07em;margin:40px 0 38px}
+.vh-about-dialog h3{font:700 13px/1.3 'Inconsolata',monospace;letter-spacing:.04em;margin:30px 0 12px;border-top:1px solid #340000;padding-top:20px}
+.vh-about-dialog p{margin:10px 0 14px;max-width:480px}
+.vh-feedback-form{display:flex;flex-direction:column;gap:9px;margin-top:17px}
+.vh-feedback-form label{font-size:11px;font-weight:700;letter-spacing:.02em;margin-top:11px}
+.vh-feedback-form select,.vh-feedback-form textarea,.vh-feedback-form input[type="email"]{
+ display:block;width:100%;box-sizing:border-box;border:1px solid #1a0606;
+ border-radius:0;background:transparent;color:#090909;
+ font:400 14px/1.5 'Inconsolata',Consolas,monospace;padding:12px;
+ outline-offset:3px;min-height:43px;box-shadow:none
+}
+.vh-feedback-form textarea{resize:vertical;min-height:115px}
+.vh-feedback-form input::placeholder,.vh-feedback-form textarea::placeholder{color:#350d0d;opacity:.76}
+.vh-feedback-form select option{background:#fff;color:#111}
+.vh-feedback-form .vh-feedback-check{display:flex;align-items:center;gap:9px;font-size:12px;font-weight:400;letter-spacing:0;cursor:pointer}
+.vh-feedback-check input{accent-color:#090909;width:16px;height:16px}
+.vh-feedback-submit{margin-top:14px;align-self:flex-start;border:0!important;border-radius:0!important;background:#090909!important;color:#fff!important;padding:13px 18px;min-height:44px;font:700 12px 'Inconsolata',monospace!important;cursor:pointer}
+.vh-feedback-submit:disabled{opacity:.6;cursor:wait}
+.vh-feedback-status{min-height:18px;margin:7px 0!important;font-weight:600}
+.vh-about-dialog .vh-feedback-note{font-size:11px;line-height:1.5;opacity:.78;margin-top:0}
+@media(max-width:480px){.vh-about-dialog{padding:25px}.vh-about-dialog h2{margin:30px 0}.vh-about-dialog h3{margin-top:24px}}
