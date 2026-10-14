@@ -30,7 +30,7 @@
   // Begin loading the phone while the access/loading screens are visible.
   // Reuse the same iframe on every navigation, without a cache-busting timestamp.
   function warmPhone(){
-    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/');
+    if(!iframe.getAttribute('src'))iframe.setAttribute('src','phone/?v=bundled-phone-20261014');
   }
   document.addEventListener('vh:preload-phone',warmPhone);
   // New players: do not load the heavy phone iframe during the opening
