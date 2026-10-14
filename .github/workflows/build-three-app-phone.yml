@@ -1,288 +1,32 @@
-name: Build VH three-app phone
+name: Verify pinned VH phone (no rebuild)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/build-three-app-phone.yml'
-      - 'phone-overrides/phone_screen.png'
-      - 'phone-overrides/vh-investigator-home.css'
-      - 'phone-overrides/vh-investigator-apps.js'
-      - 'assets/investigator-avatar.png'
-      - 'index.html'
-      - 'app.js'
-      - 'css/vh-intro.css'
-      - 'js/vh-intro.js'
-      - 'js/vh-phone.js'
-      - 'js/vh-player-messages-bridge.js'
 
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 jobs:
-  build:
+  verify:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.publish.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Get latest Cauã phone and HTML parser
-        run: |
-          git clone --depth 1 https://github.com/dangkhanhke-ui/caua-phone-preview.git /tmp/caua
-          python3 -m pip install --quiet beautifulsoup4
-      - name: Rebuild with ORIGINAL CSS order, icons and three apps only
-        run: |
-          python3 - <<'PY'
-          from bs4 import BeautifulSoup
-          from pathlib import Path
-          import shutil, re, subprocess, hashlib, html as htmlmod
-          src=Path('/tmp/caua')
-          out=Path('phone')
-          if out.exists(): shutil.rmtree(out)
-          out.mkdir()
-          raw=(src/'index.html').read_text(encoding='utf-8')
-          original=BeautifulSoup(raw,'html.parser')
-          dest=BeautifulSoup('<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><title>VH — Investigator Phone</title></head><body></body></html>','html.parser')
-          # Preserve exact final CSS cascade from current Cauã source. Shared style overrides
-          # can affect the three apps despite having historically app-specific names.
-          refs=[]
-          for tag in original.head.find_all('link'):
-              rel=tag.get('rel',[])
-              href=tag.get('href','').split('?')[0].removeprefix('./')
-              if 'stylesheet' not in rel or not href.startswith('css/'): continue
-              if not (src/href).is_file(): raise SystemExit('Missing original CSS '+href)
-              refs.append(href)
-              target=out/href
-              target.parent.mkdir(parents=True,exist_ok=True)
-              shutil.copy2(src/href,target)
-              link=dest.new_tag('link',rel='stylesheet',href=href)
-              dest.head.append(link)
-          # Carry over the global final Home badge override verbatim.
-          for style in original.head.find_all('style'):
-              if style.get('id')=='caua-home-notification-badge-no-outline':
-                  dest.head.append(BeautifulSoup(str(style),'html.parser'))
-          stage=original.select_one('main.stage')
-          if not stage: raise SystemExit('Missing phone stage')
-          # Delete all unrelated app DOM and content, retain only phone shell,
-          # lock/passcode/home, real iOS switcher and three selected apps.
-          allowed={'lockScreen','passcodeScreen','homeScreen','safariApp','messagesApp','notesApp','ios8AppSwitcher'}
-          screen=stage.select_one('#screen')
-          for section in list(screen.find_all('section',recursive=False)):
-              if section.get('id') not in allowed: section.decompose()
-          for icon in list(stage.select('#homeScreen .app[data-app]')):
-              if icon.get('data-app') not in {'safari','messages','notes'}:icon.decompose()
-          # Preserve the iOS lock screen; PIN UI remains hidden.
-          # Swiping or tapping unlock goes directly to Home.
-          stage.select_one('#lockScreen')['class']=['lock-screen','view','active']
-          stage.select_one('#homeScreen')['class']=['home-screen','view']
-          # Move all three real app launchers into one top row, not the iOS dock.
-          grid=stage.select_one('#iconGrid')
-          for name in ('notes','messages','safari'):
-              icon=stage.select_one('#homeScreen .app[data-app="'+name+'"]')
-              if icon is None:raise SystemExit('Missing investigator app '+name)
-              icon.extract()
-              icon['class']=[c for c in icon.get('class',[]) if c!='dock-app']
-              grid.append(icon)
-          for selector in ('#homeScreen .dock','#homeScreen .page-dots'):
-              el=stage.select_one(selector)
-              if el:el.decompose()
-          status_battery=stage.select_one('.battery-percent')
-          if status_battery:status_battery.string='98%'
-          dest.body.append(stage.extract())
-          # The investigator-only override is outside the regenerated folder.
-          custom_css=Path('phone-overrides/vh-investigator-home.css')
-          if not custom_css.is_file():raise SystemExit('Missing investigator home override')
-          # Version BOTH the CSS link and its wallpaper URL by the actual image
-          # bytes. A new upload must never reuse an old cached phone wallpaper.
-          player_wallpaper=Path('phone-overrides/phone_screen.png')
-          source_wallpaper=player_wallpaper if player_wallpaper.is_file() else src/'assets/screen/phone_screen.png'
-          if not source_wallpaper.is_file():raise SystemExit('Phone wallpaper missing')
-          wallpaper_version=hashlib.sha256(source_wallpaper.read_bytes()).hexdigest()[:16]
-          wallpaper_name='vh-wallpaper-'+wallpaper_version+'.png'
-          (out/'assets/screen').mkdir(parents=True,exist_ok=True)
-          shutil.copy2(source_wallpaper,out/'assets/screen'/wallpaper_name)
-          override_text=custom_css.read_text(encoding='utf-8')
-          if '__VH_WALLPAPER_VERSION__' not in override_text:
-              raise SystemExit('Wallpaper cache-bust token missing')
-          (out/'css/vh-investigator-home.css').write_text(
-              override_text.replace('__VH_WALLPAPER_VERSION__',wallpaper_version),encoding='utf-8')
-          dest.head.append(dest.new_tag('link',rel='stylesheet',
-              href='css/vh-investigator-home.css?v='+wallpaper_version))
-          # Inline last-resort CSS prevents an old stylesheet from painting
-          # Cauã's beach image over the investigator's uploaded wallpaper.
-          inline_wallpaper=dest.new_tag('style')
-          inline_wallpaper.string=(
-              '#screen>.wallpaper{z-index:0!important;'
-              'background-image:url("assets/screen/'+wallpaper_name+'")!important;'
-              'background-size:cover!important;background-position:center!important}')
-          dest.head.append(inline_wallpaper)
-          scripts=original.find_all('script')
-          # Preserve the original startup sequence and code of the three apps,
-          # plus switcher, clock, scrollbars and Cauã's immersive controls.
-          inline_ids={1,8,11,14,15,16,28,30,31}
-          external_allowed={
-              'js/safari.js','js/caua-messages-ios8-complete.js',
-              'js/caua-safari-ios8-links.js','js/ios8-system-chrome.js',
-              'js/ui-universal-back.js'
-          }
-          retained=[]
-          for i,script in enumerate(scripts):
-              path=script.get('src','').split('?')[0].removeprefix('./')
-              if path:
-                  if path not in external_allowed:continue
-                  target=out/path
-                  target.parent.mkdir(parents=True,exist_ok=True)
-                  shutil.copy2(src/path,target)
-                  el=dest.new_tag('script',src=path)
-                  if script.has_attr('defer'):el['defer']=''
-                  dest.body.append(el)
-                  retained.append(path)
-              elif i in inline_ids:
-                  code=script.string
-                  if not code:raise SystemExit('Missing inline script '+str(i))
-                  # Replace Cauã's historical message archive with only the
-                  # investigator's live thread. Never ship NPC messages in VH.
-                  if script.get('id')=='messages-app-script':
-                      pattern=r'  const threads = \[[\s\S]*?\n  \];\s*\n\s*(?=const state = )'
-                      new_threads="""  const threads = [{
-                        id:'neymarinho', listName:'Neymarinho',
-                        displayName:'Neymarinho', number:'+55 (21) 99847-2631',
-                        saved:true, transport:'iMessage', unread:false, preview:'Cuộc trò chuyện điều tra',
-                        order:1, messages:[]
-                      }];
-
-                      """
-                      code,n=re.subn(pattern,lambda _:new_threads,code,count=1)
-                      if n!=1:raise SystemExit('Cannot replace Cauã message archive')
-                  # Fresh editable personal notebook; never resurrect old Cauã
-                  # notes, even for users with legacy localStorage entries.
-                  if script.get('id')=='notes-app-script':
-                      pattern=r'  const DEFAULT_NOTES=\[[\s\S]*?\];\s*\n\s*(?=const STORAGE_KEY=)'
-                      new_notes="""  const DEFAULT_NOTES=[{
-                        id:'vh-player-notebook',num:1,descriptor:'Sổ tay điều tra',
-                        timestamp:'2015-08-29T12:00:00',
-                        lines:['Hãy ghi chú những gì bạn muốn...','']
-                      }];
-                      """
-                      code,n=re.subn(pattern,lambda _:new_notes,code,count=1)
-                      code=code.replace('caua-notes-player-state-v1','vh-investigator-player-note-v1')
-                      if n!=1:raise SystemExit('Cannot replace Cauã notes archive')
-                  if i==1:
-                      code,n=re.subn(r'(battery:\s*)\d+',r'\g<1>98',code,count=1)
-                      # Keep showLock() at startup. Bypass only the PIN transition.
-                      code,n2=re.subn(
-                          r'  function showPasscode\(\) \{[\s\S]*?\n  \}',
-                          '  function showPasscode() {\n    showHome(true);\n  }',
-                          code,count=1)
-                      if n!=1 or n2!=1:raise SystemExit('Investigator lock-screen/PIN bypass not found')
-                  if i==14:
-                      code,n=re.subn(r'  const APPS = \{[\s\S]*?\n  \};', """  const APPS = {
-                        notes:{id:'notesApp',name:'Ghi chú',screenClass:'notes-open'},
-                        messages:{id:'messagesApp',name:'Tin nhắn',screenClass:'messages-open'},
-                        safari:{id:'safariApp',name:'Safari',screenClass:'safari-open'}
-                      };""",code,count=1)
-                      if n!=1:raise SystemExit('Switcher app map not found')
-                  if i==31:
-                      code=code.replace('document.body.appendChild(toggle);','// VH default zoom: no toggle element')
-                      code=code.replace('positionZoomToggle();fit();mode(false);','positionZoomToggle();fit();mode(true);')
-                      if 'mode(true)' not in code:raise SystemExit('Immersive activation not found')
-                  el=dest.new_tag('script')
-                  if script.get('id'):el['id']=script['id']
-                  el.string=code
-                  dest.body.append(el)
-          # Preserve investigator-only interactive chat and notes behavior across
-          # future Cauã rebuilds, without editing the Cauã reference repository.
-          custom_app=Path('phone-overrides/vh-investigator-apps.js')
-          if not custom_app.is_file():raise SystemExit('Missing VH investigator apps script')
-          (out/'js').mkdir(parents=True,exist_ok=True)
-          shutil.copy2(custom_app,out/'js/vh-investigator-apps.js')
-          # Version the runtime script by its bytes: deploys can never serve stale code.
-          investigator_js_version=hashlib.sha256(custom_app.read_bytes()).hexdigest()[:14]
-          dest.body.append(dest.new_tag('script',src='js/vh-investigator-apps.js?v='+investigator_js_version))
-          # Copy only original imagery for selected apps, wallpaper and shared UI.
-          for name in ('screen','safari','media','embedded','app-icons'):
-              d=src/'assets'/name
-              if d.is_dir():shutil.copytree(d,out/'assets'/name,dirs_exist_ok=True)
-          for name in ('safari.png.png','messages.png.png','notes.png.png'):
-              shutil.copy2(src/name,out/name)
-          # Ship the actual investigator portrait used by Messages inside the phone iframe.
-          portrait=Path('assets/investigator-avatar.png')
-          if not portrait.is_file():raise SystemExit('Missing investigator portrait')
-          shutil.copy2(portrait,out/'assets/investigator-avatar.png')
-          # Optional player-specific wallpaper. Upload a PNG at the stable
-          # path below; it overrides Cauã's image on every future rebuild.
-          custom_wallpaper=Path('phone-overrides/phone_screen.png')
-          if custom_wallpaper.is_file():
-              shutil.copy2(custom_wallpaper,out/'assets/screen/phone_screen.png')
-          source_sha=subprocess.check_output(['git','-C',str(src),'rev-parse','HEAD'],text=True).strip()
-          dest.head.append(BeautifulSoup('<meta name="vh-caua-source-commit" content="'+source_sha+'">','html.parser'))
-          result=str(dest)
-          (out/'index.html').write_text(result,encoding='utf-8')
-          actual_apps=[x['data-app'] for x in dest.select('#homeScreen .app[data-app]')]
-          assert set(actual_apps)=={'safari','messages','notes'},actual_apps
-          assert [x['data-app'] for x in dest.select('#iconGrid > .app')]==['notes','messages','safari']
-          assert 'active' in dest.select_one('#lockScreen')['class']
-          assert 'active' not in dest.select_one('#homeScreen')['class']
-          assert not dest.select('#homeScreen .dock,#homeScreen .page-dots')
-          assert 'battery: 98' in result and 'showLock();' in result
-          assert 'function showPasscode() {' in result and 'showHome(true);' in result
-          assert 'css/vh-investigator-home.css?v='+wallpaper_version in result
-          assert 'js/vh-investigator-apps.js' in result
-          assert "id:'neymarinho'" in result and "id:'marcela'" not in result
-          assert "id:'vh-player-notebook'" in result and '"id":"note01"' not in result
-          assert (out/'assets/screen/phone_screen.png').read_bytes()==source_wallpaper.read_bytes()
-          assert wallpaper_name in (out/'css/vh-investigator-home.css').read_text(encoding='utf-8')
-          assert wallpaper_name in result
-          assert (out/'assets/screen'/wallpaper_name).read_bytes()==source_wallpaper.read_bytes()
-          assert set(x.get('id') for x in dest.select('#screen > section'))==allowed
-          assert len(refs)>45,len(refs)
-          assert 'mode(true)' in result and 'caua-home-gesture' in result
-          print('Cauã source commit:',source_sha)
-          print('Original stylesheet order:',len(refs),refs)
-          print('Phone apps:',actual_apps,'external engines:',retained)
-          PY
-      - name: Commit fresh three-app build
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A phone/
-          if ! git diff --cached --quiet; then
-            git commit -m "fix: sync three-app phone with latest Cauã visual CSS cascade"
-            git fetch origin main
-            git rebase origin/main
-            git push origin HEAD:main
-          fi
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-      - name: Fingerprint website assets for automatic cache refresh
+      - name: Verify checked-in phone remains self-contained
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          import hashlib, re
-          page=Path('index.html')
-          html=page.read_text(encoding='utf-8')
-          def version(m):
-              prefix,url=m.groups()
-              path=url.split('?',1)[0]
-              if not path.startswith(('js/','css/')) and path not in ('styles.css','vh-phone.css','app.js'):
-                  return m.group(0)
-              asset=Path(path)
-              if not asset.is_file():
-                  return m.group(0)
-              digest=hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
-              return prefix+path+'?v='+digest+'"'
-          html=re.sub(r'((?:src|href)=")([^"]+)"',version,html)
-          page.write_text(html,encoding='utf-8')
-          print('Fingerprinted local scripts and stylesheets')
+          import re
+          root = Path('phone')
+          page = (root/'index.html').read_text(encoding='utf-8')
+          assert (root/'js/vh-investigator-apps.js').is_file()
+          assert (root/'assets/investigator-avatar.png').is_file()
+          for href in re.findall(r'<link[^>]*href="([^"]+)"', page):
+              name = href.split('?', 1)[0]
+              if name.startswith('css/'):
+                  assert (root/name).is_file(), name
+          for src in re.findall(r'<script[^>]*src="([^"]+)"', page):
+              name = src.split('?', 1)[0]
+              if name.startswith('js/'):
+                  assert (root/name).is_file(), name
+          print('Verified pinned phone assets; no files regenerated.')
           PY
-      - name: Upload latest built three-app site
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-      - name: Deploy latest three-app build
-        uses: actions/deploy-pages@v5
-        id: publish
