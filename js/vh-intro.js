@@ -13,7 +13,7 @@ const PAGES=[
 ['Đến rồi à?','Anh là Neymarinho, điều tra viên của vụ này','Anh đang có một vụ khá hóc chuẩn bị giao cho mày đây','Xem qua giúp anh nhé'],
 ['Nạn nhân tên Cauã Henrique Valença de Oliveira, 25 tuổi','Thi thể được phát hiện vào khoảng giữa trưa ngày 24/8/2015','Tại A Casa, khu Santa Teresa, Rio de Janeiro',{image:'assets/caua-opening.jpg'},'Cũng sáng sủa nhỉ :))','Không biết sau cái mặt làm bao em say đắm này là bí mật gì đây'],
 ['Ban đầu anh cứ nghĩ đây chỉ là một vụ án mạng thông thường','Nhưng càng moi sâu thì anh thấy càng không ổn','Cauã là người đứng đầu một hội kín tên là Vínculo Humano','Mày nghe đến cái hội này bao giờ chưa?'],
-['Nó được thành lập từ năm 2009 bởi một nhóm thanh niên ở Rio','Lúc đầu anh tưởng cũng chỉ là cái nhóm giao lưu, tụ tập hoạt động xã hội vớ vẩn thôi...','Anh có điều tra được vài điều lạ lắm','Anh cũng chưa nắm hết được','Anh với bên cảnh sát đang nghi cái hội này dính tới hai vụ mất tích dạo trước','Nhưng cũng chưa có nhiều thông tin lắm','Thế nên cái chết của Cauã lúc này làm anh khá lấn cấn'],
+['Nó được thành lập từ năm 2009 bởi một nhóm thanh niên ở Rio','Lúc đầu anh tưởng cũng chỉ là cái nhóm giao lưu, tụ tập hoạt động xã hội vớ vẩn thôi...','Anh có điều tra được vài điều lạ lắm','Anh cũng chưa nắm hết được','Anh với bên cảnh sát đang nghi đội này có dính líu tới hai vụ mất tích trước đây','Nhưng cũng chưa có nhiều thông tin lắm','Thế nên cái chết của Cauã lúc này làm anh khá lấn cấn'],
 ['Quay lại vụ án nhé','Đêm 23/8, Vínculo Humano có tổ chức một sự kiện ngay tại căn nhà đó','Tầm 38 thành viên tham dự','Nghe bảo đây là buổi tụ tập định kỳ hai tuần một lần','Buổi hôm đó tàn vào khoảng 11 giờ đêm','Phần lớn mọi người đi về, còn 6 đứa khác ở lại ngủ qua đêm'],
 ['Đến khoảng 12 giờ 15 trưa hôm sau, thi thể Cauã được phát hiện ở phòng ngủ tầng hai','Vấn đề là đến giờ bọn anh vẫn chưa dựng lại được chính xác chuyện gì đã xảy ra trong đêm','Và ai là kẻ đã ra tay?'],
 ['Anh đã chuẩn bị sẵn cho mày một tập hồ sơ rồi đấy','Trong đó có ảnh hiện trường, lời khai với một số thông tin liên quan','À, anh có gửi mày cả bản copy dữ liệu từ điện thoại của Cauã nữa','Anh xem qua rồi, thấy cũng chưa có gì đáng giá lắm','Nhưng ít nhất thì cũng nhờ nó mà hiểu thêm về Cauã với cái hội này','Mày cứ xem thử, biết đâu lại tìm được thứ gì anh bỏ sót :))'],
@@ -21,7 +21,7 @@ const PAGES=[
 ['Mày đọc kỹ hồ sơ rồi thử dựng lại diễn biến đêm đó xem sao','Soi kỹ mốc thời gian và lời khai từng đứa nhé','Thấy chỗ nào chọi nhau thì ghi chú lại ngay','Trong lúc điều tra nếu bí quá thì nhắn anh','Anh sẽ gợi ý cho một chút, nhưng đừng có vội xin đáp án đấy nhé :))'],
 ['Trước mắt mình cứ tập trung lôi kẻ sát hại Cauã ra ánh sáng đã','Những vụ đó mình sẽ dần giải mã sau','Giờ mày mở tập hồ sơ ra xem đi','Có gì mới thì nhắn anh','Anh tin mày']
 ];
-let activePage=0,visibleCount=0,renderToken=0,renderComplete=false;
+let activePage=0,visibleCount=0,renderToken=0,renderComplete=false,currentTyping=null;
 const previous=document.createElement('button');
 previous.type='button';previous.className='vh-intro-prev';previous.setAttribute('aria-label','Đọc lại tin nhắn trước');
 previous.innerHTML='<svg viewBox="0 0 32 32" width="34" height="34" fill="none" stroke="currentColor" stroke-width="0.8"><path d="M28 16H4m9-9-9 9 9 9"/></svg>';
@@ -59,13 +59,14 @@ function updateNav(){
  next.setAttribute('aria-label',activePage===PAGES.length-1&&visibleCount===PAGES[activePage].length?'Bắt đầu điều tra':'Tin nhắn tiếp theo');
 }
 async function showNextMessage(id){
- const token=++renderToken;renderComplete=false;updateNav();
+ const token=++renderToken;currentTyping=null;renderComplete=false;updateNav();
  const item=PAGES[activePage][visibleCount];if(!item)return;
  if(typeof item==='object'){
   addPhoto();visibleCount++;messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();return;
  }
  const bubble=addRow();
  if(id!==seq||token!==renderToken)return;
+ currentTyping={token,bubble,text:item};
  window.VHKeyboardAudio?.start();
  for(let i=0;i<item.length;i++){
   if(id!==seq||token!==renderToken){window.VHKeyboardAudio?.stop();return}
@@ -79,18 +80,33 @@ async function showNextMessage(id){
  }
  window.VHKeyboardAudio?.stop();messages.scrollTop=messages.scrollHeight;
  if(id!==seq||token!==renderToken)return;
- visibleCount++;renderComplete=true;updateNav();
+ currentTyping=null;visibleCount++;renderComplete=true;updateNav();
 }
 function showHistory(page,count){
- renderToken++;window.VHKeyboardAudio?.stop();activePage=page;visibleCount=count;
+ renderToken++;currentTyping=null;window.VHKeyboardAudio?.stop();activePage=page;visibleCount=count;
  messages.replaceChildren();for(let i=0;i<count;i++)appendInstant(PAGES[page][i]);
  messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();
 }
 async function dialogue(id){
  screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;previous.hidden=true;previous.disabled=true;next.disabled=true;
  await firstMessageAlert(id);if(id!==seq)return;
+ PAGES[0][0]=get(KEY)+', đến rồi à?';
  activePage=0;visibleCount=0;renderComplete=false;updateNav();await showNextMessage(id);
 }
+// A tap anywhere in the chat area completes only the currently typing bubble.
+scene.addEventListener('click',event=>{
+ if(event.target.closest('button,.vh-intro-navigation'))return;
+ const typing=currentTyping;
+ if(!typing||typing.token!==renderToken||renderComplete)return;
+ typing.bubble.textContent=typing.text;
+ currentTyping=null;
+ renderToken++;
+ window.VHKeyboardAudio?.stop();
+ messages.scrollTop=messages.scrollHeight;
+ visibleCount++;
+ renderComplete=true;
+ updateNav();
+});
 previous.onclick=()=>{
  if(!renderComplete)return;unlockAudio();
  if(visibleCount>1)showHistory(activePage,visibleCount-1);
