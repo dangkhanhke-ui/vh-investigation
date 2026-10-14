@@ -108,6 +108,7 @@
     }else if(p.type==='vh:open'){
       if(Array.isArray(p.history))update(p.history,p.phase,p.unread);
       openInvestigator();
+      if(p.q1Tap===true)window.parent.postMessage({type:'vh:action',action:'q1-opened'},ORIGIN);
     }
   });
   // Send player replies to the actual case engine. Do not let Cauã's sandbox
