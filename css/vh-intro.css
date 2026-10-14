@@ -70,3 +70,11 @@
 #vh-intro #vh-access-pin{display:block!important;width:100%!important;min-width:0!important;height:48px!important;flex:1 1 auto!important;padding:0!important;appearance:none!important;-webkit-appearance:none!important;border:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;box-shadow:none!important}
 #vh-intro .vh-gate-entry button{display:grid!important;flex:0 0 44px!important;width:44px!important;height:44px!important;min-width:44px!important;padding:5px!important;margin:0!important;appearance:none!important;-webkit-appearance:none!important;border:0!important;border-radius:0!important;background:transparent!important;color:#fff!important;box-shadow:none!important}
 #vh-intro .vh-gate-entry button svg{display:block;width:34px!important;height:34px!important}
+
+/* Incoming message banner during first Neymarinho introduction. */
+#vh-intro .vh-intro-notification{position:absolute;z-index:30;top:max(18px,env(safe-area-inset-top));left:50%;width:min(360px,calc(100vw - 28px));box-sizing:border-box;transform:translate(-50%,-130%);opacity:0;pointer-events:none;border-radius:14px;overflow:hidden;background:rgba(246,246,248,.97);color:#1b1b1d;box-shadow:0 10px 34px #0004;font-family:-apple-system,BlinkMacSystemFont,Arial,sans-serif;transition:transform .35s ease,opacity .3s ease}
+#vh-intro .vh-intro-notification.show{transform:translate(-50%,0);opacity:1}
+#vh-intro .vh-intro-notification-head{padding:10px 14px 5px;color:#777;font-size:11px;letter-spacing:.025em}
+#vh-intro .vh-intro-notification-body{padding:5px 14px 14px;display:flex;flex-direction:column;gap:3px;font-size:14px}
+#vh-intro .vh-intro-notification-body strong{font-weight:650}
+#vh-intro .vh-intro-notification-body span{color:#555}
