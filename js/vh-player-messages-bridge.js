@@ -1,36 +1,40 @@
-/* VH: bridge the real dossier chat with the player's iOS8 Messages. */
+/* VH scripted Neymarinho conversation in player phone. */
 (()=>{
  'use strict';
  const iframe=document.getElementById('vhPhoneIframe');
- const layer=document.getElementById('vhPhoneLayer');
+ if(!iframe)return;
  const ORIGIN=location.origin;
- if(!iframe||!layer)return;
- let queuedOpen=false,timer=0;
- const history=()=>({history:[],phase:'solve'});
- const send=(type,more={})=>{
-   try{iframe.contentWindow?.postMessage({type,...history(),...more},ORIGIN)}catch(_){}
+ const KEY='vh.neymarinho.intro-replied.v1';
+ const SCRIPT=['Hey.','Anh mới có số mày','Từ giờ anh sẽ liên lạc với mày qua đây nhé','Có thêm thông tin gì thì anh sẽ gửi'];
+ let queuedOpen=false,ready=false,notified=false;
+ const done=()=>{try{return localStorage.getItem(KEY)==='yes'}catch(_){return false}};
+ const history=()=>[...SCRIPT.map((text,i)=>({who:'partner',text,at:Date.now()-(SCRIPT.length-i)*90000})),...(done()?[{who:'me',text:'Ok anh',at:Date.now()}]:[])];
+ const send=(type,extra={})=>{
+  try{iframe.contentWindow?.postMessage({type,history:history(),phase:done()?'done':'await',...extra},ORIGIN)}catch(_){}
  };
- function openPhoneMessages(){
-   queuedOpen=true;
-   if(!document.body.classList.contains('vh-phone-active'))
-     document.getElementById('vhOpenPhone')?.click();
-   else{send('vh:open');queuedOpen=false}
+ function notify(){
+  if(notified||done()||!ready)return;
+  notified=true;send('vh:new',{text:SCRIPT[SCRIPT.length-1]});
  }
- iframe.addEventListener('load',()=>{
-   send('vh:sync');
-   if(queuedOpen){send('vh:open');queuedOpen=false}
- });
+ function openPhoneMessages(){
+  queuedOpen=true;
+  if(!document.body.classList.contains('vh-phone-active'))
+   document.getElementById('vhOpenPhone')?.click();
+  else if(ready){send('vh:open');queuedOpen=false}
+ }
+ iframe.addEventListener('load',()=>{ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()});
  window.addEventListener('message',e=>{
-   if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
-   if(e.data.type==='vh:ready')send('vh:sync');
-   // Leandro prototype chat, hints and free-form replies are disabled.
-
+  if(e.origin!==ORIGIN||e.source!==iframe.contentWindow||!e.data)return;
+  if(e.data.type==='vh:ready'){ready=true;send('vh:sync');if(queuedOpen){send('vh:open');queuedOpen=false}else if(document.body.classList.contains('vh-phone-active'))notify()}
+  if(e.data.type==='vh:action'&&e.data.action==='ack'){
+   try{localStorage.setItem(KEY,'yes')}catch(_){}
+   send('vh:sync');
+  }
  });
- // Clicking the banner before the iframe has finished loading still navigates.
- const observer=new MutationObserver(()=>{
-   if(queuedOpen&&document.body.classList.contains('vh-phone-active')){
-     send('vh:open');queuedOpen=false;
-   }
- });
- observer.observe(document.body,{attributes:true,attributeFilter:['class']});
+ document.addEventListener('vh:intro-finished',()=>{if(ready)notify()});
+ new MutationObserver(()=>{
+  if(queuedOpen&&ready&&document.body.classList.contains('vh-phone-active')){send('vh:open');queuedOpen=false}
+  else if(ready&&document.body.classList.contains('vh-phone-active'))notify();
+ }).observe(document.body,{attributes:true,attributeFilter:['class']});
+ window.VHOpenNeymarinhoMessages=openPhoneMessages;
 })();
