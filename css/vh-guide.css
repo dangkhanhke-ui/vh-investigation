@@ -195,10 +195,12 @@ body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;backgr
 /* Cauã's supplied transparent polaroid is physically laid on dossier 01. */
 .vh-stage-cover{overflow:visible}
 .vh-stage-caua-photo{
- position:absolute;z-index:2;top:16%;left:13%;width:78%;height:auto;
+ position:absolute;z-index:2;
+ top:28%;left:54%;width:54%;max-width:none;height:auto;
  object-fit:contain;pointer-events:none;
- transform:rotate(-5deg);
- filter:drop-shadow(1px 8px 5px rgba(0,0,0,.52));
+ transform:translateX(-50%) rotate(0deg);
+ filter:drop-shadow(0 5px 4px rgba(0,0,0,.28));
+ image-rendering:auto;
 }
 .vh-stage-card.is-open:hover .vh-stage-cover,
 .vh-stage-card.is-open:focus-visible .vh-stage-cover{transform:none}
