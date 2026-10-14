@@ -112,7 +112,7 @@ body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;backgr
 .vh-stage-card.is-locked .vh-stage-cover-image{filter:grayscale(1) brightness(.29) contrast(.92)}
 .vh-stage-card.is-locked .vh-stage-cover:after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.2);pointer-events:none}
 .vh-stage-serial{position:absolute;z-index:2;top:12%;left:15%;font:600 clamp(9px,1.5vw,14px) 'Inconsolata',monospace;color:#fff;letter-spacing:.03em;text-shadow:0 1px 4px #000b}
-.vh-stage-lock{position:absolute;z-index:3;inset:0;display:grid;place-items:center;color:#f3eeee}
+.vh-stage-lock{position:absolute;z-index:3;top:0;bottom:0;left:8%;right:-8%;display:grid;place-items:center;color:#f3eeee;pointer-events:none}
 .vh-stage-lock svg{width:clamp(28px,5vw,54px);height:auto;filter:drop-shadow(0 2px 8px #0009)}
 .vh-stage-card-name{font:700 clamp(12px,1.65vw,17px)/1.3 'Inconsolata',monospace;letter-spacing:.02em}
 .vh-stage-card-status{font:500 clamp(10px,1.3vw,13px) 'Inconsolata',monospace;color:#e7b2b2}
