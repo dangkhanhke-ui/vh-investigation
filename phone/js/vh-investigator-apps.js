@@ -38,6 +38,7 @@
       // Unlock only on a deliberate notification tap.
       document.getElementById('unlockHint')?.click();
     }
+    markConversationRead();
     window.CauaMessagesOpenThread?.('neymarinho');
   }
   toast.addEventListener('click',openInvestigator);
@@ -49,7 +50,25 @@
   actions.innerHTML='<button id="vh-message-ack" type="button">Ok anh</button>';
   const convo=document.getElementById('messagesConversationView');
   convo?.querySelector('.msg-convo')?.appendChild(actions);
-  actions.querySelector('#vh-message-ack').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'ack'},ORIGIN));
+  const ackButton=actions.querySelector('#vh-message-ack');
+  let ackPending=false;
+  function acknowledge(e){
+    if(e){e.preventDefault();e.stopPropagation()}
+    if(ackPending||ackButton.hidden)return;
+    ackPending=true;ackButton.disabled=true;
+    window.parent.postMessage({type:'vh:action',action:'ack'},ORIGIN);
+  }
+  document.addEventListener('click',e=>{
+    if(e.target.closest('#vh-message-ack')){e.stopImmediatePropagation();acknowledge(e)}
+  },true);
+  function markConversationRead(){
+    thread.unread=false;
+    thread.messages.forEach(m=>m.unread=false);
+    window.parent.postMessage({type:'vh:action',action:'read'},ORIGIN);
+  }
+  document.getElementById('messagesThreads')?.addEventListener('click',e=>{
+    if(e.target.closest('[data-thread-id="neymarinho"]'))markConversationRead();
+  },true);
 
   function sanitize(history){
     return Array.isArray(history)?history.slice(-350).filter(m=>m&&typeof m.text==='string'&&(m.who==='partner'||m.who==='me')).map(m=>{
@@ -63,21 +82,23 @@
       };
     }):[];
   }
-  function update(history,phase){
+  function update(history,phase,unread){
     thread.messages=sanitize(history);
     const last=thread.messages[thread.messages.length-1];
     thread.preview=last?.body||'Cuộc trò chuyện điều tra';
-    thread.unread=false;
+    thread.unread=!!unread;
     if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho')
       bridge.renderConversation(thread,false);
     else if(bridge.state.view==='list')bridge.renderList(false);
-    actions.querySelector('#vh-message-ack').hidden=phase!=='await';
+    ackButton.hidden=phase!=='await';
+    if(phase!=='await'){ackPending=false;ackButton.disabled=false}
+    if(bridge.state.view==='conversation')requestAnimationFrame(()=>{bridge.convoScroll.scrollTop=bridge.convoScroll.scrollHeight});
   }
   window.addEventListener('message',e=>{
     if(e.origin!==ORIGIN||e.source!==window.parent||!e.data||typeof e.data!=='object')return;
     const p=e.data;
     if(p.type==='vh:sync'||p.type==='vh:new'){
-      update(p.history,p.phase);
+      update(p.history,p.phase,p.unread);
       if(p.type==='vh:new'&&typeof p.text==='string' && !document.getElementById('messagesApp')?.classList.contains('open')){
         toast.querySelector('.vh-body span').textContent=p.text;
         toast.classList.add('show');
@@ -85,7 +106,7 @@
         clearTimeout(hide);hide=setTimeout(()=>toast.classList.remove('show'),2300);
       }
     }else if(p.type==='vh:open'){
-      if(Array.isArray(p.history))update(p.history,p.phase);
+      if(Array.isArray(p.history))update(p.history,p.phase,p.unread);
       openInvestigator();
     }
   });
@@ -150,11 +171,11 @@
     }
     /* Bring the investigator portrait and thread content close to the left edge. */
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"]{
-      grid-template-columns:0px 42px minmax(0,1fr) auto!important;
+      grid-template-columns:9px 42px minmax(0,1fr) auto!important;
       column-gap:5px!important;padding-left:2px!important;padding-right:2px!important;
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"] .msg-unread-dot{
-      width:0!important;height:0!important;overflow:hidden!important
+      width:8px!important;height:8px!important;overflow:visible!important
     }
     #messagesApp .msg-thread-row[data-thread-id="neymarinho"]::before{
       width:42px!important;height:42px!important
@@ -174,7 +195,8 @@
     #homeScreen [class*="badge"],#homeScreen [class*="Badge"],
     #homeScreen [class*="notification-count"],#homeScreen [class*="notif-count"],
     #homeScreen .messages-launch::after,#homeScreen .messages-launch .icon::after,
-    #messagesApp .msg-unread-dot{display:none!important;visibility:hidden!important}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"]:not(.unread) .msg-unread-dot{display:none!important}
+    #messagesApp .msg-thread-row[data-thread-id="neymarinho"].unread .msg-unread-dot{display:block!important;visibility:visible!important;width:8px!important;height:8px!important;border-radius:50%!important;background:#007aff!important;overflow:visible!important}
     #messagesApp .msg-detail-action[data-detail-call] .circle{
       display:grid!important;place-items:center!important;color:#007aff!important
     }
