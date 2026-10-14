@@ -1,24 +1,28 @@
-/* VH sound effects: one central controller for uploaded audio assets. */
+/* VH unified sound engine: decoded buffers for reliable short effects, HTMLAudio fallback. */
 (()=>{'use strict';
 const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3'};
-const pools={};let keyboard=null,loading=null,lastClick=0;const requestedLoops=new Set();
-let clickContext=null,clickBuffer=null,clickOffset=0,clickLoading=null;
-function primeClick(){if(clickLoading)return clickLoading;const C=window.AudioContext||window.webkitAudioContext;if(!C)return Promise.resolve();try{clickContext=new C();clickLoading=fetch(SOURCES.click).then(r=>{if(!r.ok)throw Error('click fetch');return r.arrayBuffer()}).then(b=>clickContext.decodeAudioData(b)).then(b=>{clickBuffer=b;const data=b.getChannelData(0);let i=0;const limit=Math.min(data.length,Math.floor(b.sampleRate*.25));while(i<limit&&Math.abs(data[i])<.012)i++;clickOffset=Math.max(0,i/b.sampleRate-.003);return b}).catch(()=>null)}catch(_){clickLoading=Promise.resolve()}return clickLoading}
-function playClick(){if(!clickContext||!clickBuffer)return false;try{if(clickContext.state==='suspended'){clickContext.resume().catch(()=>{});return false;}const source=clickContext.createBufferSource(),gain=clickContext.createGain();source.buffer=clickBuffer;gain.gain.value=.55;source.connect(gain).connect(clickContext.destination);source.start(0,clickOffset);return true}catch(_){return false}}
+const volumes={keyboard:.8,notification:.9,loading:.55,click:.55};
 let enabled=true;try{enabled=localStorage.getItem('vh_sound_enabled')!=='false'}catch(_){}
-function make(name,loop=false){const a=new Audio(SOURCES[name]);a.preload='auto';a.loop=loop;a.volume=name==='keyboard'?.8:name==='loading'?.55:name==='notification'?.9:.55;return a}
-function getLoop(name){if(name==='keyboard')return keyboard||(keyboard=make(name,true));return loading||(loading=make(name,true))}
-function start(name){if(!enabled||!SOURCES[name])return;if(name!=='keyboard'&&name!=='loading'){play(name);return}requestedLoops.add(name);const a=getLoop(name);if(!a.paused)return;a.currentTime=0;const p=a.play();if(p?.catch)p.catch(()=>{})}
-function stop(name){if(name!=='keyboard'&&name!=='loading')return;requestedLoops.delete(name);const a=name==='keyboard'?keyboard:loading;if(a){a.pause();try{a.currentTime=0}catch(_){}}}
-function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name==='keyboard'||name==='loading'){start(name);return}if(name==='click'){const now=performance.now();if(now-lastClick<65)return;lastClick=now;primeClick();if(playClick())return}
-let pool=pools[name];if(!pool)pool=pools[name]=[];let a=pool.find(x=>x.paused||x.ended);if(!a){a=make(name);if(pool.length<5)pool.push(a);else{a=pool.shift();a.pause();pool.push(a)}}try{a.currentTime=0}catch(_){}const p=a.play();if(p?.catch)p.catch(()=>{})}
-function setEnabled(value){enabled=!!value;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){gestureUnlocked=false;stop('keyboard');stop('loading');Object.values(pools).flat().forEach(a=>{a.pause();try{a.currentTime=0}catch(_){}})}document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
-function unlock(){primeClick();if(clickContext?.state==='suspended')clickContext.resume().catch(()=>{});for(const name of ['keyboard','loading']){const a=getLoop(name);a.load()}for(const name of ['click','notification']){if(!pools[name])pools[name]=[make(name)]}}
-window.VHSound={play,start,stop,prepare:unlock,isEnabled:()=>enabled,setEnabled};
-window.VHKeyboardAudio={prepare:unlock,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
-document.addEventListener('pointerdown',e=>{unlockAudioGesture();const b=e.target.closest('button,[role="button"],a[href]');if(b&&!(b.disabled||b.id==='soundToggle'))play('click')},true);
-document.addEventListener('keydown',e=>{unlockAudioGesture();if((e.key==='Enter'||e.key===' ')&&e.target.closest('button:not(:disabled),[role="button"],a[href]'))play('click')},true);
-let gestureUnlocked=false;function unlockAudioGesture(){if(!enabled)return;if(clickContext?.state==='suspended')clickContext.resume().catch(()=>{});if(!gestureUnlocked){gestureUnlocked=true;unlock()}for(const name of requestedLoops){const a=getLoop(name);if(a.paused){const p=a.play();if(p?.catch)p.catch(()=>{})}}}
-function init(){document.getElementById('soundToggle')?.remove();primeClick()}
+const C=window.AudioContext||window.webkitAudioContext;
+let context=null;const buffers={},fetches={},loops={},fallbacks={},activeFallbackLoops={};
+let lastClick=0;
+function ctx(){if(!C)return null;if(!context){try{context=new C()}catch(_){return null}}return context}
+function load(name){if(fetches[name])return fetches[name];const c=ctx();if(!c)return Promise.resolve(null);return fetches[name]=fetch(SOURCES[name]).then(r=>{if(!r.ok)throw Error('Audio HTTP '+r.status);return r.arrayBuffer()}).then(a=>c.decodeAudioData(a)).then(b=>buffers[name]=b).catch(e=>{console.warn('[VH audio] decode failed',name,e);return null})}
+function resume(){const c=ctx();if(c&&c.state==='suspended')c.resume().catch(e=>console.warn('[VH audio] resume blocked',e));}
+function fallback(name,loop=false){let a=fallbacks[name];if(!a){a=new Audio(SOURCES[name]);a.preload='auto';a.volume=volumes[name];fallbacks[name]=a}a.loop=loop;return a}
+function htmlPlay(name,loop=false){const a=fallback(name,loop);if(!loop){try{a.pause();a.currentTime=0}catch(_){}}const p=a.play();p?.catch?.(e=>console.warn('[VH audio] HTML playback blocked',name,e));return a}
+function webPlay(name,loop=false){const c=ctx(),b=buffers[name];if(!c||!b||c.state!=='running')return null;try{const source=c.createBufferSource(),gain=c.createGain();source.buffer=b;source.loop=loop;gain.gain.value=volumes[name];source.connect(gain);gain.connect(c.destination);let offset=0;if(name==='click'){const data=b.getChannelData(0),limit=Math.min(data.length,Math.floor(b.sampleRate*.25));let i=0;while(i<limit&&Math.abs(data[i])<.012)i++;offset=Math.max(0,i/b.sampleRate-.003)}source.start(0,offset);return source}catch(e){console.warn('[VH audio] WebAudio failed',name,e);return null}}
+function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name==='keyboard'||name==='loading'){start(name);return}if(name==='click'){const t=performance.now();if(t-lastClick<55)return;lastClick=t}resume();if(!webPlay(name))htmlPlay(name);load(name)}
+function start(name){if(!enabled||!['keyboard','loading'].includes(name))return;if(loops[name]||activeFallbackLoops[name])return;resume();const node=webPlay(name,true);if(node){loops[name]=node}else{activeFallbackLoops[name]=htmlPlay(name,true)}load(name)}
+function stop(name){if(!['keyboard','loading'].includes(name))return;if(loops[name]){try{loops[name].stop()}catch(_){}delete loops[name]}if(activeFallbackLoops[name]){const a=activeFallbackLoops[name];a.pause();try{a.currentTime=0}catch(_){}delete activeFallbackLoops[name]}}
+function prepare(){resume();for(const name of Object.keys(SOURCES))load(name)}
+function setEnabled(v){enabled=!!v;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){stop('keyboard');stop('loading');Object.values(fallbacks).forEach(a=>a.pause())}else prepare();document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
+window.VHSound={play,start,stop,prepare,isEnabled:()=>enabled,setEnabled};
+window.VHKeyboardAudio={prepare,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
+function gesture(e){if(!enabled)return;resume();if(e.type==='pointerdown'||e.type==='keydown'){const t=e.target;const button=t?.closest?.('button:not(:disabled),[role="button"],a[href]');if(button&&!(e.type==='keydown'&&!['Enter',' '].includes(e.key)))play('click')}for(const name of ['keyboard','loading']){const a=activeFallbackLoops[name];if(a&&a.paused){a.play().catch(()=>{})}}}
+document.addEventListener('pointerdown',gesture,true);
+document.addEventListener('keydown',gesture,true);
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stop('keyboard');stop('loading')}else resume()});
+function init(){document.getElementById('soundToggle')?.remove();for(const name of Object.keys(SOURCES))load(name)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
