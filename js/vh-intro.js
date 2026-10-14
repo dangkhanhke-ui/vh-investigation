@@ -56,10 +56,8 @@ async function showNextMessage(id){
  if(typeof item==='object'){
   addPhoto();visibleCount++;messages.scrollTop=messages.scrollHeight;renderComplete=true;updateNav();return;
  }
- const bubble=addRow();bubble.classList.add('vh-typing');bubble.textContent='•••';
- await sleep(Math.min(1850,750+item.length*12));
+ const bubble=addRow();
  if(id!==seq||token!==renderToken)return;
- bubble.classList.remove('vh-typing');bubble.textContent='';
  window.VHKeyboardAudio?.start();
  for(let i=0;i<item.length;i++){
   if(id!==seq||token!==renderToken){window.VHKeyboardAudio?.stop();return}
