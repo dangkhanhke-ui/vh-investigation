@@ -1,14 +1,14 @@
 /* VH unified sound engine: decoded buffers for reliable short effects, HTMLAudio fallback. */
 (()=>{'use strict';
-const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3',pageTurn:'assets/page-turn.mp3'};
-const volumes={keyboard:.8,notification:.9,loading:1,click:.55,pageTurn:.85};
+const SOURCES={keyboard:'assetssoundskeyboard-typing.mp3',notification:'message-notification.mp3',loading:'data-loading.mp3',click:'ui-click.mp3',pageTurn:'assets/page-turn.mp3',correct:'assets/vh-correct.mp3',wrong:'assets/vh-wrong.mp3'};
+const volumes={keyboard:.8,notification:.9,loading:1,click:.55,pageTurn:.85,correct:.55,wrong:.45};
 const MASTER_BOOST=2; // all unified effects: double amplitude; audio element fallback is capped at 1.
 let enabled=true;try{enabled=localStorage.getItem('vh_sound_enabled')!=='false'}catch(_){}
 const C=window.AudioContext||window.webkitAudioContext;
 let context=null;const buffers={},fetches={},loops={},fallbacks={},activeFallbackLoops={};
 let lastClick=0;let gestureReady=false;const wantedLoops=new Set();
 function ctx(){if(!C)return null;if(!context){try{context=new C()}catch(_){return null}}return context}
-function load(name){if(fetches[name])return fetches[name];const c=ctx();if(!c)return Promise.resolve(null);return fetches[name]=fetch(SOURCES[name]).then(r=>{if(!r.ok)throw Error('Audio HTTP '+r.status);return r.arrayBuffer()}).then(a=>c.decodeAudioData(a)).then(b=>buffers[name]=b).catch(e=>{console.warn('[VH audio] decode failed',name,e);return null})}
+function load(name){if(fetches[name])return fetches[name];const c=ctx();if(!c)return Promise.resolve(null);return fetches[name]=fetch(SOURCES[name]).then(r=>{if(!r.ok)throw Error('Audio HTTP '+r.status);return r.arrayBuffer()}).then(a=>c.decodeAudioData(a)).then(b=>buffers[name]=b).catch(e=>{console.warn('[VH audio] decode failed',name,e);delete fetches[name];return null})}
 function resume(){const c=ctx();if(c&&c.state==='suspended')return c.resume().catch(e=>console.warn('[VH audio] resume blocked',e));return Promise.resolve()}
 function fallback(name,loop=false){let a=fallbacks[name];if(!a){a=new Audio(SOURCES[name]);a.preload='auto';a.volume=Math.min(1,volumes[name]*MASTER_BOOST);fallbacks[name]=a}a.loop=loop;return a}
 function htmlPlay(name,loop=false){const a=fallback(name,loop);if(!loop){try{a.pause();a.currentTime=0}catch(_){}}const p=a.play();p?.catch?.(e=>console.warn('[VH audio] HTML playback blocked',name,e));return a}
