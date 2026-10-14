@@ -33,7 +33,7 @@ await sleep(650+Math.min(500,t.length*3));
 function arrow(){return new Promise(resolve=>{next.hidden=false;next.onclick=()=>{unlockAudio();next.hidden=true;messages.replaceChildren();resolve()}})}
 function option(t){const b=document.createElement('button');b.type='button';b.className='vh-intro-choice';b.textContent=t;b.addEventListener('click',()=>{b.classList.add('vh-choice-pressed');setTimeout(()=>b.classList.remove('vh-choice-pressed'),230)},true);actions.appendChild(b);return b}
 async function firstMessageAlert(id){
-const banner=document.createElement('div');
+const banner=document.createElement('button');banner.type='button';
 banner.className='vh-intro-notification';
 banner.setAttribute('role','status');
 const header=document.createElement('div');header.className='vh-intro-notification-head';header.textContent='TIN NHẮN · bây giờ';
@@ -43,7 +43,7 @@ const preview=document.createElement('span');preview.textContent='Bạn có tin 
 body.append(sender,preview);banner.append(header,body);root.appendChild(banner);
 await sleep(80);if(id!==seq){banner.remove();return}
 banner.classList.add('show');window.VHSound?.play('notification');
-await sleep(2600);banner.classList.remove('show');await sleep(350);banner.remove();
+await new Promise(resolve=>{banner.addEventListener('click',resolve,{once:true})});banner.classList.remove('show');await sleep(350);banner.remove();
 }
 async function dialogue(id){screen('scene');messages.replaceChildren();actions.replaceChildren();next.hidden=true;const n=get(KEY);await firstMessageAlert(id);if(id!==seq)return;await say(n+', đã đến rồi à?',id);await arrow();if(id!==seq)return;await say('Tên anh là Neymarinho, điều tra viên của vụ án về cái chết của Cauã.',id);await arrow();if(id!==seq)return;await say('Cauã từng đứng đầu một tổ chức sinh viên.',id);await arrow();if(id!==seq)return;await say('Và có vẻ cũng kha khá người liên quan đến cậu ta đấy.',id);await arrow();if(id!==seq)return;await say('Chắc hẳn em đã nhận được vài tài liệu mà anh đã thu thập được rồi? Đúng chứ?',id);if(id!==seq)return;const answer=await new Promise(resolve=>{option('Đã nhận').onclick=()=>resolve('yes');option('Chưa nhận').onclick=()=>resolve('no')});actions.replaceChildren();if(answer==='no'){await say('Gì vậy má? Em kiểm tra kỹ chưa thế? Anh gửi cả đống tài liệu rồi mà!',id);await new Promise(resolve=>{option('Đã nhận').onclick=resolve});actions.replaceChildren()}if(id!==seq)return;await say('Dù sao thì',id);if(id!==seq)return;await say('Vụ án này có vẻ phức tạp hơn anh nghĩ, nên anh mới cần thêm một người trợ giúp.',id);await arrow();if(id!==seq)return;await say('Giúp anh nhé, '+n+'.',id);await arrow();if(id!==seq)return;await say('Anh tin mày.',id);await arrow();if(id!==seq)return;put(DONE,'yes');await code(id,true)}
 async function begin(){if(!gateAuthorized)return;const id=++seq;show();screen('load');window.VHSound?.start('loading');await sleep(get(DONE)?2100:5000);if(id!==seq)return;window.VHSound?.stop('loading');if(get(DONE))finish();else if(get(KEY))code(id);else{screen('name');input.focus({preventScroll:true})}}
