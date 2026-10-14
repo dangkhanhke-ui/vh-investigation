@@ -10,33 +10,6 @@
   thread.listName='Neymarinho';
   thread.displayName='Neymarinho';
 
-  // One-time scripted onboarding. This conversation belongs to the player's
-  // phone, never Cauã's phone; independent of the free-text case engine.
-  const WELCOME_OPENED='vh.neymarinho.welcome.opened.v1';
-  const WELCOME_ACK='vh.neymarinho.welcome.acked.v1';
-  const WELCOME_COUNT='vh.neymarinho.welcome.count.v2';
-  const WELCOME_LIKED='vh.neymarinho.welcome.liked.v1';
-  const readCount=()=>{try{return Math.max(0,Math.min(3,Number(localStorage.getItem(WELCOME_COUNT))||0))}catch(_){return 0}};
-  const writeCount=n=>{try{localStorage.setItem(WELCOME_COUNT,String(n))}catch(_){}};
-  let welcomeTimer=0,reactionTimer=0,typingWelcome=false;
-  const getFlag=k=>{try{return localStorage.getItem(k)==='yes'}catch(_){return false}};
-  const setFlag=k=>{try{localStorage.setItem(k,'yes')}catch(_){}};
-  let caseHistory=[],casePhase='solve';
-  const welcomeMessages=['Anh mới có số mày','Từ giờ anh sẽ liên lạc với mày qua đây nhé','Có thêm thông tin gì thì anh sẽ gửi'];
-  function message(text,direction='incoming'){
-    const now=new Date(),pad=n=>String(n).padStart(2,'0');
-    return {date:pad(now.getDate())+'/'+pad(now.getMonth()+1)+'/'+now.getFullYear(),
-      time:pad(now.getHours())+':'+pad(now.getMinutes()),
-      direction,body:text,status:direction==='outgoing'?'sent':null,unread:false};
-  }
-  function mergedHistory(){
-    const opened=getFlag(WELCOME_OPENED),acked=getFlag(WELCOME_ACK);
-    const count=acked?3:readCount();
-    return [...(opened?[message('Hey.'),...welcomeMessages.slice(0,count).map(t=>message(t))]:[]),
-      ...(acked?[message('Ok anh','outgoing')]:[]),...sanitize(caseHistory)];
-  }
-
-
   // Notes has one editable page. Never load old Cauã notes or show new-note controls.
   const style=document.createElement('style');
   style.textContent=`
@@ -49,25 +22,6 @@
     #vh-investigator-notification .vh-body span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     #vh-investigator-notification .vh-body small{flex-shrink:0;color:#777}
     #messagesConversationView .msg-convo-scroll{bottom:88px!important}
-    #messagesApp.vh-neymar-scripted #messagesComposer{display:flex!important;align-items:center;justify-content:flex-end;padding:5px 10px!important;height:44px!important}
-    #messagesApp.vh-neymar-scripted #messagesComposer>:not(#vh-scripted-replies){display:none!important}
-    #vh-scripted-replies{width:100%;display:flex;align-items:center;justify-content:flex-end}
-    #vh-scripted-replies[hidden],#vh-investigator-actions[hidden]{display:none!important}
-    #vh-investigator-typing{display:flex;align-items:center;gap:4px;width:max-content;margin:7px 0 4px 5px;padding:12px 16px;border-radius:19px;background:#e6e6eb}
-    #vh-investigator-typing i{display:block;width:7px;height:7px;border-radius:50%;background:#92939b;animation:vh-neymar-dot 1.05s ease-in-out infinite}
-    #vh-investigator-typing i:nth-child(2){animation-delay:.15s}
-    #vh-investigator-typing i:nth-child(3){animation-delay:.3s}
-    @keyframes vh-neymar-dot{0%,55%,100%{opacity:.35;transform:translateY(0)}28%{opacity:1;transform:translateY(-3px)}}
-    #messagesApp .msg-line.vh-neymar-liked .msg-bubble{position:relative;overflow:visible!important}
-    #messagesApp .msg-line.vh-neymar-liked .msg-bubble::after{content:"👍";position:absolute;top:-14px;left:-15px;display:grid;place-items:center;width:25px;height:25px;border:2px solid #fff;border-radius:50%;background:#e4e4eb;font-size:13px;line-height:1;box-shadow:0 1px 4px #0002}
-    @media(prefers-reduced-motion:reduce){#vh-investigator-typing i{animation:none!important;opacity:.6}}
-
-    #messagesApp.vh-neymar-scripted:not(.vh-welcome-ack) #messagesConversationView .msg-convo-scroll{bottom:44px!important}
-    #vh-scripted-replies button{border:0;border-radius:16px;background:#007aff;color:#fff;min-height:32px;padding:6px 16px;font:500 13px -apple-system,BlinkMacSystemFont,sans-serif;touch-action:manipulation}
-    #messagesApp.vh-neymar-scripted.vh-welcome-ack #messagesComposer{display:none!important}
-    #messagesApp.vh-neymar-scripted.vh-welcome-ack #messagesConversationView .msg-convo-scroll{bottom:0!important}
-    #messagesApp.vh-neymar-scripted.vh-welcome-ack.vh-has-continue #messagesConversationView .msg-convo-scroll{bottom:44px!important}
-
     #vh-investigator-actions{position:absolute;left:0;right:0;bottom:44px;z-index:12;height:44px;box-sizing:border-box;display:flex;align-items:center;justify-content:flex-end;gap:8px;padding:5px 10px;background:#f7f7f7;border-top:1px solid #d5d5d5}
     #vh-investigator-actions button{border:1px solid #cfd5e3;border-radius:9px;background:white;color:#007aff;padding:8px 12px;font:13px -apple-system,sans-serif}
   `;
@@ -80,95 +34,22 @@
   let hide=0;
   function openInvestigator(){
     toast.classList.remove('show');
-    if(!getFlag(WELCOME_OPENED))setFlag(WELCOME_OPENED);
-    update(caseHistory,casePhase);
     if(document.getElementById('lockScreen')?.classList.contains('active')){
       // Unlock only on a deliberate notification tap.
       document.getElementById('unlockHint')?.click();
     }
     window.CauaMessagesOpenThread?.('neymarinho');
-    queueMicrotask(syncScriptedUI);
   }
   toast.addEventListener('click',openInvestigator);
-  const scriptedReplies=document.createElement('div');
-  scriptedReplies.id='vh-scripted-replies';
-  scriptedReplies.innerHTML='<button type="button" id="vh-welcome-okay">Ok anh</button>';
-  bridge.composer.appendChild(scriptedReplies);
-  scriptedReplies.querySelector('button').addEventListener('click',()=>{
-    if(getFlag(WELCOME_ACK)||readCount()<welcomeMessages.length)return;
-    stopWelcome();
-    setFlag(WELCOME_ACK);
-    update(caseHistory,casePhase);
-    reactionTimer=setTimeout(()=>{
-      reactionTimer=0;
-      if(getFlag(WELCOME_LIKED))return;
-      setFlag(WELCOME_LIKED);
-      decorateReaction();
-      window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
-    },1050);
-  });
-  function syncScriptedUI(){
-    const current=bridge.app.classList.contains('open')&&bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
-    bridge.app.classList.toggle('vh-neymar-scripted',current);
-    bridge.app.classList.toggle('vh-welcome-ack',getFlag(WELCOME_ACK));
-    scriptedReplies.hidden=!current||!getFlag(WELCOME_OPENED)||getFlag(WELCOME_ACK)||readCount()<3;
-    actions.hidden=!current||!getFlag(WELCOME_ACK)||casePhase!=='await';
-    bridge.app.classList.toggle('vh-has-continue',current&&getFlag(WELCOME_ACK)&&casePhase==='await');
-    if(current){decorateReaction();if(getFlag(WELCOME_OPENED))startWelcome()}
-    else stopWelcome();
-  }
-  // The native Messages engine changes views synchronously after a click.
-  // One delegated listener is enough; no MutationObserver/render loop.
-  bridge.app.addEventListener('click',()=>{
-    queueMicrotask(()=>{
-      if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho'&&!getFlag(WELCOME_OPENED)){
-        setFlag(WELCOME_OPENED);update(caseHistory,casePhase);
-      }
-      syncScriptedUI();
-    });
-  });
-  function stopWelcome(){
-    if(welcomeTimer){clearTimeout(welcomeTimer);welcomeTimer=0}
-    typingWelcome=false;
-    document.getElementById('vh-investigator-typing')?.remove();
-  }
-  function decorateReaction(){
-    if(!getFlag(WELCOME_LIKED))return;
-    const lines=bridge.convoScroll.querySelectorAll('.msg-line.outgoing');
-    for(const el of lines){
-      if(el.querySelector('.msg-bubble')?.textContent?.trim()==='Ok anh')el.classList.add('vh-neymar-liked');
-    }
-  }
-  function startWelcome(){
-    if(typingWelcome||welcomeTimer||getFlag(WELCOME_ACK)||readCount()>=3)return;
-    if(bridge.state.view!=='conversation'||bridge.state.currentThread!=='neymarinho')return;
-    typingWelcome=true;
-    const indicator=document.createElement('div');
-    indicator.id='vh-investigator-typing';
-    indicator.setAttribute('aria-label','Neymarinho đang gõ');
-    indicator.innerHTML='<i></i><i></i><i></i>';
-    bridge.convoScroll.appendChild(indicator);
-    bridge.convoScroll.scrollTop=bridge.convoScroll.scrollHeight;
-    welcomeTimer=setTimeout(()=>{
-      welcomeTimer=0;
-      const visible=bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho';
-      if(!visible){stopWelcome();return}
-      typingWelcome=false;
-      indicator.remove();
-      writeCount(readCount()+1);
-      update(caseHistory,casePhase);
-      window.parent.postMessage({type:'vh:notification-sound'},ORIGIN);
-    },1200+readCount()*340);
-  }
-
 
   // Preserve the original iOS8 conversation layout, with a small continuation
   // option so the user can finish investigation stages entirely from Messages.
   const actions=document.createElement('div');
   actions.id='vh-investigator-actions';
-  actions.innerHTML='<button id="vh-message-continue" type="button">Tiếp tục →</button>';
+  actions.innerHTML='<button id="vh-message-hint" type="button">Gợi ý</button><button id="vh-message-continue" type="button">Tiếp tục →</button>';
   const convo=document.getElementById('messagesConversationView');
   convo?.querySelector('.msg-convo')?.appendChild(actions);
+  actions.querySelector('#vh-message-hint').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'hint'},ORIGIN));
   actions.querySelector('#vh-message-continue').addEventListener('click',()=>window.parent.postMessage({type:'vh:action',action:'continue'},ORIGIN));
 
   function sanitize(history){
@@ -184,17 +65,15 @@
     }):[];
   }
   function update(history,phase){
-    caseHistory=Array.isArray(history)?history:[];
-    casePhase=phase||'solve';
-    thread.messages=mergedHistory();
+    thread.messages=sanitize(history);
     const last=thread.messages[thread.messages.length-1];
-    thread.preview=last?.body||'Hey.';
+    thread.preview=last?.body||'Cuộc trò chuyện điều tra';
     thread.unread=false;
     if(bridge.state.view==='conversation'&&bridge.state.currentThread==='neymarinho')
       bridge.renderConversation(thread,false);
     else if(bridge.state.view==='list')bridge.renderList(false);
+    actions.querySelector('#vh-message-hint').hidden=phase!=='solve';
     actions.querySelector('#vh-message-continue').hidden=phase!=='await';
-    syncScriptedUI();
   }
   window.addEventListener('message',e=>{
     if(e.origin!==ORIGIN||e.source!==window.parent||!e.data||typeof e.data!=='object')return;
@@ -319,7 +198,6 @@
   },true);
 
 
-  update([], 'solve');
   // Ask the parent for existing history on the initial phone load.
   if(window.parent!==window)window.parent.postMessage({type:'vh:ready'},ORIGIN);
 })();
