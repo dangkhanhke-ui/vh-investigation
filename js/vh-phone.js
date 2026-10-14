@@ -11,6 +11,21 @@
   let current='dossier';
   let transitioning=false;
   let fallback=0;
+  // Match Safari's actual visible area as its address/bottom bars resize.
+  // This is scoped to the fixed phone layer; the dossier never scrolls the iframe.
+  let viewportFrame=0;
+  function fitVisibleViewport(){
+    if(viewportFrame)return;
+    viewportFrame=requestAnimationFrame(()=>{
+      viewportFrame=0;
+      const viewport=window.visualViewport;
+      const height=Math.max(1,Math.min(window.innerHeight,viewport?.height||window.innerHeight));
+      document.documentElement.style.setProperty('--vh-visible-height',height+'px');
+    });
+  }
+  window.addEventListener('resize',fitVisibleViewport,{passive:true});
+  window.visualViewport?.addEventListener('resize',fitVisibleViewport,{passive:true});
+  fitVisibleViewport();
 
   // Begin loading the phone while the access/loading screens are visible.
   // Reuse the same iframe on every navigation, without a cache-busting timestamp.
@@ -22,7 +37,7 @@
   try{if(localStorage.getItem('vh.access.authorized.v1')==='yes')warmPhone()}catch(_){}
 
   function duration(){
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:245;
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches?0:(window.matchMedia('(max-width:800px) and (pointer:coarse)').matches?90:160);
   }
   function hasOpenDialog(){
     return document.body.classList.contains('lock')||
@@ -33,6 +48,7 @@
     if(destination==='phone'&&hasOpenDialog())return;
     transitioning=true;
     if(destination==='phone')warmPhone();
+    fitVisibleViewport();
 
     clearTimeout(fallback);
     const ms=duration();
