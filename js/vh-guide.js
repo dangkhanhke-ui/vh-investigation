@@ -205,8 +205,8 @@ function stopTour(){
 function startTour(){
  if(!nav)return;
  touring=true;phase=1;document.body.classList.add('vh-tour-open');
- tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">Bỏ qua</button>';
- tip.hidden=false;tip.querySelector('button').onclick=stopTour;
+ tip.innerHTML='<b>Điện thoại điều tra</b><span>Nhấn nút mũi tên › ở góc trên bên phải để mở điện thoại.</span><button type="button">MỞ ĐIỆN THOẠI</button>';
+ tip.hidden=false;tip.querySelector('button').onclick=()=>nav.click();
  phoneWatch=new MutationObserver(()=>{
    if(!touring)return;
    if(phase===1&&document.body.classList.contains('vh-phone-active')){
