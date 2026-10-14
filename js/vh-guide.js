@@ -82,7 +82,7 @@ feedbackForm.addEventListener('submit',async event=>{
 const archive=el('section','vh-stage-archive');archive.hidden=true;
 archive.setAttribute('role','dialog');archive.setAttribute('aria-modal','true');
 archive.setAttribute('aria-label','Chọn giai đoạn điều tra');
-archive.innerHTML=`<div class="vh-stage-head"><span>VÍNCULO HUMANO / INVESTIGATION ARCHIVE</span><button type="button" class="vh-stage-close" aria-label="Đóng">×</button></div>
+archive.innerHTML=`<div class="vh-stage-head"><button type="button" class="vh-stage-menu" aria-label="Mở menu điều tra" aria-expanded="false"><span></span><span></span><span></span></button><button type="button" class="vh-stage-close" aria-label="Đóng">×</button></div>
 <h2>HỒ SƠ ĐIỀU TRA</h2><p class="vh-stage-intro">CHỌN GIAI ĐOẠN ĐỂ TIẾP TỤC</p>
 <div class="vh-stage-cards"></div>`;
 // Reuse the existing dossier atmosphere rather than approximating it.
@@ -93,21 +93,10 @@ const beam=el('div','vh-stage-beam');beam.setAttribute('aria-hidden','true');arc
 if(dossierAtmosphere){const atmosphere=dossierAtmosphere.cloneNode(true);atmosphere.classList.add('vh-stage-atmosphere');archive.prepend(atmosphere)}
 const stageCards=archive.querySelector('.vh-stage-cards');
 // Upload an actual page-turn sound to assets/page-turn.mp3 later; browser click is fallback.
-const PAGE_TURN_FILE='assets/page-turn.mp3';
-let pageTurnAudio=null,pageTurnUnavailable=false,stageOpening=false;
+let stageOpening=false;
 function playStagePageTurn(){
- if(window.VHSound?.isEnabled()===false)return;
- if(pageTurnUnavailable){window.VHSound?.play('click');return}
- if(!pageTurnAudio){
-  pageTurnAudio=new Audio(PAGE_TURN_FILE);
-  pageTurnAudio.preload='auto';
-  pageTurnAudio.volume=.85;
- }
- try{
-  pageTurnAudio.pause();pageTurnAudio.currentTime=0;
-  const result=pageTurnAudio.play();
-  result?.catch?.(()=>{pageTurnUnavailable=true;window.VHSound?.play('click')});
- }catch(_){pageTurnUnavailable=true;window.VHSound?.play('click')}
+ // Decoded and preloaded during the intro's first user gesture.
+ window.VHSound?.play('pageTurn');
 }
 function shakeStage(card){
  card.classList.remove('vh-stage-wobble');
@@ -166,6 +155,12 @@ function renderArchive(){
 }
 function showArchive(first=false){closeMenu();hideGuide();hideAbout();archiveFirstVisit=first;renderArchive();archive.hidden=false;document.body.classList.add('vh-stage-open');archive.querySelector('.vh-stage-close').focus({preventScroll:true});document.dispatchEvent(new Event('vh:stage-archive-shown'))}
 function hideArchive(){archive.hidden=true;document.body.classList.remove('vh-stage-open')}
+archive.querySelector('.vh-stage-menu').onclick=()=>{
+ closeMenu();
+ panel.hidden=false;
+ menu.setAttribute('aria-expanded','true');
+ archive.querySelector('.vh-stage-menu').setAttribute('aria-expanded','true');
+};
 archive.querySelector('.vh-stage-close').onclick=()=>{
  hideArchive();if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();archiveFirstVisit=false;
 };
@@ -177,7 +172,7 @@ sound.checked=window.VHSound?.isEnabled()??true;
 sound.addEventListener('change',()=>window.VHSound?.setEnabled(sound.checked));
 document.addEventListener('vh:sound-setting',e=>sound.checked=e.detail.enabled);
 let auto=false,touring=false,phase=0,phoneWatch=null;
-function closeMenu(){panel.hidden=true;menu.setAttribute('aria-expanded','false')}
+function closeMenu(){panel.hidden=true;menu.setAttribute('aria-expanded','false');archive.querySelector('.vh-stage-menu')?.setAttribute('aria-expanded','false')}
 function hideGuide(){dialog.hidden=true;shade.hidden=true;document.body.classList.remove('vh-guide-open')}
 function showGuide(first=false){closeMenu();auto=first;guideIndex=0;renderGuide();dialog.hidden=false;shade.hidden=false;document.body.classList.add('vh-guide-open');dialog.querySelector('.vh-guide-close').focus({preventScroll:true})}
 function completePhoneTutorial(){
