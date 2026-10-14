@@ -73,7 +73,7 @@ check.onclick=()=>{
  const pair=!incomplete&&validPairs.some(p=>p.every(id=>slots.includes(id)));
  const order=!incomplete&&correct.every((id,i)=>seq[i]===id);
  const success=!incomplete&&pair&&order;
- setTimeout(()=>window.VHSound?.play(success?'correct':'wrong'),400);
+ setTimeout(()=>window.VHSound?.play(success?'correct':'wrong'),500);
  setTimeout(()=>{
   if(!success){
    rejected(incomplete?'Hãy ghim đủ 2 bằng chứng và chọn đủ 3 sự kiện.':!pair?'Chưa đủ hỗ trợ. Hãy chọn các nguồn mô tả dấu vết và hướng di chuyển tại R6.':'Chưa đủ hỗ trợ. Một số sự kiện hoặc thứ tự chưa được bằng chứng xác nhận.');
