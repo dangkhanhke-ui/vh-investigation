@@ -86,3 +86,11 @@
 #vh-intro .vh-intro-notification-body strong{font-size:20px!important;font-weight:600!important;color:#fff}
 #vh-intro .vh-intro-notification-body span{font-size:13px!important;color:#d2cbca!important}
 #vh-intro .vh-intro-notification:after{content:'CHẠM ĐỂ XEM TIN NHẮN  ↗';display:block;padding:0 18px 16px;color:#ff6860;font:500 11px Inconsolata,monospace;letter-spacing:.1em}
+
+/* Compact luxury capsule notification, inspired by monochrome editorial controls. */
+#vh-intro .vh-intro-notification{width:min(356px,calc(100vw - 36px))!important;min-height:68px!important;box-sizing:border-box!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:6px!important;padding:12px 18px!important;border:1px solid rgba(255,255,255,.78)!important;border-radius:999px!important;background:#151515!important;color:#fff!important;box-shadow:0 10px 30px rgba(0,0,0,.22)!important}
+#vh-intro .vh-intro-notification-head{display:flex!important;align-items:center!important;justify-content:space-between!important;padding:0!important;border:0!important;font:500 11px "Inconsolata",monospace!important;letter-spacing:.09em!important;color:#f5f5f5!important}
+#vh-intro .vh-intro-notification-body{display:block!important;padding:0!important;line-height:1!important}
+#vh-intro .vh-intro-notification-body strong{display:none!important}
+#vh-intro .vh-intro-notification-body span{font:400 10px "Inconsolata",monospace!important;letter-spacing:.09em!important;color:#a9a9a9!important}
+#vh-intro .vh-intro-notification:after{display:none!important}
