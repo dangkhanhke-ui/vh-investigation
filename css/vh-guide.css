@@ -196,7 +196,7 @@ body.vh-stage-open:before{content:"";position:fixed;inset:0;z-index:11019;backgr
 .vh-stage-cover{overflow:visible}
 .vh-stage-caua-photo{
  position:absolute;z-index:2;
- top:28%;left:calc(54% + 2px);width:54%;max-width:none;height:auto;
+ top:28%;left:calc(54% + 3px);width:calc(54% + 5px);max-width:none;height:auto;
  object-fit:contain;pointer-events:none;
  transform:translateX(-50%) rotate(0deg);
  filter:drop-shadow(0 5px 4px rgba(0,0,0,.28));
