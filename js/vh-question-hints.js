@@ -12,7 +12,18 @@
  const pop=document.createElement('section');
  pop.id='vh-hint-popover';pop.hidden=true;
  pop.setAttribute('role','group');pop.setAttribute('aria-label','Gợi ý theo từng bước');
- pop.innerHTML='<header class="vh-hint-head"><span>HỒ SƠ / GỢI Ý</span><button type="button" class="vh-hint-close" aria-label="Đóng gợi ý">×</button></header><div class="vh-hint-meta"><span>HỖ TRỢ SUY LUẬN</span><small id="vh-hint-progress">00 / 03</small></div><p id="vh-hint-content" class="vh-hint-content">Bạn muốn xem gợi ý cho câu hỏi này?</p><button type="button" id="vh-hint-more" class="vh-hint-more"><span>Xem gợi ý 1</span><span aria-hidden="true">↗</span></button>';
+ pop.innerHTML=`<div class="vh-hint-shell">
+  <div class="vh-hint-top">
+    <strong class="vh-hint-brand">GỢI Ý</strong>
+    <span class="vh-hint-step" id="vh-hint-progress">00 / 03</span>
+  </div>
+  <div class="vh-hint-sub"><span><b>01</b> HỖ TRỢ_</span><span><b>02</b> ĐIỀU TRA_</span></div>
+  <p id="vh-hint-content" class="vh-hint-content">Bạn muốn xem gợi ý cho câu hỏi này?</p>
+  <div class="vh-hint-bottom">
+    <button type="button" id="vh-hint-more" class="vh-hint-more"><span>Xem gợi ý 1</span><span aria-hidden="true">↗</span></button>
+    <button type="button" class="vh-hint-close" aria-label="Đóng gợi ý">×</button>
+  </div>
+</div>`;
  document.body.append(trigger,pop);
  const progress=pop.querySelector('#vh-hint-progress');
  const content=pop.querySelector('#vh-hint-content');
