@@ -164,7 +164,7 @@ function renderArchive(){
   stageCards.appendChild(card);
  }
 }
-function showArchive(first=false){closeMenu();hideGuide();hideAbout();archiveFirstVisit=first;renderArchive();archive.hidden=false;document.body.classList.add('vh-stage-open');archive.querySelector('.vh-stage-close').focus({preventScroll:true})}
+function showArchive(first=false){closeMenu();hideGuide();hideAbout();archiveFirstVisit=first;renderArchive();archive.hidden=false;document.body.classList.add('vh-stage-open');archive.querySelector('.vh-stage-close').focus({preventScroll:true});document.dispatchEvent(new Event('vh:stage-archive-shown'))}
 function hideArchive(){archive.hidden=true;document.body.classList.remove('vh-stage-open')}
 archive.querySelector('.vh-stage-close').onclick=()=>{
  hideArchive();if(archiveFirstVisit&&read(TOUR_DONE)!=='yes')startTour();archiveFirstVisit=false;
