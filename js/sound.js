@@ -16,14 +16,20 @@ function webPlay(name,loop=false){const c=ctx(),b=buffers[name];if(!c||!b||c.sta
 function play(name){if(!enabled||document.hidden||!SOURCES[name])return;if(name==='keyboard'||name==='loading'){start(name);return}if(name==='click'){const t=performance.now();if(t-lastClick<55)return;lastClick=t}resume();if(!webPlay(name))htmlPlay(name);load(name)}
 function start(name){if(!enabled||!['keyboard','loading'].includes(name))return;wantedLoops.add(name);if(loops[name]||activeFallbackLoops[name])return;resume();const node=webPlay(name,true);if(node){loops[name]=node}else if(gestureReady){activeFallbackLoops[name]=htmlPlay(name,true)}load(name).then(()=>{if(wantedLoops.has(name)&&!loops[name]&&!activeFallbackLoops[name]&&ctx()?.state==='running'){loops[name]=webPlay(name,true)}})}
 function stop(name){if(!['keyboard','loading'].includes(name))return;wantedLoops.delete(name);if(loops[name]){try{loops[name].stop()}catch(_){}delete loops[name]}if(activeFallbackLoops[name]){const a=activeFallbackLoops[name];a.pause();try{a.currentTime=0}catch(_){}delete activeFallbackLoops[name]}}
-function prepare(){resume();for(const name of Object.keys(SOURCES))load(name)}
+// Prioritize the two intro sounds; defer nonessential decoding to actual use.
+function readyIntro(){return Promise.allSettled(['notification','keyboard'].map(load))}
+function prepare(){resume();readyIntro()}
 function setEnabled(v){enabled=!!v;try{localStorage.setItem('vh_sound_enabled',String(enabled))}catch(_){}if(!enabled){gestureReady=false;stop('keyboard');stop('loading');Object.values(fallbacks).forEach(a=>a.pause())}else prepare();document.dispatchEvent(new CustomEvent('vh:sound-setting',{detail:{enabled}}));return enabled}
-window.VHSound={play,start,stop,prepare,isEnabled:()=>enabled,setEnabled};
+window.VHSound={play,start,stop,prepare,readyIntro,isEnabled:()=>enabled,setEnabled};
 window.VHKeyboardAudio={prepare,start:()=>start('keyboard'),stop:()=>stop('keyboard')};
 function gesture(e){if(!enabled)return;gestureReady=true;resume().then(()=>{for(const name of wantedLoops){if(!loops[name]&&!activeFallbackLoops[name]){const node=webPlay(name,true);if(node)loops[name]=node;else activeFallbackLoops[name]=htmlPlay(name,true)}}});if(e.type==='pointerdown'||e.type==='keydown'){const t=e.target;const button=t?.closest?.('button:not(:disabled),[role="button"],a[href]');if(button&&!t?.closest?.('.vh-stage-card')&&!(e.type==='keydown'&&!['Enter',' '].includes(e.key)))play('click')}for(const name of ['keyboard','loading']){const a=activeFallbackLoops[name];if(a&&a.paused){a.play().catch(()=>{})}}}
 document.addEventListener('pointerdown',gesture,true);
 document.addEventListener('keydown',gesture,true);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stop('keyboard');stop('loading')}else resume()});
-function init(){document.getElementById('soundToggle')?.remove();for(const name of Object.keys(SOURCES))load(name)}
+function init(){
+ document.getElementById('soundToggle')?.remove();
+ // Decode the opening sounds first. Click/other effects load on first use.
+ readyIntro();
+}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
